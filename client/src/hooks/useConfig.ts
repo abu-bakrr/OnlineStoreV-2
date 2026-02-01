@@ -68,6 +68,7 @@ export interface AppConfig {
 		productsPerPage: number
 		showCategoryIcons: boolean
 		showPriceFilter: boolean
+		showShopName?: boolean
 	}
 	texts: {
 		addToCart: string
@@ -92,6 +93,7 @@ export interface AppConfig {
 		}
 	}
 	logoSize?: number
+	logoSizeLarge?: number
 	orderStatuses?: {
 		[key: string]: string
 	}

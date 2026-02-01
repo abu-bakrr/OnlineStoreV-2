@@ -18,53 +18,52 @@
 	},
 	"managerContact": "@milhiveAi_bot",
 	"telegramBotUrl": "https://t.me/milhiveAi_bot",
-  "colorScheme": {
-    "background": "#FFFFFF",
-    "foreground": "#111111",
+	"colorScheme": {
+		"background": "#FFFFFF",
+		"foreground": "#111111",
 
-    "card": "#FFFFFF",
-    "cardForeground": "#111111",
+		"card": "#FFFFFF",
+		"cardForeground": "#111111",
 
-    "primary": "#F2B705",
-    "primaryForeground": "#111111",
+		"primary": "#F2B705",
+		"primaryForeground": "#111111",
 
-    "secondary": "#C99700",
-    "secondaryForeground": "#FFFFFF",
+		"secondary": "#C99700",
+		"secondaryForeground": "#FFFFFF",
 
-    "muted": "#F7F7F7",
-    "mutedForeground": "#6B6B6B",
+		"muted": "#F7F7F7",
+		"mutedForeground": "#6B6B6B",
 
-    "accent": "#FFC83D",
-    "accentForeground": "#111111",
+		"accent": "#FFC83D",
+		"accentForeground": "#111111",
 
-    "border": "#E6E6E6",
-    "input": "#E6E6E6",
-    "ring": "#F2B705"
-  }
-,
+		"border": "#E6E6E6",
+		"input": "#E6E6E6",
+		"ring": "#F2B705"
+	},
 	"colorSchemeDark": {
-    "background": "#0F0F0F",
-    "foreground": "#F5F5F5",
+		"background": "#0F0F0F",
+		"foreground": "#F5F5F5",
 
-    "card": "#161616",
-    "cardForeground": "#F5F5F5",
+		"card": "#161616",
+		"cardForeground": "#F5F5F5",
 
-    "primary": "#F2B705",
-    "primaryForeground": "#0F0F0F",
+		"primary": "#F2B705",
+		"primaryForeground": "#0F0F0F",
 
-    "secondary": "#C99700",
-    "secondaryForeground": "#0F0F0F",
+		"secondary": "#C99700",
+		"secondaryForeground": "#0F0F0F",
 
-    "muted": "#1F1F1F",
-    "mutedForeground": "#9A9A9A",
+		"muted": "#1F1F1F",
+		"mutedForeground": "#9A9A9A",
 
-    "accent": "#FFC83D",
-    "accentForeground": "#0F0F0F",
+		"accent": "#FFC83D",
+		"accentForeground": "#0F0F0F",
 
-    "border": "#262626",
-    "input": "#262626",
-    "ring": "#F2B705"
-  },
+		"border": "#262626",
+		"input": "#262626",
+		"ring": "#F2B705"
+	},
 	"sortOptions": [
 		{
 			"id": "new",
@@ -83,7 +82,8 @@
 		"maxWidth": "420px",
 		"productsPerPage": 12,
 		"showCategoryIcons": true,
-		"showPriceFilter": true
+		"showPriceFilter": true,
+		"showShopName": false
 	},
 	"texts": {
 		"addToCart": "Добавить в корзину",
@@ -108,6 +108,7 @@
 		}
 	},
 	"logoSize": 32,
+	"logoSizeLarge": 44,
 	"orderStatuses": {
 		"pending": "Ожидает оплаты",
 		"reviewing": "Рассматривается",

@@ -29,7 +29,9 @@ export default function Header({
 		(theme === 'system' &&
 			window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-	const logoSize = config?.logoSize || 32
+	const showShopName = config?.ui?.showShopName !== false
+	const logoSize =
+		showShopName ? config?.logoSize || 32 : config?.logoSizeLarge || 44
 	const logoSrc = isDark && config?.darkLogo ? config.darkLogo : config?.logo
 
 	return (
@@ -47,7 +49,7 @@ export default function Header({
 							className='object-contain transition-opacity duration-200'
 						/>
 					)}
-					{config?.shopName && (
+					{showShopName && config?.shopName && (
 						<h1
 							className='text-lg font-semibold text-foreground transition-opacity duration-200'
 							data-testid='text-brand-name'
