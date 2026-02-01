@@ -1,13 +1,13 @@
 {
 	"language": "ru",
-	"shopName": "Monvoir",
-	"description": "Будь в стиле. Будь с Monvoir",
+	"shopName": "Milhive",
+	"description": "Будь в стиле. Будь с Milhive",
 	"logo": "/config/logo.svg",
 	"darkLogo": "/config/logo_dark.svg",
 	"seo": {
-		"title": "Monvoir — Стильная одежда | Интернет-магазин",
-		"description": "Monvoir — интернет-магазин стильной одежды в Узбекистане. Головные уборы, верхняя одежда, обувь и аксессуары. Доставка по всей стране.",
-		"keywords": "одежда, Узбекистан, стиль, мода, головные уборы, верхняя одежда, обувь, аксессуары, monvoir, Monvoir, мужская",
+		"title": "Milhive — Стильная одежда | Интернет-магазин",
+		"description": "Milhive — интернет-магазин стильной одежды в Узбекистане. Головные уборы, верхняя одежда, обувь и аксессуары. Доставка по всей стране.",
+		"keywords": "одежда, Узбекистан, стиль, мода, головные уборы, верхняя одежда, обувь, аксессуары, milhive, Milhive, мужская",
 		"siteUrl": "https://monvoir.shop",
 		"language": "ru"
 	},
@@ -16,8 +16,8 @@
 		"code": "UZS",
 		"position": "after"
 	},
-	"managerContact": "@MonvoirAI_bot",
-	"telegramBotUrl": "https://t.me/MonvoirAI_bot",
+	"managerContact": "@milhiveAi_bot",
+	"telegramBotUrl": "https://t.me/milhiveAi_bot",
 	"colorScheme": {
 		"background": "#FEFEFE",
 		"foreground": "#1A1A1A",
