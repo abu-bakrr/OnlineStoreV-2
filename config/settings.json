@@ -108,7 +108,7 @@
 		}
 	},
 	"logoSize": 32,
-	"logoSizeLarge": 44,
+	"logoSizeLarge": 80,
 	"orderStatuses": {
 		"pending": "Ожидает оплаты",
 		"reviewing": "Рассматривается",
