@@ -18,52 +18,53 @@
 	},
 	"managerContact": "@milhiveAi_bot",
 	"telegramBotUrl": "https://t.me/milhiveAi_bot",
-	"colorScheme": {
-		"background": "#FEFEFE",
-		"foreground": "#1A1A1A",
+  "colorScheme": {
+    "background": "#FFFFFF",
+    "foreground": "#111111",
 
-		"card": "#FFFFFF",
-		"cardForeground": "#1A1A1A",
+    "card": "#FFFFFF",
+    "cardForeground": "#111111",
 
-		"primary": "#EAB308",
-		"primaryForeground": "#1A1A1A",
+    "primary": "#F2B705",
+    "primaryForeground": "#111111",
 
-		"secondary": "#B98A00",
-		"secondaryForeground": "#FFFFFF",
+    "secondary": "#C99700",
+    "secondaryForeground": "#FFFFFF",
 
-		"muted": "#F5F5F5",
-		"mutedForeground": "#737373",
+    "muted": "#F7F7F7",
+    "mutedForeground": "#6B6B6B",
 
-		"accent": "#FACC15",
-		"accentForeground": "#1A1A1A",
+    "accent": "#FFC83D",
+    "accentForeground": "#111111",
 
-		"border": "#E5E5E5",
-		"input": "#E5E5E5",
-		"ring": "#EAB308"
-	},
+    "border": "#E6E6E6",
+    "input": "#E6E6E6",
+    "ring": "#F2B705"
+  }
+,
 	"colorSchemeDark": {
-		"background": "#121212",
-		"foreground": "#F5F5F5",
+    "background": "#0F0F0F",
+    "foreground": "#F5F5F5",
 
-		"card": "#1E1E1E",
-		"cardForeground": "#F5F5F5",
+    "card": "#161616",
+    "cardForeground": "#F5F5F5",
 
-		"primary": "#FACC15",
-		"primaryForeground": "#1A1A1A",
+    "primary": "#F2B705",
+    "primaryForeground": "#0F0F0F",
 
-		"secondary": "#EAB308",
-		"secondaryForeground": "#1A1A1A",
+    "secondary": "#C99700",
+    "secondaryForeground": "#0F0F0F",
 
-		"muted": "#262626",
-		"mutedForeground": "#A3A3A3",
+    "muted": "#1F1F1F",
+    "mutedForeground": "#9A9A9A",
 
-		"accent": "#FACC15",
-		"accentForeground": "#1A1A1A",
+    "accent": "#FFC83D",
+    "accentForeground": "#0F0F0F",
 
-		"border": "#262626",
-		"input": "#262626",
-		"ring": "#FACC15"
-	},
+    "border": "#262626",
+    "input": "#262626",
+    "ring": "#F2B705"
+  },
 	"sortOptions": [
 		{
 			"id": "new",
