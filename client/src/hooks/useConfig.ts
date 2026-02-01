@@ -4,6 +4,7 @@ export interface AppConfig {
 	shopName: string
 	description: string
 	logo: string
+	darkLogo?: string
 	seo?: {
 		title?: string
 		description?: string
@@ -24,6 +25,23 @@ export interface AppConfig {
 		icon?: string
 	}>
 	colorScheme: {
+		background: string
+		foreground: string
+		card: string
+		cardForeground: string
+		primary: string
+		primaryForeground: string
+		secondary: string
+		secondaryForeground: string
+		muted: string
+		mutedForeground: string
+		accent: string
+		accentForeground: string
+		border: string
+		input: string
+		ring: string
+	}
+	colorSchemeDark?: {
 		background: string
 		foreground: string
 		card: string
@@ -112,9 +130,9 @@ export function useConfig() {
 		if (!config) return `${price}`
 
 		const formatted = price.toLocaleString()
-		return config.currency.position === 'before'
-			? `${config.currency.symbol}${formatted}`
-			: `${formatted} ${config.currency.symbol}`
+		return config.currency.position === 'before' ?
+				`${config.currency.symbol}${formatted}`
+			:	`${formatted} ${config.currency.symbol}`
 	}
 
 	return {

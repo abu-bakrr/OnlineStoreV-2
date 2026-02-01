@@ -60,36 +60,81 @@ export default function ThemeApplier() {
 		// Это гарантирует, что все элементы меняют цвет одновременно
 
 		// Apply primary colors regardless of theme (brand identity)
-		root.style.setProperty('--primary', hexToHSL(scheme.primary))
+		// But if colorSchemeDark is provided, we might want to use IT for primary in dark mode
+		const activeScheme =
+			isDark && config.colorSchemeDark ? config.colorSchemeDark : scheme
+
+		root.style.setProperty('--primary', hexToHSL(activeScheme.primary))
 		root.style.setProperty(
 			'--primary-foreground',
-			hexToHSL(scheme.primaryForeground)
+			hexToHSL(activeScheme.primaryForeground),
 		)
-		root.style.setProperty('--accent', hexToHSL(scheme.accent)) // Keep accent
+		root.style.setProperty('--accent', hexToHSL(activeScheme.accent))
 		root.style.setProperty(
 			'--accent-foreground',
-			hexToHSL(scheme.accentForeground)
+			hexToHSL(activeScheme.accentForeground),
 		)
 
-		// Only apply background/surface colors if NOT in dark mode
-		// In dark mode, we let index.css .dark class handle it
-		if (!isDark) {
+		// If in dark mode and colorSchemeDark exists, apply its variables
+		if (isDark && config.colorSchemeDark) {
+			const darkScheme = config.colorSchemeDark
+			root.style.setProperty('--background', hexToHSL(darkScheme.background))
+			root.style.setProperty('--foreground', hexToHSL(darkScheme.foreground))
+			root.style.setProperty('--card', hexToHSL(darkScheme.card))
+			root.style.setProperty(
+				'--card-foreground',
+				hexToHSL(darkScheme.cardForeground),
+			)
+			root.style.setProperty('--secondary', hexToHSL(darkScheme.secondary))
+			root.style.setProperty(
+				'--secondary-foreground',
+				hexToHSL(darkScheme.secondaryForeground),
+			)
+			root.style.setProperty('--muted', hexToHSL(darkScheme.muted))
+			root.style.setProperty(
+				'--muted-foreground',
+				hexToHSL(darkScheme.mutedForeground),
+			)
+			root.style.setProperty('--border', hexToHSL(darkScheme.border))
+			root.style.setProperty('--input', hexToHSL(darkScheme.input))
+			root.style.setProperty('--ring', hexToHSL(darkScheme.ring))
+
+			root.style.setProperty('--card-border', hexToHSL(darkScheme.border))
+			root.style.setProperty('--sidebar', hexToHSL(darkScheme.card))
+			root.style.setProperty(
+				'--sidebar-foreground',
+				hexToHSL(darkScheme.cardForeground),
+			)
+			root.style.setProperty('--sidebar-border', hexToHSL(darkScheme.border))
+			root.style.setProperty('--sidebar-primary', hexToHSL(darkScheme.primary))
+			root.style.setProperty(
+				'--sidebar-primary-foreground',
+				hexToHSL(darkScheme.primaryForeground),
+			)
+			root.style.setProperty('--sidebar-accent', hexToHSL(darkScheme.accent))
+			root.style.setProperty(
+				'--sidebar-accent-foreground',
+				hexToHSL(darkScheme.accentForeground),
+			)
+			root.style.setProperty('--sidebar-ring', hexToHSL(darkScheme.ring))
+		} else if (!isDark) {
+			// Light mode (default scheme)
 			root.style.setProperty('--background', hexToHSL(scheme.background))
 			root.style.setProperty('--foreground', hexToHSL(scheme.foreground))
 			root.style.setProperty('--card', hexToHSL(scheme.card))
 			root.style.setProperty(
 				'--card-foreground',
-				hexToHSL(scheme.cardForeground)
+				hexToHSL(scheme.cardForeground),
 			)
 			root.style.setProperty('--secondary', hexToHSL(scheme.secondary))
 			root.style.setProperty(
 				'--secondary-foreground',
-				hexToHSL(scheme.secondaryForeground)
+				hexToHSL(scheme.secondaryForeground),
 			)
 			root.style.setProperty('--muted', hexToHSL(scheme.muted))
 			root.style.setProperty(
 				'--muted-foreground',
-				hexToHSL(scheme.mutedForeground)
+				hexToHSL(scheme.mutedForeground),
 			)
 			root.style.setProperty('--border', hexToHSL(scheme.border))
 			root.style.setProperty('--input', hexToHSL(scheme.input))
@@ -99,23 +144,23 @@ export default function ThemeApplier() {
 			root.style.setProperty('--sidebar', hexToHSL(scheme.card))
 			root.style.setProperty(
 				'--sidebar-foreground',
-				hexToHSL(scheme.cardForeground)
+				hexToHSL(scheme.cardForeground),
 			)
 			root.style.setProperty('--sidebar-border', hexToHSL(scheme.border))
 			root.style.setProperty('--sidebar-primary', hexToHSL(scheme.primary))
 			root.style.setProperty(
 				'--sidebar-primary-foreground',
-				hexToHSL(scheme.primaryForeground)
+				hexToHSL(scheme.primaryForeground),
 			)
 			root.style.setProperty('--sidebar-accent', hexToHSL(scheme.accent))
 			root.style.setProperty(
 				'--sidebar-accent-foreground',
-				hexToHSL(scheme.accentForeground)
+				hexToHSL(scheme.accentForeground),
 			)
 			root.style.setProperty('--sidebar-ring', hexToHSL(scheme.ring))
 		} else {
-			// In dark mode, remove inline styles so CSS classes (.dark) take over
-			// This is safer than forcing values in JS, as it respects the stylesheet
+			// In dark mode without colorSchemeDark config, remove inline styles
+			// so that index.css .dark rules take effect
 			const propsToRemove = [
 				'--background',
 				'--foreground',

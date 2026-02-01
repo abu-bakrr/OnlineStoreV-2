@@ -1,7 +1,8 @@
+import { useTheme } from '@/components/ThemeProvider'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useConfig } from '@/hooks/useConfig'
-import { Heart, ShoppingCart, MessageCircle } from 'lucide-react'
+import { Heart, MessageCircle, ShoppingCart } from 'lucide-react'
 import ProfileDropdown from './ProfileDropdown'
 
 interface HeaderProps {
@@ -21,7 +22,15 @@ export default function Header({
 }: HeaderProps) {
 	const { config } = useConfig()
 	const { user } = useAuth()
+	const { theme } = useTheme()
+
+	const isDark =
+		theme === 'dark' ||
+		(theme === 'system' &&
+			window.matchMedia('(prefers-color-scheme: dark)').matches)
+
 	const logoSize = config?.logoSize || 32
+	const logoSrc = isDark && config?.darkLogo ? config.darkLogo : config?.logo
 
 	return (
 		<header
@@ -30,9 +39,9 @@ export default function Header({
 		>
 			<div className='max-w-7xl mx-auto flex items-center justify-between'>
 				<div className='flex items-center gap-2'>
-					{config?.logo && (
+					{logoSrc && (
 						<img
-							src={config.logo}
+							src={logoSrc}
 							alt='Logo'
 							style={{ width: `${logoSize}px`, height: 'auto' }}
 							className='object-contain transition-opacity duration-200'
@@ -49,10 +58,9 @@ export default function Header({
 				</div>
 
 				<div className='flex items-center gap-2'>
-					{user ? (
+					{user ?
 						<ProfileDropdown />
-					) : (
-						<Button
+					:	<Button
 							variant='outline'
 							size='sm'
 							onClick={onAccountClick}
@@ -61,7 +69,7 @@ export default function Header({
 						>
 							Войти
 						</Button>
-					)}
+					}
 
 					{config?.telegramBotUrl && (
 						<Button
