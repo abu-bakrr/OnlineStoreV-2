@@ -1,13 +1,13 @@
 {
 	"language": "ru",
-	"shopName": "Monvoir",
-	"description": "Будь в стиле. Будь с Monvoir",
+	"shopName": "Milhive",
+	"description": "Будь в стиле. Будь с Milhive",
 	"logo": "/config/logo.svg",
 	"darkLogo": "/config/logo_dark.svg",
 	"seo": {
-		"title": "Monvoir — Стильная одежда | Интернет-магазин",
-		"description": "Monvoir — интернет-магазин стильной одежды в Узбекистане. Головные уборы, верхняя одежда, обувь и аксессуары. Доставка по всей стране.",
-		"keywords": "одежда, Узбекистан, стиль, мода, головные уборы, верхняя одежда, обувь, аксессуары, monvoir, Monvoir, мужская",
+		"title": "Milhive — Стильная одежда | Интернет-магазин",
+		"description": "Milhive — интернет-магазин стильной одежды в Узбекистане. Головные уборы, верхняя одежда, обувь и аксессуары. Доставка по всей стране.",
+		"keywords": "одежда, Узбекистан, стиль, мода, головные уборы, верхняя одежда, обувь, аксессуары, milhive, Milhive, мужская",
 		"siteUrl": "https://monvoir.shop",
 		"language": "ru"
 	},
@@ -16,54 +16,56 @@
 		"code": "UZS",
 		"position": "after"
 	},
-	"managerContact": "@MonvoirAI_bot",
-	"telegramBotUrl": "https://t.me/MonvoirAI_bot",
-	"colorScheme": {
-		"background": "#FEFEFE",
-		"foreground": "#1A1A1A",
+	"managerContact": "@milhiveAi_bot",
+	"telegramBotUrl": "https://t.me/@milhiveAi_bot",
+  "colorScheme": {
+    "background": "#FEFEFE",
+    "foreground": "#1A1A1A",
 
-		"card": "#FFFFFF",
-		"cardForeground": "#1A1A1A",
+    "card": "#FFFFFF",
+    "cardForeground": "#1A1A1A",
 
-		"primary": "#EAB308",
-		"primaryForeground": "#1A1A1A",
+    "primary": "#EAB308",
+    "primaryForeground": "#1A1A1A",
 
-		"secondary": "#B98A00",
-		"secondaryForeground": "#FFFFFF",
+    "secondary": "#B98A00",
+    "secondaryForeground": "#FFFFFF",
 
-		"muted": "#F5F5F5",
-		"mutedForeground": "#737373",
+    "muted": "#F5F5F5",
+    "mutedForeground": "#737373",
 
-		"accent": "#FACC15",
-		"accentForeground": "#1A1A1A",
+    "accent": "#FACC15",
+    "accentForeground": "#1A1A1A",
 
-		"border": "#E5E5E5",
-		"input": "#E5E5E5",
-		"ring": "#EAB308"
-	},
-	"colorSchemeDark": {
-		"background": "#121212",
-		"foreground": "#F5F5F5",
+    "border": "#E5E5E5",
+    "input": "#E5E5E5",
+    "ring": "#EAB308"
+  },
 
-		"card": "#1E1E1E",
-		"cardForeground": "#F5F5F5",
+  "colorSchemeDark": {
+    "background": "#121212",
+    "foreground": "#F5F5F5",
 
-		"primary": "#FACC15",
-		"primaryForeground": "#1A1A1A",
+    "card": "#1E1E1E",
+    "cardForeground": "#F5F5F5",
 
-		"secondary": "#EAB308",
-		"secondaryForeground": "#1A1A1A",
+    "primary": "#FACC15",
+    "primaryForeground": "#1A1A1A",
 
-		"muted": "#262626",
-		"mutedForeground": "#A3A3A3",
+    "secondary": "#EAB308",
+    "secondaryForeground": "#1A1A1A",
 
-		"accent": "#FACC15",
-		"accentForeground": "#1A1A1A",
+    "muted": "#262626",
+    "mutedForeground": "#A3A3A3",
 
-		"border": "#262626",
-		"input": "#262626",
-		"ring": "#FACC15"
-	},
+    "accent": "#FACC15",
+    "accentForeground": "#1A1A1A",
+
+    "border": "#262626",
+    "input": "#262626",
+    "ring": "#FACC15"
+  },
+
 	"sortOptions": [
 		{
 			"id": "new",
