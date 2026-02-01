@@ -40,7 +40,7 @@ class ColorFormatter(logging.Formatter):
         return f"{color}{record.getMessage()}{Colors.ENDC}"
 
 # Настройка логирования
-logger = logging.getLogger("Mona")
+logger = logging.getLogger("Milly")
 logger.setLevel(logging.INFO)
 
 # Консольный хендлер с цветами
@@ -49,11 +49,11 @@ console_handler.setFormatter(ColorFormatter())
 logger.addHandler(console_handler)
 
 # Файловый хендлер (без цветов)
-file_handler = logging.FileHandler("mona_v8.log", encoding='utf-8')
+file_handler = logging.FileHandler("milly_v8.log", encoding='utf-8')
 file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 logger.addHandler(file_handler)
 
-class MonaBot:
+class MillyBot:
     def __init__(self):
         self.token = os.getenv('AI_BOT_TOKEN')
         if not self.token:
@@ -67,8 +67,8 @@ class MonaBot:
         self.waiting_for_support = set()
 
         self.system_prompt = """IMPORTANT: You must respond in JSON format.
-### 💎 MONA v8.0: ЭЛИТНЫЙ AI-АССИСТЕНТ
-Ты — Mona, высококлассный эксперт бутика Monvoir. Твоя речь *женственна, элегантна и профессиональна.
+### 💎 MILLY v8.0: ЭЛИТНЫЙ AI-АССИСТЕНТ
+Ты — Milly, высококлассный эксперт бутика Milhive. Твоя речь *женственна, элегантна и профессиональна.
 Используй курсив для вежливых оборотов (С удовольствием подскажу, Минуточку...).
 
 #### 🧠 ЛОГИКА ВЫБОРА ИНСТРУМЕНТОВ (СТРОГО):
@@ -103,19 +103,19 @@ JSON:
 {
   "thoughts": "Простое приветствие. Инструменты не нужны.",
   "action": { "tool": "none" },
-  "response": "Здравствуйте! Рада вас видеть. Я Mona, ваш проводник в мире стиля Monvoir. Чем я могу быть вам полезна? 🌸"
+  "response": "Здравствуйте! Рада вас видеть. Я Milly, ваш проводник в мире стиля Milhive. Чем я могу быть вам полезна? 🌸"
 }
 
 #### 🎨 ШАБЛОНЫ ОФОРМЛЕНИЯ (Markdown):
-Имена товаров — ВСЕГДА жирные ссылки. Формат: **[Название товара](https://monvoir.shop/product/ID)**.
+Имена товаров — ВСЕГДА жирные ссылки. Формат: **[Название товара](https://milhive.shop/product/ID)**.
 
 1. Списки товаров (В наличии):
-   1. **[Жилетка Urban](https://monvoir.shop/product/uuid)** — `450,000` сум ✅
+   1. **[Жилетка Urban](https://milhive.shop/product/uuid)** — `450,000` сум ✅
       📏 *Размеры:* L, XL
       🎨 *Цвет:* темно-синий
 
 2. Детальная информация о товаре:
-   ✨ **[Жилетка Urban](https://monvoir.shop/product/uuid)**
+   ✨ **[Жилетка Urban](https://milhive.shop/product/uuid)**
 
    📖 *Описание:* Стильная жилетка для города...
    
@@ -137,7 +137,7 @@ JSON:
 - Полнота ответа: Поле `"response"` ВСЕГДА должно содержать вежливый и законченный текст. ЗАПРЕЩЕНО писать просто "...", "✨" или пустоту.
 - _Курсив_: Помни про _курсив для личных реплик_.
 - Markdown форматирование: Всегда используй символы (** для жирного, _ для курсива, ` для цены, [текст](ссылка)).
-- **ССЫЛКИ**: Каждый товар ОБЯЗАТЕЛЬНО должен быть оформлен как жирная ссылка: **[Название](https://monvoir.shop/product/ID)**. Никогда не пиши просто название без ссылки.
+- **ССЫЛКИ**: Каждый товар ОБЯЗАТЕЛЬНО должен быть оформлен как жирная ссылка: **[Название](https://milhive.shop/product/ID)**. Никогда не пиши просто название без ссылки.
 - ОПАСНОСТЬ: Никогда не используй символ `_` (нижнее подчеркивание) просто так в тексте. Если в названии товара есть `_`, замени его на пробел.
 - Удаляй любые пробелы в конце названий (например, из "Жилетка " сделай "Жилетка").
 - Формат цены: Пиши с разделителем тысяч (например, `449,000` сум) и оборачивай в обратные кавычки.
@@ -224,7 +224,7 @@ JSON:
             user_id = m.from_user.id
             session = self._get_session(user_id)
             session['history'] = []
-            self.bot.send_message(m.chat.id, "✨ *Добро пожаловать в Monvoir!*\n\nЯ Mona, ваш персональный AI-консультант. Просто напишите, что вы ищете... 👗", parse_mode='Markdown')
+            self.bot.send_message(m.chat.id, "✨ *Добро пожаловать в Milhive!*\n\nЯ Milly, ваш персональный AI-консультант. Просто напишите, что вы ищете... 👗", parse_mode='Markdown')
 
         @self.bot.message_handler(commands=['manager'])
         def manager(m):
@@ -291,12 +291,12 @@ JSON:
                 self.bot.send_message(m.chat.id, "✨ Произошла небольшая техническая заминка.")
 
     def run(self):
-        print("🚀 Mona v8.0 Single Core запущена!", flush=True)
+        print("🚀 Milly v8.0 Single Core запущена!", flush=True)
         self.bot.infinity_polling()
 
 if __name__ == "__main__":
     try:
-        mona = MonaBot()
-        mona.run()
+        milly = MillyBot()
+        milly.run()
     except Exception as e:
         print(f"❌ CRITICAL ERROR: {e}")
