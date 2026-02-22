@@ -97,6 +97,8 @@
 	"fonts": {
 		"fontFamily": "Inter",
 		"fontFile": null,
+		"shopNameFontFamily": "Montez",
+		"shopNameFontFile": "/config/Montez-Regular.ttf",
 		"productName": {
 			"weight": 500
 		},

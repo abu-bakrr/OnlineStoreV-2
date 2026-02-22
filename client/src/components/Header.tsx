@@ -53,6 +53,12 @@ export default function Header({
 						<h1
 							className='text-lg font-semibold text-foreground transition-opacity duration-200'
 							data-testid='text-brand-name'
+							style={{
+								fontFamily:
+									config?.fonts?.shopNameFontFamily ?
+										'var(--font-family-shop-name)'
+									:	undefined,
+							}}
 						>
 							{config.shopName}
 						</h1>

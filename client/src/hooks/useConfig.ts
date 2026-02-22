@@ -82,6 +82,8 @@ export interface AppConfig {
 	fonts?: {
 		fontFamily: string
 		fontFile: string | null
+		shopNameFontFamily?: string | null
+		shopNameFontFile?: string | null
 		productName: {
 			weight: number
 		}
