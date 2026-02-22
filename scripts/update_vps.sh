@@ -95,6 +95,12 @@ cd $APP_DIR
 npm install
 EOF
 
+# Исправление прав на бинарные файлы (чтобы не было Permission denied для vite)
+print_step "Исправление прав на бинарные файлы..."
+if [ -d "$APP_DIR/node_modules/.bin" ]; then
+    chmod -R +x "$APP_DIR/node_modules/.bin"
+fi
+
 # Сборка фронтенда
 print_step "Сборка фронтенда..."
 sudo -u $APP_USER bash <<EOF
