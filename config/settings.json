@@ -100,7 +100,7 @@
 		"shopNameFontFamily": "Montez",
 		"shopNameFontFile": "/config/Montez-Regular.ttf",
 		"productName": {
-			"weight": 500
+			"weight": 700
 		},
 		"price": {
 			"weight": 600
