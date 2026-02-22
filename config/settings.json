@@ -83,7 +83,7 @@
 		"productsPerPage": 12,
 		"showCategoryIcons": true,
 		"showPriceFilter": true,
-		"showShopName": false
+		"showShopName": true
 	},
 	"texts": {
 		"addToCart": "Добавить в корзину",
