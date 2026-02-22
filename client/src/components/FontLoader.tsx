@@ -40,7 +40,7 @@ export default function FontLoader() {
 			style.textContent = `
         @font-face {
           font-family: '${fonts.shopNameFontFamily}';
-          src: url('${fonts.shopNameFontFile}') format('truetype', 'woff2', 'woff', 'opentype');
+          src: url('${fonts.shopNameFontFile}');
           font-weight: 100 900;
           font-display: swap;
         }
