@@ -21,11 +21,17 @@ echo "👤 Смена владельца на $APP_USER..."
 chown -R $APP_USER:$APP_USER "$APP_DIR"
 
 # 3. Устанавливаем права на папки (755) и файлы (644)
-echo "📂 Настройка прав доступа..."
+echo "📂 Настройка базовых прав доступа..."
 find "$APP_DIR" -type d -exec chmod 755 {} +
 find "$APP_DIR" -type f -exec chmod 644 {} +
 
-# 4. Делаем скрипты исполняемыми
+# 4. Исправляем права на бинарные файлы (node_modules)
+if [ -d "$APP_DIR/node_modules/.bin" ]; then
+    echo "🚀 Восстановление прав на бинарные файлы npm..."
+    chmod -R +x "$APP_DIR/node_modules/.bin"
+fi
+
+# 5. Делаем скрипты исполняемыми
 chmod +x "$APP_DIR/scripts/"*.sh 2>/dev/null || true
 
 # 5. Исправляем права на саму домашнюю папку
