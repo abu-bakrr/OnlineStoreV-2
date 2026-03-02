@@ -483,23 +483,22 @@ def get_pretty_product_info(product_id):
 # --- CORE AI FUNCTIONS (Requested) ---
 
 def search(keywords):
-    """Поиск всех подходящих товаров (включая под заказ). Возвращает JSON."""
+    """Поиск всех подходящих товаров (включая те, что не в наличии). Возвращает JSON."""
     results = search_products(keywords, include_out_of_stock=True)
     clean_res = []
     for p in results:
-        # Скрываем количество от ИИ
         inv_data = []
         for inv in p.get('inventory', []):
-            if inv['quantity'] > 0:
-                inv_data.append({
-                    "color": hex_to_color_name(inv['color']) if '#' in str(inv['color']) else inv['color'],
-                    "size": inv['attribute1_value'],
-                    "available": True
-                })
+            is_avail = inv['quantity'] > 0
+            inv_data.append({
+                "color": hex_to_color_name(inv['color']) if '#' in str(inv['color']) else inv['color'],
+                "size": inv['attribute1_value'],
+                "available": "✅" if is_avail else "❌"
+            })
         
         clean_res.append({
             "id": p['id'],
-            "name": p['name'].strip(), # Удаляем лишние пробелы сразу
+            "name": p['name'].strip(),
             "price": p['price'],
             "inventory": inv_data
         })
@@ -525,15 +524,14 @@ def order(order_id):
     return data if data else "Заказ не найден."
 
 def info(product_id):
-    """Детальная информация о товаре по ID"""
+    """Детальная информация о товаре по ID (включая все размеры/цвета)"""
     product = get_product_details(product_id)
     if product:
-        # Удаляем точное количество, оставляем только флаг наличия
         for inv in product.get('inventory', []):
             # Конвертируем HEX в название
             color_raw = inv.get('color')
             inv['color'] = hex_to_color_name(color_raw) if color_raw and '#' in str(color_raw) else color_raw
-            inv['available'] = inv['quantity'] > 0
+            inv['available'] = "✅" if inv['quantity'] > 0 else "❌"
             del inv['quantity']
     return json.dumps(product, ensure_ascii=False, default=str)
 
