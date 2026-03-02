@@ -530,6 +530,9 @@ def info(product_id):
     if product:
         # Удаляем точное количество, оставляем только флаг наличия
         for inv in product.get('inventory', []):
+            # Конвертируем HEX в название
+            color_raw = inv.get('color')
+            inv['color'] = hex_to_color_name(color_raw) if color_raw and '#' in str(color_raw) else color_raw
             inv['available'] = inv['quantity'] > 0
             del inv['quantity']
     return json.dumps(product, ensure_ascii=False, default=str)
