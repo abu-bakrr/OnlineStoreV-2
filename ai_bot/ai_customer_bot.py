@@ -231,7 +231,8 @@ Milhive — онлайн-магазин качественной мужской 
                     ai_plan = self._ai_think(context_messages)
                     if not ai_plan: break
                     final_ai_response = ai_plan
-                    action = ai_plan.get("action", {})
+                    action = ai_plan.get("action")
+                    if not action or not isinstance(action, dict): break
                     tool_name = action.get("tool")
                     if not tool_name or tool_name == "none": break
                     
