@@ -1,5 +1,5 @@
 #!/bin/bash
-# Скрипт проверки состояния VPS для Monvoir Shop
+# Скрипт проверки состояния VPS для Milhive Shop
 # Использование: ./verify_vps.sh
 
 RED='\033[0;31m'
