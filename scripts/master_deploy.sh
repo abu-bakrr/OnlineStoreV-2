@@ -86,6 +86,34 @@ echo -e "${GREEN}       📝 НАСТРОЙКА ПАРАМЕТРОВ${NC}"
 echo -e "${BLUE}================================================================${NC}"
 echo ""
 
+# Обнаружение существующих инстансов
+EXISTING_PORTS=$(grep -r "proxy_pass http://127.0.0.1:" /etc/nginx/sites-enabled/ 2>/dev/null | grep -o "[0-9]\{4,5\}" | sort -u | tr '\n' ' ')
+DEFAULT_PORT=5000
+if [ ! -z "$EXISTING_PORTS" ]; then
+    echo -e "${YELLOW}ℹ️  Используемые порты:${NC} $EXISTING_PORTS"
+    MAX_PORT=$(echo "$EXISTING_PORTS" | tr ' ' '\n' | sort -rn | head -n1)
+    DEFAULT_PORT=$((MAX_PORT + 1))
+fi
+
+# Имя инстанса
+read -p "ID инстанса (например: luxury, tech, оставьте пустым для основного): " INSTANCE_ID
+if [ -z "$INSTANCE_ID" ]; then
+    INSTANCE_SUFFIX=""
+    APP_USER_DEFAULT="shopapp"
+    DB_NAME_DEFAULT="shop_db"
+else
+    INSTANCE_SUFFIX="-$INSTANCE_ID"
+    APP_USER_DEFAULT="shopapp_$INSTANCE_ID"
+    DB_NAME_DEFAULT="shop_db_$INSTANCE_ID"
+fi
+
+# Брендинг
+echo ""
+echo -e "${YELLOW}🎨 БРЕНДИНГ${NC}"
+read -p "Название магазина: " SHOP_NAME
+read -p "Основной цвет (HEX, например #f5a40d): " PRIMARY_COLOR
+echo ""
+
 # GitHub репозиторий
 echo -e "${YELLOW}🔗 ИСТОЧНИК КОДА${NC}"
 read -p "GitHub репозиторий (оставьте пустым для локальных файлов): " GITHUB_REPO
@@ -97,14 +125,14 @@ echo ""
 
 # Системные параметры
 echo -e "${YELLOW}⚙️  СИСТЕМНЫЕ НАСТРОЙКИ${NC}"
-read -p "Имя пользователя приложения [shopapp]: " APP_USER
-APP_USER=${APP_USER:-shopapp}
+read -p "Имя пользователя приложения [$APP_USER_DEFAULT]: " APP_USER
+APP_USER=${APP_USER:-$APP_USER_DEFAULT}
 
-read -p "Имя базы данных [shop_db]: " DB_NAME
-DB_NAME=${DB_NAME:-shop_db}
+read -p "Имя базы данных [$DB_NAME_DEFAULT]: " DB_NAME
+DB_NAME=${DB_NAME:-$DB_NAME_DEFAULT}
 
-read -p "Пользователь БД [shop_user]: " DB_USER
-DB_USER=${DB_USER:-shop_user}
+read -p "Пользователь БД [$APP_USER]: " DB_USER
+DB_USER=${DB_USER:-$APP_USER}
 
 read -sp "Пароль БД: " DB_PASSWORD
 echo
@@ -114,8 +142,8 @@ while [ -z "$DB_PASSWORD" ]; do
     echo
 done
 
-read -p "Порт приложения [5000]: " APP_PORT
-APP_PORT=${APP_PORT:-5000}
+read -p "Порт приложения [$DEFAULT_PORT]: " APP_PORT
+APP_PORT=${APP_PORT:-$DEFAULT_PORT}
 echo ""
 
 # Telegram Bot токены
@@ -295,6 +323,34 @@ EOF
 # ============================================================================
 # ИНИЦИАЛИЗАЦИЯ БАЗЫ ДАННЫХ
 # ============================================================================
+# Брендинг settings.json
+if [ ! -z "$SHOP_NAME" ] || [ ! -z "$PRIMARY_COLOR" ]; then
+    print_step "Применение брендинга в settings.json..."
+    sudo -u $APP_USER python3 <<EOF
+import json
+import os
+
+path = '$APP_DIR/config/settings.json'
+if os.path.exists(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        config = json.load(f)
+
+    if '$SHOP_NAME':
+        config['shopName'] = '$SHOP_NAME'
+    
+    if '$PRIMARY_COLOR':
+        for theme in ['colorScheme', 'colorSchemeDark']:
+            if theme in config:
+                config[theme]['primary'] = '$PRIMARY_COLOR'
+                config[theme]['accent'] = '$PRIMARY_COLOR'
+                config[theme]['ring'] = '$PRIMARY_COLOR'
+
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(config, f, indent=4, ensure_ascii=False)
+EOF
+fi
+
+# Инициализация таблиц
 print_step "Инициализация таблиц базы данных..."
 sudo -u $APP_USER bash <<EOF
 cd $APP_DIR
@@ -319,9 +375,9 @@ fi
 print_step "Создание systemd сервисов..."
 
 # Flask App (Shop)
-cat > /etc/systemd/system/shop-app.service <<EOF
+cat > /etc/systemd/system/shop-app${INSTANCE_SUFFIX}.service <<EOF
 [Unit]
-Description=Telegram Shop Flask Application
+Description=Telegram Shop Flask Application ${INSTANCE_SUFFIX}
 After=network.target postgresql.service
 
 [Service]
@@ -339,10 +395,10 @@ WantedBy=multi-user.target
 EOF
 
 # AI Bot (Mona)
-cat > /etc/systemd/system/ai-bot.service <<EOF
+cat > /etc/systemd/system/ai-bot${INSTANCE_SUFFIX}.service <<EOF
 [Unit]
-Description=AI Customer Support Bot (Mona)
-After=network.target postgresql.service shop-app.service
+Description=AI Customer Support Bot (Mona) ${INSTANCE_SUFFIX}
+After=network.target postgresql.service shop-app${INSTANCE_SUFFIX}.service
 
 [Service]
 Type=simple
@@ -362,10 +418,10 @@ EOF
 
 # Main Telegram Bot
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
-cat > /etc/systemd/system/telegram-bot.service <<EOF
+cat > /etc/systemd/system/telegram-bot${INSTANCE_SUFFIX}.service <<EOF
 [Unit]
-Description=Main Telegram Shop Bot
-After=network.target postgresql.service shop-app.service
+Description=Main Telegram Shop Bot ${INSTANCE_SUFFIX}
+After=network.target postgresql.service shop-app${INSTANCE_SUFFIX}.service
 
 [Service]
 Type=simple
@@ -390,15 +446,15 @@ fi
 print_step "Запуск сервисов..."
 systemctl daemon-reload
 
-systemctl enable shop-app
-systemctl start shop-app
+systemctl enable shop-app${INSTANCE_SUFFIX}
+systemctl start shop-app${INSTANCE_SUFFIX}
 
-systemctl enable ai-bot
-systemctl start ai-bot
+systemctl enable ai-bot${INSTANCE_SUFFIX}
+systemctl start ai-bot${INSTANCE_SUFFIX}
 
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
-    systemctl enable telegram-bot
-    systemctl start telegram-bot
+    systemctl enable telegram-bot${INSTANCE_SUFFIX}
+    systemctl start telegram-bot${INSTANCE_SUFFIX}
 fi
 
 sleep 3
@@ -406,23 +462,23 @@ sleep 3
 # Проверка статуса сервисов
 echo ""
 print_info "Проверка статуса сервисов..."
-if systemctl is-active --quiet shop-app; then
-    print_step "✅ Shop App запущен"
+if systemctl is-active --quiet shop-app${INSTANCE_SUFFIX}; then
+    print_step "✅ Shop App ${INSTANCE_SUFFIX} запущен"
 else
-    print_error "❌ Shop App не запустился"
+    print_error "❌ Shop App ${INSTANCE_SUFFIX} не запустился"
 fi
 
-if systemctl is-active --quiet ai-bot; then
-    print_step "✅ AI Bot запущен"
+if systemctl is-active --quiet ai-bot${INSTANCE_SUFFIX}; then
+    print_step "✅ AI Bot ${INSTANCE_SUFFIX} запущен"
 else
-    print_error "❌ AI Bot не запустился"
+    print_error "❌ AI Bot ${INSTANCE_SUFFIX} не запустился"
 fi
 
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
-    if systemctl is-active --quiet telegram-bot; then
-        print_step "✅ Telegram Bot запущен"
+    if systemctl is-active --quiet telegram-bot${INSTANCE_SUFFIX}; then
+        print_step "✅ Telegram Bot ${INSTANCE_SUFFIX} запущен"
     else
-        print_error "❌ Telegram Bot не запустился"
+        print_error "❌ Telegram Bot ${INSTANCE_SUFFIX} не запустился"
     fi
 fi
 
@@ -431,16 +487,19 @@ fi
 # ============================================================================
 print_step "Настройка Nginx..."
 
+# Имя конфига Nginx
+NGINX_CONF="shop${INSTANCE_SUFFIX}"
+
 if [ ! -z "$DOMAIN" ]; then
     # С доменом
-    cat > /etc/nginx/sites-available/shop <<EOF
+    cat > /etc/nginx/sites-available/$NGINX_CONF <<EOF
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
     client_max_body_size 20M;
 
-    access_log /var/log/nginx/shop_access.log;
-    error_log /var/log/nginx/shop_error.log;
+    access_log /var/log/nginx/${NGINX_CONF}_access.log;
+    error_log /var/log/nginx/${NGINX_CONF}_error.log;
 
     location /assets {
         alias $APP_DIR/dist/public/assets;
@@ -464,15 +523,15 @@ server {
 }
 EOF
 else
-    # Без домена (только IP)
-    cat > /etc/nginx/sites-available/shop <<EOF
+    # Без домена (только IP) - ПРЕДУПРЕЖДЕНИЕ: Только для первого инстанса!
+    cat > /etc/nginx/sites-available/$NGINX_CONF <<EOF
 server {
     listen 80;
     server_name _;
     client_max_body_size 20M;
 
-    access_log /var/log/nginx/shop_access.log;
-    error_log /var/log/nginx/shop_error.log;
+    access_log /var/log/nginx/${NGINX_CONF}_access.log;
+    error_log /var/log/nginx/${NGINX_CONF}_error.log;
 
     location /assets {
         alias $APP_DIR/dist/public/assets;
@@ -497,8 +556,11 @@ server {
 EOF
 fi
 
-ln -sf /etc/nginx/sites-available/shop /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/$NGINX_CONF /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
+
+# Если это не первый инстанс и без домена, Nginx может выдать ошибку при втором server_name _
+# Но если домен указан, все ок.
 
 if nginx -t; then
     systemctl restart nginx
@@ -515,6 +577,7 @@ ufw --force enable
 ufw allow 22/tcp    # SSH
 ufw allow 80/tcp    # HTTP
 ufw allow 443/tcp   # HTTPS
+ufw allow $APP_PORT/tcp # Allow app port for direct access if needed (e.g., for testing)
 print_step "Firewall настроен"
 
 # ============================================================================
@@ -580,24 +643,24 @@ fi
 echo ""
 
 echo -e "${BLUE}📊 УПРАВЛЕНИЕ СЕРВИСАМИ:${NC}"
-echo -e "   Shop App:      sudo systemctl {start|stop|restart|status} shop-app"
-echo -e "   AI Bot:        sudo systemctl {start|stop|restart|status} ai-bot"
+echo -e "   Shop App:      sudo systemctl {start|stop|restart|status} shop-app${INSTANCE_SUFFIX}"
+echo -e "   AI Bot:        sudo systemctl {start|stop|restart|status} ai-bot${INSTANCE_SUFFIX}"
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
-    echo -e "   Telegram Bot:  sudo systemctl {start|stop|restart|status} telegram-bot"
+    echo -e "   Telegram Bot:  sudo systemctl {start|stop|restart|status} telegram-bot${INSTANCE_SUFFIX}"
 fi
 echo ""
 
 echo -e "${BLUE}📜 ПРОСМОТР ЛОГОВ:${NC}"
-echo -e "   Shop App:      sudo journalctl -u shop-app -f"
-echo -e "   AI Bot:        sudo journalctl -u ai-bot -f"
+echo -e "   Shop App:      sudo journalctl -u shop-app${INSTANCE_SUFFIX} -f"
+echo -e "   AI Bot:        sudo journalctl -u ai-bot${INSTANCE_SUFFIX} -f"
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
-    echo -e "   Telegram Bot:  sudo journalctl -u telegram-bot -f"
+    echo -e "   Telegram Bot:  sudo journalctl -u telegram-bot${INSTANCE_SUFFIX} -f"
 fi
 echo ""
 
 echo -e "${BLUE}🔄 ОБНОВЛЕНИЕ:${NC}"
 echo -e "   cd $APP_DIR && git pull"
-echo -e "   sudo systemctl restart shop-app ai-bot telegram-bot"
+echo -e "   sudo systemctl restart shop-app${INSTANCE_SUFFIX} ai-bot${INSTANCE_SUFFIX} telegram-bot${INSTANCE_SUFFIX}"
 echo ""
 
 echo -e "${YELLOW}📝 СЛЕДУЮЩИЕ ШАГИ:${NC}"
