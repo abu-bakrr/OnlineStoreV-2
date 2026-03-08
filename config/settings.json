@@ -1,15 +1,20 @@
 {
 	"language": "ru",
-	"shopName": "Milhive",
+	"shopName": "Tayhu",
+	"shopDescription": "Tayhu — Ваш надежный партнер в мире стиля и качества.",
+	"contactEmail": "support@tayhu.uz",
+	"contactPhone": "+998 90 000 00 00",
+	"telegramLink": "https://t.me/uz_evil",
 	"description": "Будь в стиле. Будь с Milhive",
 	"logo": "/config/logoo.svg",
 	"darkLogo": "/config/logoo.svg",
 	"seo": {
-		"title": "Milhive — Стильная одежда | Интернет-магазин",
-		"description": "Milhive — интернет-магазин стильной одежды в Узбекистане. Головные уборы, верхняя одежда, обувь и аксессуары. Доставка по всей стране.",
-		"keywords": "одежда, Узбекистан, стиль, мода, головные уборы, верхняя одежда, обувь, аксессуары, milhive, Milhive, мужская",
-		"siteUrl": "https://milhive.shop",
-		"language": "ru"
+		"title": "Tayhu — Современный стиль и качество",
+		"description": "Tayhu — интернет-магазин с уникальным выбором товаров. Качество, стиль и быстрая доставка.",
+		"keywords": "Tayhu, одежда, стиль, магазин, Узбекистан, премиум",
+		"siteUrl": "https://monvoir.shop",
+		"language": "ru",
+		"ogImage": "/config/logo.png"
 	},
 	"currency": {
 		"symbol": "UZS",
@@ -25,21 +30,24 @@
 		"card": "#FFFFFF",
 		"cardForeground": "#111111",
 
-		"primary": "#f5a40d",
-		"primaryForeground": "#111111",
+		"primary": "#B08354",
+		"primaryForeground": "#1a1a1a",
 
-		"secondary": "#ae883f",
-		"secondaryForeground": "#FFFFFF",
+		"secondary": "#27272a",
+		"secondaryForeground": "#fafafa",
 
 		"muted": "#F7F7F7",
 		"mutedForeground": "#6B6B6B",
 
-		"accent": "#f5a40d",
-		"accentForeground": "#111111",
+		"accent": "#B08354",
+		"accentForeground": "#1a1a1a",
+
+		"destructive": "#7f1d1d",
+		"destructiveForeground": "#fafafa",
 
 		"border": "#E6E6E6",
 		"input": "#E6E6E6",
-		"ring": "#f5a40d"
+		"ring": "#B08354"
 	},
 	"colorSchemeDark": {
 		"background": "#0F0F0F",
@@ -48,21 +56,24 @@
 		"card": "#161616",
 		"cardForeground": "#F5F5F5",
 
-		"primary": "#f5a40d",
-		"primaryForeground": "#0F0F0F",
+		"primary": "#B08354",
+		"primaryForeground": "#ffffff",
 
-		"secondary": "#cca64b",
-		"secondaryForeground": "#0F0F0F",
+		"secondary": "#BDBDBD",
+		"secondaryForeground": "#1a1a1a",
 
 		"muted": "#1F1F1F",
 		"mutedForeground": "#9A9A9A",
 
-		"accent": "#f5a40d",
-		"accentForeground": "#0F0F0F",
+		"accent": "#B08354",
+		"accentForeground": "#ffffff",
+
+		"destructive": "#ef4444",
+		"destructiveForeground": "#fafafa",
 
 		"border": "#262626",
 		"input": "#262626",
-		"ring": "#f5a40d"
+		"ring": "#B08354"
 	},
 	"sortOptions": [
 		{
