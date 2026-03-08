@@ -95,88 +95,69 @@ echo -e "${GREEN}       📝 НАСТРОЙКА ПАРАМЕТРОВ${NC}"
 echo -e "${BLUE}================================================================${NC}"
 echo ""
 
-# 1. Обнаружение существующих инстансов
-EXISTING_SERVICES=$(ls /etc/systemd/system/shop-app*.service 2>/dev/null | sed 's/.*shop-app\(.*\)\.service/\1/' | sed 's/^-//')
-EXISTING_PORTS=$(grep -r "proxy_pass http://127.0.0.1:" /etc/nginx/sites-enabled/ 2>/dev/null | grep -o "[0-9]\{4,5\}" | sort -u | tr '\n' ' ')
+# ============================================================================
+# СБОР ПАРАМЕТРОВ КОНФИГУРАЦИИ
+# ============================================================================
+echo ""
+echo -e "${BLUE}================================================================${NC}"
+echo -e "${GREEN}       📝 НАСТРОЙКА ПАРАМЕТРОВ${NC}"
+echo -e "${BLUE}================================================================${NC}"
+echo ""
 
-echo -e "${YELLOW}🔍 Анализ сервера...${NC}"
-if [ ! -z "$EXISTING_SERVICES" ]; then
-    echo "Найдены работающие сайты: $EXISTING_SERVICES"
-    echo "Используемые порты: $EXISTING_PORTS"
-    echo ""
-    echo "Выберите действие:"
-    echo "  1) Обновить существующий сайт"
-    echo "  2) Установить НОВЫЙ сайт рядом (второй, третий и т.д.)"
-    read -p "Ваш выбор [1]: " DEPLOY_MODE
-    DEPLOY_MODE=${DEPLOY_MODE:-1}
+# 1. Сбор базовой информации
+read -p "ID проекта (например: tayhu, luxe): " INSTANCE_ID
+if [ -z "$INSTANCE_ID" ]; then
+    INSTANCE_SUFFIX=""
+    APP_USER="shopapp"
+    DB_NAME="shop_db"
 else
-    echo "Работающих сайтов не обнаружено. Будет выполнена чистая установка."
-    DEPLOY_MODE=2
-fi
-
-# 2. Определение ID и Портов
-if [ "$DEPLOY_MODE" == "1" ]; then
-    echo ""
-    echo "Какой сайт обновить?"
-    select INSTANCE_NAME in $EXISTING_SERVICES; do
-        if [ -n "$INSTANCE_NAME" ]; then
-            if [ "$INSTANCE_NAME" == "main" ] || [ -z "$INSTANCE_NAME" ]; then
-                INSTANCE_ID=""
-                INSTANCE_SUFFIX=""
-                APP_USER="shopapp"
-            else
-                INSTANCE_ID="$INSTANCE_NAME"
-                INSTANCE_SUFFIX="-$INSTANCE_ID"
-                APP_USER="shopapp_$INSTANCE_ID"
-            fi
-            # Пытаемся найти порт этого инстанса в сервис-файле
-            SERVICE_FILE="/etc/systemd/system/shop-app${INSTANCE_SUFFIX}.service"
-            APP_PORT=$(grep -o "[0-9]\{4,5\}" "$SERVICE_FILE" | head -n1)
-            echo "Выбран инстанс: ${INSTANCE_ID:-основной} (Порт: $APP_PORT)"
-            break
-        fi
-    done
-else
-    # Режим установки нового сайта
-    echo ""
-    echo -e "${GREEN}🆕 НАСТРОЙКА НОВОГО ЭКЗЕМПЛЯРА${NC}"
-    
-    # Автоподбор ID
-    SUGGESTED_ID="shop$(echo "$EXISTING_SERVICES" | wc -w | xargs -I{} echo $(( {} + 1 )))"
-    read -p "Введите уникальный ID проекта [$SUGGESTED_ID]: " INSTANCE_ID
-    INSTANCE_ID=${INSTANCE_ID:-$SUGGESTED_ID}
     INSTANCE_SUFFIX="-$INSTANCE_ID"
     APP_USER="shopapp_$INSTANCE_ID"
-    
-    # Автоподбор Порта
+    DB_NAME="shop_db_${INSTANCE_ID//-/_}"
+fi
+
+# Проверка: обновление или новая установка?
+SERVICE_FILE="/etc/systemd/system/shop-app${INSTANCE_SUFFIX}.service"
+if [ -f "$SERVICE_FILE" ]; then
+    echo -e "${YELLOW}♻️  Инстанс '$INSTANCE_ID' обнаружен. Будет выполнено обновление.${NC}"
+    APP_PORT=$(grep -o "[0-9]\{4,5\}" "$SERVICE_FILE" | head -n1)
+    IS_UPDATE=true
+else
+    echo -e "${GREEN}🆕 Инстанс '$INSTANCE_ID' не найден. Будет выполнена НОВАЯ установка.${NC}"
+    IS_UPDATE=false
+    # Автоподбор порта для новой установки
+    EXISTING_PORTS=$(grep -r "proxy_pass http://127.0.0.1:" /etc/nginx/sites-enabled/ 2>/dev/null | grep -o "[0-9]\{4,5\}" | sort -u | tr '\n' ' ')
     MAX_PORT=$(echo "$EXISTING_PORTS" | tr ' ' '\n' | sort -rn | head -n1)
     MAX_PORT=${MAX_PORT:-4999}
-    DEFAULT_PORT=$((MAX_PORT + 1))
-    read -p "Порт приложения [$DEFAULT_PORT]: " APP_PORT
-    APP_PORT=${APP_PORT:-$DEFAULT_PORT}
+    APP_PORT=$((MAX_PORT + 1))
 fi
 
-# Базовые параметры на основе ID
-DB_NAME="shop_db${INSTANCE_SUFFIX//-/_}"
-DB_USER="shop_user${INSTANCE_SUFFIX//-/_}"
-
-# 3. Брендинг (Опционально)
+# 2. Брендинг (Tayhu по умолчанию)
 echo ""
-echo -e "${YELLOW}🎨 БРЕНДИНГ (оставьте пустым чтобы использовать настройки из файлов)${NC}"
-read -p "Название магазина (например: Tayhu): " SHOP_NAME
-read -p "Основной цвет (HEX, например #B08354): " PRIMARY_COLOR
-echo ""
+echo -e "${YELLOW}🎨 БРЕНДИНГ (Enter для Tayhu)${NC}"
+read -p "Название магазина [Tayhu]: " SHOP_NAME
+SHOP_NAME=${SHOP_NAME:-"Tayhu"}
+read -p "Основной цвет [#B08354]: " PRIMARY_COLOR
+PRIMARY_COLOR=${PRIMARY_COLOR:-"#B08354"}
 
-# 4. Прочие настройки
-echo -e "${YELLOW}🔗 ИСТОЧНИК КОДА${NC}"
-read -p "GitHub репозиторий (оставьте пустым для локальных файлов): " GITHUB_REPO
-if [ ! -z "$GITHUB_REPO" ]; then
-    read -p "Ветка [main]: " GIT_BRANCH
-    GIT_BRANCH=${GIT_BRANCH:-main}
+# 3. Домен
+echo ""
+echo -e "${YELLOW}🌐 СЕТЬ${NC}"
+read -p "Ваш домен (например: tayhu.uz): " DOMAIN
+if [ ! -z "$DOMAIN" ]; then
+    read -p "Email для SSL уведомлений: " SSL_EMAIL
 fi
+echo "Используемый порт: $APP_PORT"
 
+# 4. Технические параметры
 echo ""
-read -sp "Придумайте пароль для базы данных: " DB_PASSWORD
+echo -e "${YELLOW}⚙️  ТЕХНИЧЕСКИЕ НАСТРОЙКИ${NC}"
+read -p "GitHub репозиторий (Enter для текущих файлов): " GITHUB_REPO
+
+read -p "Пользователь БД [$APP_USER]: " DB_USER
+DB_USER=${DB_USER:-$APP_USER}
+
+read -sp "Придумайте пароль для БД: " DB_PASSWORD
 echo
 while [ -z "$DB_PASSWORD" ]; do
     print_error "Пароль не может быть пустым!"
@@ -184,15 +165,15 @@ while [ -z "$DB_PASSWORD" ]; do
     echo
 done
 
+# Токены Ботов
 echo ""
-echo -e "${YELLOW}🌐 ДОМЕН И SSL${NC}"
-read -p "Ваш домен (например: tayhu.uz): " DOMAIN
-if [ ! -z "$DOMAIN" ]; then
-    read -p "Email для SSL уведомлений: " SSL_EMAIL
-fi
-echo ""
+echo -e "${YELLOW}🤖 БОТЫ (Обязательно для Mini App)${NC}"
+read -p "Main Telegram Bot Token: " TELEGRAM_BOT_TOKEN
+read -p "AI Bot Token (Mona): " AI_BOT_TOKEN
+read -p "GROQ API Key: " GROQ_API_KEY
 
-print_step "Конфигурация готова. Установка будет произведена в /home/$APP_USER/app"
+APP_DIR="/home/$APP_USER/app"
+print_step "Все готово. Файлы будут в $APP_DIR. Начинаем..."
 sleep 2
 
 # Telegram Bot токены
