@@ -100,81 +100,48 @@ echo ""
 # ============================================================================
 echo ""
 echo -e "${BLUE}================================================================${NC}"
-echo -e "${GREEN}       📝 НАСТРОЙКА ПАРАМЕТРОВ${NC}"
+echo -e "${GREEN}       📝 БЫСТРАЯ НАСТРОЙКА TAYHU${NC}"
 echo -e "${BLUE}================================================================${NC}"
 echo ""
 
-# 1. Сбор базовой информации
-read -p "ID проекта (например: tayhu, luxe): " INSTANCE_ID
-if [ -z "$INSTANCE_ID" ]; then
-    INSTANCE_SUFFIX=""
-    APP_USER="shopapp"
-    DB_NAME="shop_db"
-else
-    INSTANCE_SUFFIX="-$INSTANCE_ID"
-    APP_USER="shopapp_$INSTANCE_ID"
-    DB_NAME="shop_db_${INSTANCE_ID//-/_}"
-fi
+# 1. ID и Авто-порт
+read -p "ID проекта (например: tayhu): " INSTANCE_ID
+INSTANCE_ID=${INSTANCE_ID:-"tayhu"}
+INSTANCE_SUFFIX="-$INSTANCE_ID"
+APP_USER="shopapp_$INSTANCE_ID"
+DB_NAME="shop_db_${INSTANCE_ID//-/_}"
+DB_USER="$APP_USER"
 
-# Проверка: обновление или новая установка?
-SERVICE_FILE="/etc/systemd/system/shop-app${INSTANCE_SUFFIX}.service"
-if [ -f "$SERVICE_FILE" ]; then
-    echo -e "${YELLOW}♻️  Инстанс '$INSTANCE_ID' обнаружен. Будет выполнено обновление.${NC}"
-    APP_PORT=$(grep -o "[0-9]\{4,5\}" "$SERVICE_FILE" | head -n1)
-    IS_UPDATE=true
-else
-    echo -e "${GREEN}🆕 Инстанс '$INSTANCE_ID' не найден. Будет выполнена НОВАЯ установка.${NC}"
-    IS_UPDATE=false
-    # Автоподбор порта для новой установки
-    EXISTING_PORTS=$(grep -r "proxy_pass http://127.0.0.1:" /etc/nginx/sites-enabled/ 2>/dev/null | grep -o "[0-9]\{4,5\}" | sort -u | tr '\n' ' ')
-    MAX_PORT=$(echo "$EXISTING_PORTS" | tr ' ' '\n' | sort -rn | head -n1)
-    MAX_PORT=${MAX_PORT:-4999}
-    APP_PORT=$((MAX_PORT + 1))
-fi
+# Автоподбор порта
+EXISTING_PORTS=$(grep -r "proxy_pass http://127.0.0.1:" /etc/nginx/sites-enabled/ 2>/dev/null | grep -o "[0-9]\{4,5\}" | sort -u | tr '\n' ' ')
+MAX_PORT=$(echo "$EXISTING_PORTS" | tr ' ' '\n' | sort -rn | head -n1)
+MAX_PORT=${MAX_PORT:-4999}
+APP_PORT=$((MAX_PORT + 1))
 
-# 2. Брендинг (Tayhu по умолчанию)
-echo ""
-echo -e "${YELLOW}🎨 БРЕНДИНГ (Enter для Tayhu)${NC}"
-read -p "Название магазина [Tayhu]: " SHOP_NAME
-SHOP_NAME=${SHOP_NAME:-"Tayhu"}
-read -p "Основной цвет [#B08354]: " PRIMARY_COLOR
-PRIMARY_COLOR=${PRIMARY_COLOR:-"#B08354"}
+# 2. Домен
+read -p "Домен (например: tayhu.uz): " DOMAIN
+read -p "Email для SSL (для Certbot): " SSL_EMAIL
 
-# 3. Домен
-echo ""
-echo -e "${YELLOW}🌐 СЕТЬ${NC}"
-read -p "Ваш домен (например: tayhu.uz): " DOMAIN
-if [ ! -z "$DOMAIN" ]; then
-    read -p "Email для SSL уведомлений: " SSL_EMAIL
-fi
-echo "Используемый порт: $APP_PORT"
+# 3. Брендинг (Всегда Tayhu по умолчанию, без лишних вопросов)
+SHOP_NAME="Tayhu"
+PRIMARY_COLOR="#B08354"
 
-# 4. Технические параметры
-echo ""
-echo -e "${YELLOW}⚙️  ТЕХНИЧЕСКИЕ НАСТРОЙКИ${NC}"
-read -p "GitHub репозиторий (Enter для текущих файлов): " GITHUB_REPO
-
-read -p "Пользователь БД [$APP_USER]: " DB_USER
-DB_USER=${DB_USER:-$APP_USER}
-
-read -sp "Придумайте пароль для БД: " DB_PASSWORD
-echo
-while [ -z "$DB_PASSWORD" ]; do
-    print_error "Пароль не может быть пустым!"
-    read -sp "Пароль БД: " DB_PASSWORD
-    echo
-done
-
-# Токены Ботов
-echo ""
-echo -e "${YELLOW}🤖 БОТЫ (Обязательно для Mini App)${NC}"
-read -p "Main Telegram Bot Token: " TELEGRAM_BOT_TOKEN
-read -p "AI Bot Token (Mona): " AI_BOT_TOKEN
+# 4. Токены
+echo -e "${YELLOW}🤖 Введите токены для нового бота:${NC}"
+read -p "Telegram Bot Token: " TELEGRAM_BOT_TOKEN
+read -p "AI Bot Token: " AI_BOT_TOKEN
 read -p "GROQ API Key: " GROQ_API_KEY
 
+# Авто-генерация пароля БД
+DB_PASSWORD=$(openssl rand -hex 12)
+
+# Ветка и Репо (по умолчанию текущие)
+GITHUB_REPO=""
+GIT_BRANCH="main"
+
 APP_DIR="/home/$APP_USER/app"
-print_step "Все готово. Файлы будут в $APP_DIR. Начинаем..."
-sleep 2
+print_step "Начинаем установку '$INSTANCE_ID' на порт $APP_PORT..."
+sleep 1
 
 # Telegram Bot токены
 echo -e "${YELLOW}🤖 ТОКЕНЫ TELEGRAM БОТОВ${NC}"
