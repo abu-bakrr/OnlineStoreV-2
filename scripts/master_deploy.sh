@@ -96,52 +96,78 @@ echo -e "${BLUE}================================================================
 echo ""
 
 # ============================================================================
-# СБОР ПАРАМЕТРОВ КОНФИГУРАЦИИ
+# СБОР ПАРАМЕТРОВ (С ПРОВЕРКОЙ КОНФЛИКТОВ)
 # ============================================================================
 echo ""
 echo -e "${BLUE}================================================================${NC}"
-echo -e "${GREEN}       📝 БЫСТРАЯ НАСТРОЙКА TAYHU${NC}"
+echo -e "${GREEN}       ⚙️  НАСТРОЙКА НОВОГО САЙТА${NC}"
 echo -e "${BLUE}================================================================${NC}"
 echo ""
 
-# 1. ID и Авто-порт
-read -p "ID проекта (например: tayhu): " INSTANCE_ID
-INSTANCE_ID=${INSTANCE_ID:-"tayhu"}
-INSTANCE_SUFFIX="-$INSTANCE_ID"
-APP_USER="shopapp_$INSTANCE_ID"
-DB_NAME="shop_db_${INSTANCE_ID//-/_}"
+# 1. Системный пользователь
+read -p "Имя пользователя для этого сайта (например, shopapp2): " APP_USER
+while [ -z "$APP_USER" ]; do
+    read -p "Имя пользователя обязательно: " APP_USER
+done
+
+if id "$APP_USER" &>/dev/null; then
+    echo -e "${YELLOW}⚠️  Внимание: Пользователь '$APP_USER' уже существует!${NC}"
+    read -p "Это обновление существующего сайта? [y/N]: " IS_UPDATE
+    if [[ ! "$IS_UPDATE" =~ ^[Yy]$ ]]; then
+        print_error "Пожалуйста, выберите другое имя пользователя для нового сайта."
+        exit 1
+    fi
+fi
+
+# 2. Порт приложения
+read -p "Порт для этого сайта (например, 5001): " APP_PORT
+while [ -z "$APP_PORT" ]; do
+    read -p "Порт обязателен: " APP_PORT
+done
+
+# Проверка порта
+if grep -r "proxy_pass http://127.0.0.1:$APP_PORT" /etc/nginx/sites-enabled/ &>/dev/null; then
+    echo -e "${RED}❌ Ошибка: Порт $APP_PORT уже используется другим сайтом в Nginx!${NC}"
+    exit 1
+fi
+
+# 3. База данных
+read -p "Имя базы данных [$APP_USER]: " DB_NAME
+DB_NAME=${DB_NAME:-$APP_USER}
 DB_USER="$APP_USER"
 
-# Автоподбор порта
-EXISTING_PORTS=$(grep -r "proxy_pass http://127.0.0.1:" /etc/nginx/sites-enabled/ 2>/dev/null | grep -o "[0-9]\{4,5\}" | sort -u | tr '\n' ' ')
-MAX_PORT=$(echo "$EXISTING_PORTS" | tr ' ' '\n' | sort -rn | head -n1)
-MAX_PORT=${MAX_PORT:-4999}
-APP_PORT=$((MAX_PORT + 1))
+# 4. Домен
+read -p "Домен сайта (например, tayhu.uz): " DOMAIN
+if [ ! -z "$DOMAIN" ]; then
+    read -p "Email для SSL (Certbot): " SSL_EMAIL
+fi
 
-# 2. Домен
-read -p "Домен (например: tayhu.uz): " DOMAIN
-read -p "Email для SSL (для Certbot): " SSL_EMAIL
-
-# 3. Брендинг (Всегда Tayhu по умолчанию, без лишних вопросов)
-SHOP_NAME="Tayhu"
-PRIMARY_COLOR="#B08354"
-
-# 4. Токены
-echo -e "${YELLOW}🤖 Введите токены для нового бота:${NC}"
-read -p "Telegram Bot Token: " TELEGRAM_BOT_TOKEN
-read -p "AI Bot Token: " AI_BOT_TOKEN
+# 5. Токены
+echo ""
+echo -e "${YELLOW}🤖 Введите токены ботов:${NC}"
+read -p "Main Telegram Bot Token: " TELEGRAM_BOT_TOKEN
+read -p "AI Bot Token (Mona): " AI_BOT_TOKEN
 read -p "GROQ API Key: " GROQ_API_KEY
 
-# Авто-генерация пароля БД
-DB_PASSWORD=$(openssl rand -hex 12)
+# Пароль БД (авто или ввод)
+read -sp "Пароль для базы данных (скроется при вводе): " DB_PASSWORD
+echo ""
+DB_PASSWORD=${DB_PASSWORD:-$(openssl rand -hex 8)}
 
-# Ветка и Репо (по умолчанию текущие)
-GITHUB_REPO=""
-GIT_BRANCH="main"
-
+# Технические пути
+# Берем путь, где СЕЙЧАС лежит этот скрипт
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 APP_DIR="/home/$APP_USER/app"
-print_step "Начинаем установку '$INSTANCE_ID' на порт $APP_PORT..."
-sleep 1
+INSTANCE_SUFFIX="-$APP_USER"
+
+echo ""
+print_step "Конфигурация завершена."
+echo "Пользователь: $APP_USER"
+echo "Порт:         $APP_PORT"
+echo "Папка:        $APP_DIR"
+echo ""
+sleep 2
 
 # Telegram Bot токены
 echo -e "${YELLOW}🤖 ТОКЕНЫ TELEGRAM БОТОВ${NC}"
