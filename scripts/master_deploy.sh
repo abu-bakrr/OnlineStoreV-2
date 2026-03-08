@@ -367,6 +367,12 @@ if os.path.exists(path):
 
     if '$SHOP_NAME':
         config['shopName'] = '$SHOP_NAME'
+        config['shopDescription'] = 'Tayhu — Дизайнерский декор и изделия из высококачественного пластика.'
+        config['description'] = 'Tayhu — создаем уют с помощью современных технологий.'
+        if 'seo' in config:
+            config['seo']['title'] = 'Tayhu — Дизайнерский декор и презентабельный пластик'
+            config['seo']['description'] = 'Tayhu — уникальные декоративные изделия и качественный пластик для вашего интерьера.'
+            config['seo']['keywords'] = 'Tayhu, декор, пластик, интерьер, дизайн, изделия из пластика, Узбекистан'
     
     if '$PRIMARY_COLOR':
         for theme in ['colorScheme', 'colorSchemeDark']:
