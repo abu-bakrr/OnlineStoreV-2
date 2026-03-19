@@ -1,6 +1,6 @@
-# 🎨 Telegram Mini App Template
+# 🎨 Универсальный шаблон магазина
 
-Этот проект — универсальный шаблон для создания мобильных магазинов в Telegram Mini App. Все настройки магазина хранятся в одном месте, что позволяет легко адаптировать приложение под любой бизнес.
+Этот проект — универсальный шаблон для создания мобильных интернет-магазинов. Все настройки магазина хранятся в одном месте, что позволяет легко адаптировать приложение под любой бизнес.
 
 ## 📁 Структура конфигурации
 
@@ -18,15 +18,15 @@ config/
 
 ```json
 {
-  "shopName": "Название вашего магазина",
-  "description": "Краткое описание",
-  "logo": "/config/logo.svg",
-  "currency": {
-    "symbol": "₽",           // Символ валюты
-    "code": "RUB",           // Код валюты
-    "position": "after"      // Позиция символа: "before" или "after"
-  },
-  "managerContact": "@your_telegram"  // Telegram контакт менеджера
+	"shopName": "Название вашего магазина",
+	"description": "Краткое описание",
+	"logo": "/config/logo.svg",
+	"currency": {
+		"symbol": "₽", // Символ валюты
+		"code": "RUB", // Код валюты
+		"position": "after" // Позиция символа: "before" или "after"
+	},
+	"managerContact": "@your_telegram" // Telegram контакт менеджера
 }
 ```
 
@@ -36,23 +36,23 @@ config/
 
 ```json
 {
-  "colorScheme": {
-    "background": "#FEFEFE",      // Фон приложения
-    "foreground": "#1A1A1A",      // Основной текст
-    "card": "#FFFFFF",            // Фон карточек
-    "cardForeground": "#1A1A1A",  // Текст на карточках
-    "primary": "#EADCF0",         // Акцентный цвет (кнопки, выделения)
-    "primaryForeground": "#1A1A1A", // Текст на акцентном фоне
-    "secondary": "#F5F5F5",       // Вторичный фон
-    "secondaryForeground": "#1A1A1A",
-    "muted": "#F5F5F5",           // Приглушенные элементы
-    "mutedForeground": "#737373", // Приглушенный текст
-    "accent": "#EADCF0",          // Дополнительный акцент
-    "accentForeground": "#1A1A1A",
-    "border": "#E5E5E5",          // Границы
-    "input": "#E5E5E5",           // Поля ввода
-    "ring": "#EADCF0"             // Обводка фокуса
-  }
+	"colorScheme": {
+		"background": "#FEFEFE", // Фон приложения
+		"foreground": "#1A1A1A", // Основной текст
+		"card": "#FFFFFF", // Фон карточек
+		"cardForeground": "#1A1A1A", // Текст на карточках
+		"primary": "#EADCF0", // Акцентный цвет (кнопки, выделения)
+		"primaryForeground": "#1A1A1A", // Текст на акцентном фоне
+		"secondary": "#F5F5F5", // Вторичный фон
+		"secondaryForeground": "#1A1A1A",
+		"muted": "#F5F5F5", // Приглушенные элементы
+		"mutedForeground": "#737373", // Приглушенный текст
+		"accent": "#EADCF0", // Дополнительный акцент
+		"accentForeground": "#1A1A1A",
+		"border": "#E5E5E5", // Границы
+		"input": "#E5E5E5", // Поля ввода
+		"ring": "#EADCF0" // Обводка фокуса
+	}
 }
 ```
 
@@ -62,23 +62,23 @@ config/
 
 ```json
 {
-  "sortOptions": [
-    {
-      "id": "new",              // Уникальный ID
-      "label": "Новинки",       // Название для пользователей
-      "emoji": "✨"             // Эмодзи для визуального отображения
-    },
-    {
-      "id": "price_asc",
-      "label": "Сначала дешевые",
-      "emoji": "💰"
-    },
-    {
-      "id": "price_desc",
-      "label": "Сначала дорогие",
-      "emoji": "💎"
-    }
-  ]
+	"sortOptions": [
+		{
+			"id": "new", // Уникальный ID
+			"label": "Новинки", // Название для пользователей
+			"emoji": "✨" // Эмодзи для визуального отображения
+		},
+		{
+			"id": "price_asc",
+			"label": "Сначала дешевые",
+			"emoji": "💰"
+		},
+		{
+			"id": "price_desc",
+			"label": "Сначала дорогие",
+			"emoji": "💎"
+		}
+	]
 }
 ```
 
@@ -86,12 +86,12 @@ config/
 
 ```json
 {
-  "ui": {
-    "maxWidth": "420px",           // Максимальная ширина
-    "productsPerPage": 12,         // Товаров на странице
-    "showCategoryIcons": true,     // Показывать иконки категорий
-    "showPriceFilter": true        // Показывать фильтр по цене
-  }
+	"ui": {
+		"maxWidth": "420px", // Максимальная ширина
+		"productsPerPage": 12, // Товаров на странице
+		"showCategoryIcons": true, // Показывать иконки категорий
+		"showPriceFilter": true // Показывать фильтр по цене
+	}
 }
 ```
 
@@ -101,15 +101,15 @@ config/
 
 ```json
 {
-  "texts": {
-    "addToCart": "В корзину",
-    "addedToCart": "Добавлено",
-    "checkout": "Оформить заказ",
-    "total": "Итого",
-    "emptyCart": "Корзина пуста",
-    "emptyFavorites": "Нет избранных товаров",
-    "loading": "Загрузка..."
-  }
+	"texts": {
+		"addToCart": "В корзину",
+		"addedToCart": "Добавлено",
+		"checkout": "Оформить заказ",
+		"total": "Итого",
+		"emptyCart": "Корзина пуста",
+		"emptyFavorites": "Нет избранных товаров",
+		"loading": "Загрузка..."
+	}
 }
 ```
 
@@ -123,14 +123,14 @@ config/
 
 ```json
 {
-  "payment": {
-    "cardTransfer": {
-      "enabled": true,
-      "cardNumber": "8600 1234 5678 9012",
-      "cardHolder": "Иванов Иван Иванович",
-      "bankName": "Uzcard"
-    }
-  }
+	"payment": {
+		"cardTransfer": {
+			"enabled": true,
+			"cardNumber": "8600 1234 5678 9012",
+			"cardHolder": "Иванов Иван Иванович",
+			"bankName": "Uzcard"
+		}
+	}
 }
 ```
 
@@ -140,17 +140,18 @@ config/
 
 ```json
 {
-  "payment": {
-    "click": {
-      "enabled": true,
-      "merchantId": "12345",
-      "serviceId": "67890"
-    }
-  }
+	"payment": {
+		"click": {
+			"enabled": true,
+			"merchantId": "12345",
+			"serviceId": "67890"
+		}
+	}
 }
 ```
 
 **Переменные окружения (секретные):**
+
 ```bash
 CLICK_MERCHANT_ID=12345
 CLICK_SERVICE_ID=67890
@@ -161,16 +162,17 @@ CLICK_SECRET_KEY=your_secret_key
 
 ```json
 {
-  "payment": {
-    "payme": {
-      "enabled": true,
-      "merchantId": "your_merchant_id"
-    }
-  }
+	"payment": {
+		"payme": {
+			"enabled": true,
+			"merchantId": "your_merchant_id"
+		}
+	}
 }
 ```
 
 **Переменные окружения:**
+
 ```bash
 PAYME_MERCHANT_ID=your_merchant_id
 PAYME_KEY=your_secret_key
@@ -180,17 +182,18 @@ PAYME_KEY=your_secret_key
 
 ```json
 {
-  "payment": {
-    "uzum": {
-      "enabled": true,
-      "merchantId": "your_merchant_id",
-      "serviceId": "your_service_id"
-    }
-  }
+	"payment": {
+		"uzum": {
+			"enabled": true,
+			"merchantId": "your_merchant_id",
+			"serviceId": "your_service_id"
+		}
+	}
 }
 ```
 
 **Переменные окружения:**
+
 ```bash
 UZUM_MERCHANT_ID=your_merchant_id
 UZUM_SERVICE_ID=your_service_id
@@ -203,14 +206,15 @@ UZUM_SECRET_KEY=your_secret_key
 
 ```json
 {
-  "telegramNotifications": {
-    "enabled": true,
-    "adminChatId": "987654321"
-  }
+	"telegramNotifications": {
+		"enabled": true,
+		"adminChatId": "987654321"
+	}
 }
 ```
 
 **Переменные окружения:**
+
 ```bash
 TELEGRAM_BOT_TOKEN=123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TELEGRAM_ADMIN_CHAT_ID=987654321
@@ -223,6 +227,7 @@ TELEGRAM_ADMIN_CHAT_ID=987654321
 ## 🎨 Логотип
 
 Замените файл `config/logo.svg` на свой логотип:
+
 - Формат: SVG (рекомендуется) или PNG
 - Размер: 200x200px или больше
 - Обновите путь в `settings.json` если используете другое имя файла
@@ -235,14 +240,14 @@ TELEGRAM_ADMIN_CHAT_ID=987654321
 
 ### Возможности:
 
-| Вкладка | Функции |
-|---------|---------|
-| **Товары** | Добавление, редактирование, удаление с загрузкой фото через Cloudinary |
-| **Категории** | CRUD для категорий с иконками (эмодзи) |
-| **Заказы** | Просмотр, изменение статуса, просмотр чеков |
-| **Статистика** | Пользователи, заказы, выручка, конверсия |
-| **Настройки** | Cloudinary, платежи, Telegram, SMTP |
-| **Менеджеры** | Управление админами (только superadmin) |
+| Вкладка        | Функции                                                                |
+| -------------- | ---------------------------------------------------------------------- |
+| **Товары**     | Добавление, редактирование, удаление с загрузкой фото через Cloudinary |
+| **Категории**  | CRUD для категорий с иконками (эмодзи)                                 |
+| **Заказы**     | Просмотр, изменение статуса, просмотр чеков                            |
+| **Статистика** | Пользователи, заказы, выручка, конверсия                               |
+| **Настройки**  | Cloudinary, платежи, Telegram, SMTP                                    |
+| **Менеджеры**  | Управление админами (только superadmin)                                |
 
 ### Первый вход:
 
@@ -266,18 +271,20 @@ TELEGRAM_ADMIN_CHAT_ID=987654321
 ### Через SQL:
 
 #### Категории
+
 ```sql
 INSERT INTO categories (name, icon) VALUES ('Электроника', '📱');
 ```
 
 #### Товары
+
 ```sql
-INSERT INTO products (name, description, price, images, category_id, colors, attributes) 
+INSERT INTO products (name, description, price, images, category_id, colors, attributes)
 VALUES (
-  'iPhone 15', 
-  'Новый смартфон Apple', 
-  15000000, 
-  ARRAY['https://example.com/image1.jpg'], 
+  'iPhone 15',
+  'Новый смартфон Apple',
+  15000000,
+  ARRAY['https://example.com/image1.jpg'],
   'category-id-here',
   ARRAY['Черный', 'Белый', 'Синий'],
   '{"name": "Память", "values": ["128GB", "256GB", "512GB"]}'::jsonb
@@ -326,56 +333,59 @@ CLOUDINARY_API_SECRET=your_api_secret
 ## 💡 Примеры использования
 
 ### Магазин одежды
+
 ```json
 {
-  "shopName": "Fashion Store",
-  "currency": { "symbol": "$", "code": "USD", "position": "before" },
-  "colorScheme": {
-    "primary": "#FF6B9D",
-    "accent": "#C44569"
-  },
-  "sortOptions": [
-    { "id": "new", "label": "New Arrivals", "emoji": "✨" },
-    { "id": "popular", "label": "Trending", "emoji": "🔥" }
-  ]
+	"shopName": "Fashion Store",
+	"currency": { "symbol": "$", "code": "USD", "position": "before" },
+	"colorScheme": {
+		"primary": "#FF6B9D",
+		"accent": "#C44569"
+	},
+	"sortOptions": [
+		{ "id": "new", "label": "New Arrivals", "emoji": "✨" },
+		{ "id": "popular", "label": "Trending", "emoji": "🔥" }
+	]
 }
 ```
 
 ### Магазин электроники
+
 ```json
 {
-  "shopName": "TechHub",
-  "currency": { "symbol": "€", "code": "EUR", "position": "after" },
-  "colorScheme": {
-    "primary": "#2C3E50",
-    "accent": "#3498DB"
-  },
-  "sortOptions": [
-    { "id": "new", "label": "Latest", "emoji": "🆕" },
-    { "id": "rating", "label": "Top Rated", "emoji": "⭐" }
-  ]
+	"shopName": "TechHub",
+	"currency": { "symbol": "€", "code": "EUR", "position": "after" },
+	"colorScheme": {
+		"primary": "#2C3E50",
+		"accent": "#3498DB"
+	},
+	"sortOptions": [
+		{ "id": "new", "label": "Latest", "emoji": "🆕" },
+		{ "id": "rating", "label": "Top Rated", "emoji": "⭐" }
+	]
 }
 ```
 
 ### Магазин в Узбекистане
+
 ```json
 {
-  "shopName": "Online Do'kon",
-  "currency": { "symbol": "сум", "code": "UZS", "position": "after" },
-  "colorScheme": {
-    "primary": "#3B82F6",
-    "accent": "#1E40AF"
-  },
-  "payment": {
-    "click": { "enabled": true, "merchantId": "12345", "serviceId": "67890" },
-    "payme": { "enabled": true, "merchantId": "abcdef" },
-    "cardTransfer": { 
-      "enabled": true, 
-      "cardNumber": "8600 1234 5678 9012",
-      "cardHolder": "Иванов Иван",
-      "bankName": "Uzcard"
-    }
-  }
+	"shopName": "Online Do'kon",
+	"currency": { "symbol": "сум", "code": "UZS", "position": "after" },
+	"colorScheme": {
+		"primary": "#3B82F6",
+		"accent": "#1E40AF"
+	},
+	"payment": {
+		"click": { "enabled": true, "merchantId": "12345", "serviceId": "67890" },
+		"payme": { "enabled": true, "merchantId": "abcdef" },
+		"cardTransfer": {
+			"enabled": true,
+			"cardNumber": "8600 1234 5678 9012",
+			"cardHolder": "Иванов Иван",
+			"bankName": "Uzcard"
+		}
+	}
 }
 ```
 
@@ -395,6 +405,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 ## 🔧 API Endpoints
 
 ### Публичные
+
 - `GET /api/config` - Получить конфигурацию
 - `GET /config/logo.svg` - Получить логотип
 - `GET /api/categories` - Список категорий
@@ -402,12 +413,14 @@ CLOUDINARY_API_SECRET=your_api_secret
 - `GET /api/products/<id>` - Товар по ID
 
 ### Авторизация
+
 - `POST /api/auth/register` - Регистрация
 - `POST /api/auth/login` - Вход
 - `GET /api/auth/me` - Текущий пользователь
 - `POST /api/auth/logout` - Выход
 
 ### Корзина и заказы
+
 - `GET /api/cart` - Корзина
 - `POST /api/cart` - Добавить в корзину
 - `DELETE /api/cart/<id>` - Удалить из корзины
@@ -415,6 +428,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 - `GET /api/orders` - История заказов
 
 ### Админ-панель
+
 - `POST /api/admin/login` - Вход админа
 - `GET/POST /api/admin/products` - Управление товарами
 - `GET/POST /api/admin/categories` - Управление категориями
@@ -422,6 +436,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 - `GET/PUT /api/admin/settings/cloudinary` - Настройки Cloudinary
 
 ### Платежи (webhooks)
+
 - `POST /api/webhooks/click/prepare` - Click prepare
 - `POST /api/webhooks/click/complete` - Click complete
 - `POST /api/webhooks/payme` - Payme JSON-RPC
@@ -433,6 +448,6 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 ## ✅ Готово!
 
-Теперь у вас есть полностью настраиваемый шаблон для Telegram Mini App магазина. Просто измените конфиг, добавьте товары через админ-панель и ваш магазин готов! 🎉
+Теперь у вас есть полностью настраиваемый шаблон интернет-магазина. Просто измените конфиг, добавьте товары через админ-панель и ваш магазин готов! 🎉
 
 Подробнее: **[ПОЛНОЕ_РУКОВОДСТВО.md](ПОЛНОЕ_РУКОВОДСТВО.md)**

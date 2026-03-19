@@ -41,6 +41,7 @@ TTL:  3600
 DNS записи обновляются от **5 минут до 24 часов**. Обычно работает через 15-30 минут.
 
 **Проверить готовность:**
+
 ```bash
 # На вашем компьютере
 ping myshop.com
@@ -126,7 +127,7 @@ nginx -t
 if [ $? -eq 0 ]; then
     # Перезапустить Nginx
     systemctl reload nginx
-    
+
     echo -e "${GREEN}✅ Nginx успешно настроен для домена: $DOMAIN${NC}"
     echo ""
     echo "Теперь ваш сайт доступен по адресу:"
@@ -164,7 +165,7 @@ sudo ./setup_domain.sh
 
 ## 🔐 Шаг 3: Установка SSL сертификата (HTTPS)
 
-**Обязательно для Telegram Mini Apps!** Telegram требует HTTPS для работы.
+**Обязательно!** HTTPS необходим для безопасной работы современного веба и PWA.
 
 ### 1️⃣ Создайте скрипт установки SSL:
 
@@ -240,7 +241,7 @@ sudo ./setup_ssl.sh
 
 ---
 
-## 📱 Шаг 4: Настройка Telegram Mini App
+## 📱 Шаг 4: Настройка интеграции с Telegram (опционально)
 
 После установки SSL обновите URL в настройках вашего Telegram бота:
 
@@ -283,6 +284,7 @@ certbot renew --dry-run
 ### Сайт не открывается по домену
 
 **Проверьте DNS:**
+
 ```bash
 # На вашем компьютере
 nslookup myshop.com
@@ -294,6 +296,7 @@ nslookup myshop.com
 ### Nginx показывает ошибку
 
 **Проверьте конфигурацию:**
+
 ```bash
 sudo nginx -t
 sudo systemctl status nginx
@@ -303,6 +306,7 @@ sudo tail -f /var/log/nginx/shop_error.log
 ### SSL сертификат не устанавливается
 
 **Причины:**
+
 1. DNS еще не обновился (подождите)
 2. Порт 80/443 закрыт в firewall:
 
@@ -320,9 +324,10 @@ ping myshop.com
 # Должен вернуть ваш IP
 ```
 
-### Telegram Mini App не работает
+### Не открывается внутри Telegram
 
 **Telegram требует HTTPS!** Убедитесь, что:
+
 1. SSL сертификат установлен
 2. Сайт открывается по `https://`
 3. URL в BotFather обновлен на `https://`
@@ -339,7 +344,7 @@ ping myshop.com
 - [ ] SSL сертификат установлен (`setup_ssl.sh`)
 - [ ] Сайт открывается по HTTPS
 - [ ] URL в BotFather обновлен
-- [ ] Telegram Mini App работает
+- [ ] Веб-приложение загружается корректно
 
 ---
 

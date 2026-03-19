@@ -1,4 +1,4 @@
-# 🚀 Развертывание Telegram Mini App на VPS
+# 🚀 Развертывание приложения на VPS
 
 > **Ваш проект готов к развертыванию на VPS Ubuntu 22.04!**
 
@@ -16,25 +16,25 @@
 
 ## 📚 Вся документация
 
-| Файл | Описание | Для кого |
-|------|----------|----------|
-| 🌟 **[START_HERE_GITHUB.md](START_HERE_GITHUB.md)** | **НАЧНИТЕ ОТСЮДА!** | Все |
-| 📋 **[GITHUB_DEPLOY_CHEATSHEET.md](GITHUB_DEPLOY_CHEATSHEET.md)** | Быстрая шпаргалка | Для ежедневной работы |
-| 🚀 **[QUICK_START_RU.md](QUICK_START_RU.md)** | Быстрый старт | Для первого запуска |
-| 🐙 **[DEPLOY_FROM_GITHUB.md](DEPLOY_FROM_GITHUB.md)** | Работа с GitHub | Детальная инструкция |
-| 📚 **[VPS_DEPLOY_GUIDE.md](VPS_DEPLOY_GUIDE.md)** | Полное руководство | Для углубленного изучения |
-| 📖 **[DEPLOY_TO_VPS_README.md](DEPLOY_TO_VPS_README.md)** | Справочник команд | Решение проблем |
+| Файл                                                              | Описание            | Для кого                  |
+| ----------------------------------------------------------------- | ------------------- | ------------------------- |
+| 🌟 **[START_HERE_GITHUB.md](START_HERE_GITHUB.md)**               | **НАЧНИТЕ ОТСЮДА!** | Все                       |
+| 📋 **[GITHUB_DEPLOY_CHEATSHEET.md](GITHUB_DEPLOY_CHEATSHEET.md)** | Быстрая шпаргалка   | Для ежедневной работы     |
+| 🚀 **[QUICK_START_RU.md](QUICK_START_RU.md)**                     | Быстрый старт       | Для первого запуска       |
+| 🐙 **[DEPLOY_FROM_GITHUB.md](DEPLOY_FROM_GITHUB.md)**             | Работа с GitHub     | Детальная инструкция      |
+| 📚 **[VPS_DEPLOY_GUIDE.md](VPS_DEPLOY_GUIDE.md)**                 | Полное руководство  | Для углубленного изучения |
+| 📖 **[DEPLOY_TO_VPS_README.md](DEPLOY_TO_VPS_README.md)**         | Справочник команд   | Решение проблем           |
 
 ---
 
 ## 🛠️ Скрипты автоматизации
 
-| Скрипт | Назначение |
-|--------|-----------|
+| Скрипт          | Назначение                                |
+| --------------- | ----------------------------------------- |
 | `deploy_vps.sh` | Автоматическая установка всего приложения |
-| `update_vps.sh` | Обновление приложения после изменений |
-| `backup_db.sh` | Резервное копирование базы данных |
-| `restore_db.sh` | Восстановление базы данных |
+| `update_vps.sh` | Обновление приложения после изменений     |
+| `backup_db.sh`  | Резервное копирование базы данных         |
+| `restore_db.sh` | Восстановление базы данных                |
 
 Все скрипты полностью автоматические!
 
@@ -78,7 +78,7 @@ sudo -u shopapp git pull && sudo ./update_vps.sh
 ✅ **Node.js + React** - frontend  
 ✅ **Nginx** - веб-сервер  
 ✅ **Systemd** - автозапуск приложения  
-✅ **UFW Firewall** - безопасность  
+✅ **UFW Firewall** - безопасность
 
 Всё автоматически!
 
@@ -111,12 +111,12 @@ cat ~/.ssh/id_ed25519.pub
 
 ## 🆘 Нужна помощь?
 
-| Проблема | Решение |
-|----------|---------|
-| Как развернуть? | [START_HERE_GITHUB.md](START_HERE_GITHUB.md) |
-| Как обновлять? | [GITHUB_DEPLOY_CHEATSHEET.md](GITHUB_DEPLOY_CHEATSHEET.md) |
-| Не запускается | [DEPLOY_TO_VPS_README.md](DEPLOY_TO_VPS_README.md) → "Решение проблем" |
-| Нужны детали | [VPS_DEPLOY_GUIDE.md](VPS_DEPLOY_GUIDE.md) |
+| Проблема        | Решение                                                                |
+| --------------- | ---------------------------------------------------------------------- |
+| Как развернуть? | [START_HERE_GITHUB.md](START_HERE_GITHUB.md)                           |
+| Как обновлять?  | [GITHUB_DEPLOY_CHEATSHEET.md](GITHUB_DEPLOY_CHEATSHEET.md)             |
+| Не запускается  | [DEPLOY_TO_VPS_README.md](DEPLOY_TO_VPS_README.md) → "Решение проблем" |
+| Нужны детали    | [VPS_DEPLOY_GUIDE.md](VPS_DEPLOY_GUIDE.md)                             |
 
 ---
 
@@ -141,8 +141,9 @@ systemctl restart shop-app
 ## 🌐 После развертывания
 
 Ваше приложение будет доступно:
+
 - **HTTP**: http://YOUR_VPS_IP
-- **Telegram Mini App**: Настройте URL в BotFather
+- **Telegram**: Настройте URL веб-приложения в BotFather, если планируете интегрировать сайт в бота
 
 Для SSL (HTTPS) см. **[VPS_DEPLOY_GUIDE.md](VPS_DEPLOY_GUIDE.md)** → "Настройка SSL"
 
