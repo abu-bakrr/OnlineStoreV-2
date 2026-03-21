@@ -80,7 +80,6 @@ export default function AdminInventory() {
     quantity: 0,
   });
 
-  const [quickAddQuantities, setQuickAddQuantities] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: products = [] } = useQuery<Product[]>({
@@ -120,7 +119,6 @@ export default function AdminInventory() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/inventory"] });
-      setIsAddDialogOpen(false);
       resetForm();
       toast({ title: "Остаток добавлен" });
     },
@@ -171,7 +169,6 @@ export default function AdminInventory() {
       attribute2_value: "",
       quantity: 0,
     });
-    setQuickAddQuantities({});
   };
 
   const handleExport = async () => {
@@ -260,37 +257,30 @@ export default function AdminInventory() {
     return variants;
   };
 
-  const handleQuickAdd = async () => {
-    const promises = Object.entries(quickAddQuantities)
-      .filter(([_, qty]) => qty > 0)
-      .map(async ([key, qty]) => {
-        const variant = getVariants(selectedProduct!).find(v => v.key === key);
-        if (variant.inventoryId) {
-          return updateMutation.mutateAsync({ 
-            id: variant.inventoryId, 
-            data: { quantity: variant.existingQuantity + qty } 
-          });
-        } else {
-          return addMutation.mutateAsync({
-            product_id: selectedProduct!.id,
-            color: variant.color || "",
-            attribute1_value: variant.attr1 || "",
-            attribute2_value: variant.attr2 || "",
-            quantity: qty
-          });
-        }
-      });
+  const currentInventoryItem = inventory.find(item => 
+    item.product_id === formData.product_id && 
+    item.color === formData.color && 
+    item.attribute1_value === formData.attribute1_value && 
+    item.attribute2_value === formData.attribute2_value
+  );
 
-    try {
-      await Promise.all(promises);
-      toast({ title: "Все остатки обновлены" });
-      setQuickAddQuantities({});
-    } catch {
-      toast({ title: "Ошибка при массовом обновлении", variant: "destructive" });
+  const handleUpdateStock = async () => {
+    if (!formData.product_id) return;
+    
+    if (currentInventoryItem) {
+      updateMutation.mutate({ 
+        id: currentInventoryItem.id, 
+        data: { quantity: currentInventoryItem.quantity + formData.quantity } 
+      });
+    } else {
+      addMutation.mutate(formData);
     }
+    
+    setFormData(prev => ({ ...prev, quantity: 0 }));
+    toast({ title: "Остатки обновлены" });
   };
 
-  const filteredInventory = inventory.filter(item => 
+  const filteredInventory = inventory.filter((item: any) => 
     item.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (item.color && item.color.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (item.attribute1_value && item.attribute1_value.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -318,9 +308,9 @@ export default function AdminInventory() {
   };
 
   const getStatusBadge = (quantity: number) => {
-    if (quantity === 0) return <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">Нет на складе</Badge>;
-    if (quantity < 5) return <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200">Мало</Badge>;
-    return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">В наличии</Badge>;
+    if (quantity === 0) return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">Нет на складе</Badge>;
+    if (quantity < 5) return <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20">Мало</Badge>;
+    return <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">В наличии</Badge>;
   };
 
   return (
@@ -332,15 +322,15 @@ export default function AdminInventory() {
             <Package className="h-8 w-8 text-primary" />
             Склад и Остатки
           </h1>
-          <p className="text-muted-foreground mt-1">Управление запасами и вариациями товаров</p>
+          <p className="text-muted-foreground mt-1 text-sm">Управление запасами и вариациями товаров</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport} className="h-10">
+          <Button variant="outline" size="sm" onClick={handleExport} className="h-10 border-2 bg-background">
             <Upload className="h-4 w-4 mr-2" />
             Экспорт CSV
           </Button>
           <Label className="cursor-pointer">
-            <Button variant="outline" size="sm" asChild className="h-10">
+            <Button variant="outline" size="sm" asChild className="h-10 border-2 bg-background">
               <span>
                 <Download className="h-4 w-4 mr-2" />
                 Импорт CSV
@@ -352,11 +342,11 @@ export default function AdminInventory() {
       </div>
 
       {/* Quick Add Section */}
-      <Card className="border-2 border-primary/10 shadow-xl overflow-hidden">
-        <div className="bg-primary/5 p-4 border-b border-primary/10 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-primary">
-            <Plus className="h-5 w-5" />
-            Быстрое пополнение
+      <Card className="border-2 border-primary/5 shadow-xl bg-card overflow-hidden">
+        <div className="bg-muted/50 p-4 border-b flex items-center justify-between">
+          <div className="flex items-center gap-2 font-bold text-foreground">
+            <Plus className="h-5 w-5 text-primary" />
+            Управление остатками
           </div>
           {selectedProduct && (
             <Button size="sm" variant="ghost" onClick={resetForm} className="h-8 text-xs underline">
@@ -365,12 +355,15 @@ export default function AdminInventory() {
           )}
         </div>
         <CardContent className="p-6">
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-              <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Выберите товар для пополнения</Label>
-                <Select value={formData.product_id} onValueChange={(v) => { resetForm(); setFormData((f: typeof formData) => ({ ...f, product_id: v })); }}>
-                  <SelectTrigger className="h-12 text-base border-2 focus:ring-primary/20">
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+              <div className="space-y-3">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground italic flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px] not-italic">1</span>
+                  Выберите товар
+                </Label>
+                <Select value={formData.product_id} onValueChange={(v: string) => { resetForm(); setFormData((f: typeof formData) => ({ ...f, product_id: v })); }}>
+                  <SelectTrigger className="h-12 text-base border-2 bg-background focus:ring-primary/20">
                     <SelectValue placeholder="Поиск товара..." />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
@@ -386,7 +379,6 @@ export default function AdminInventory() {
                           )}
                           <div className="flex flex-col">
                             <span className="font-bold leading-none">{p.name}</span>
-                            <span className="text-[10px] text-muted-foreground mt-1 uppercase">{p.id.slice(0, 8)}</span>
                           </div>
                         </div>
                       </SelectItem>
@@ -396,8 +388,8 @@ export default function AdminInventory() {
               </div>
 
               {!selectedProduct && (
-                <div className="h-12 flex items-center text-sm text-muted-foreground bg-muted/30 rounded-lg px-4 border border-dashed italic">
-                  Выберите товар, чтобы увидеть все доступные комбинации (цвет/размер)
+                <div className="h-12 flex items-center text-sm text-muted-foreground bg-muted/30 rounded-lg px-4 border border-dashed italic mt-8">
+                  Выберите товар, чтобы настроить вариации (цвет, размер и т.д.)
                 </div>
               )}
             </div>
@@ -405,67 +397,142 @@ export default function AdminInventory() {
             <AnimatePresence mode="wait">
               {selectedProduct ? (
                 <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="space-y-4"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-8 border-t pt-8"
                 >
-                  <div className="rounded-xl border bg-muted/30 overflow-hidden">
-                    <div className="grid grid-cols-12 gap-4 p-3 bg-muted font-bold text-[10px] uppercase tracking-widest text-muted-foreground">
-                      <div className="col-span-1"></div>
-                      <div className="col-span-5">Вариант (Комбинация)</div>
-                      <div className="col-span-3 text-center">На складе</div>
-                      <div className="col-span-3 text-right pr-4">Добавить кол-во</div>
-                    </div>
-                    <div className="divide-y max-h-[400px] overflow-y-auto">
-                      {getVariants(selectedProduct).map((v) => (
-                        <div key={v.key} className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white transition-colors">
-                          <div className="col-span-1 flex justify-center">
-                            {v.color && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Color Selection */}
+                    {selectedProduct.colors && selectedProduct.colors.length > 0 && (
+                      <div className="space-y-4">
+                        <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground italic flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px] not-italic">2</span>
+                          Выберите цвет
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProduct.colors.map((c: string) => (
+                            <button
+                              key={c}
+                              onClick={() => setFormData(f => ({ ...f, color: c }))}
+                              className={cn(
+                                "group relative flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all duration-200",
+                                formData.color === c 
+                                  ? "bg-primary/5 border-primary shadow-md scale-105" 
+                                  : "bg-background border-transparent hover:border-primary/30"
+                              )}
+                            >
                               <div 
-                                className="w-4 h-4 rounded-full border border-black/10 shadow-sm" 
-                                style={{ backgroundColor: colorNameToHex(v.color) }}
+                                className="w-5 h-5 rounded-full border border-black/10 shadow-inner group-hover:scale-110 transition-transform" 
+                                style={{ backgroundColor: colorNameToHex(c) }}
                               />
-                            )}
-                          </div>
-                          <div className="col-span-5 font-medium">{formatCombination(v)}</div>
-                          <div className="col-span-3 text-center">
-                            <span className={cn("inline-flex items-center px-2 py-1 rounded-md text-xs font-bold", 
-                              v.existingQuantity === 0 ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"
-                            )}>
-                              {v.existingQuantity} шт
-                            </span>
-                          </div>
-                          <div className="col-span-3 flex justify-end">
-                            <div className="relative w-32">
-                              <Input 
-                                type="number"
-                                min="0"
-                                placeholder="0"
-                                className="h-10 text-right pr-8 border-2 focus:border-primary"
-                                value={quickAddQuantities[v.key] || ""}
-                                onChange={(e) => setQuickAddQuantities(prev => ({
-                                  ...prev,
-                                  [v.key]: parseInt(e.target.value) || 0
-                                }))}
-                              />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">+</span>
-                            </div>
-                          </div>
+                              <span className={cn("text-xs font-bold", formData.color === c ? "text-primary" : "text-muted-foreground")}>{c}</span>
+                              {formData.color === c && (
+                                <div className="absolute -top-1 -right-1 bg-primary text-white p-0.5 rounded-full shadow-sm">
+                                  <Check className="w-2 h-2" />
+                                </div>
+                              )}
+                            </button>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
+
+                    {/* Attribute 1 Selection */}
+                    {selectedProduct.attributes?.[0] && (
+                      <div className="space-y-4">
+                        <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground italic flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px] not-italic">
+                            {selectedProduct.colors?.length ? 3 : 2}
+                          </span>
+                          {selectedProduct.attributes[0].name}
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProduct.attributes[0].values.map((v: string) => (
+                            <button
+                              key={v}
+                              onClick={() => setFormData(f => ({ ...f, attribute1_value: v }))}
+                              className={cn(
+                                "px-4 py-2 rounded-xl text-xs font-bold border-2 transition-all duration-200",
+                                formData.attribute1_value === v 
+                                  ? "bg-primary text-primary-foreground border-primary shadow-md scale-105" 
+                                  : "bg-background border-transparent hover:border-primary/20 text-foreground"
+                              )}
+                            >
+                              {v}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Attribute 2 Selection */}
+                    {selectedProduct.attributes?.[1] && (
+                      <div className="space-y-4">
+                        <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground italic flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px] not-italic">
+                            {selectedProduct.colors?.length ? 4 : 3}
+                          </span>
+                          {selectedProduct.attributes[1].name}
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProduct.attributes[1].values.map((v: string) => (
+                            <button
+                              key={v}
+                              onClick={() => setFormData(f => ({ ...f, attribute2_value: v }))}
+                              className={cn(
+                                "px-4 py-2 rounded-xl text-xs font-bold border-2 transition-all duration-200",
+                                formData.attribute2_value === v 
+                                  ? "bg-primary text-primary-foreground border-primary shadow-md scale-105" 
+                                  : "bg-background border-transparent hover:border-primary/20 text-foreground"
+                              )}
+                            >
+                              {v}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex justify-end gap-3 pt-2">
-                    <Button variant="ghost" onClick={resetForm}>Отмена</Button>
-                    <Button 
-                      onClick={handleQuickAdd} 
-                      className="px-8 shadow-lg shadow-primary/20 h-11"
-                      disabled={Object.values(quickAddQuantities).every(q => q === 0)}
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      Сохранить все изменения
-                    </Button>
+
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-2xl bg-muted/50 border-2 border-dashed border-primary/20">
+                    <div className="flex items-center gap-4">
+                      {currentInventoryItem ? (
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Текущий остаток</span>
+                          <span className="text-3xl font-black text-foreground">{currentInventoryItem.quantity} <span className="text-sm font-medium text-muted-foreground">шт.</span></span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-muted-foreground italic">
+                          <AlertCircle className="w-5 h-5" />
+                          <span>Новая вариация (нет на складе)</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Добавить количество</Label>
+                        <div className="flex items-center gap-2">
+                          <Input 
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            className="h-12 w-32 text-center text-xl font-bold border-2 bg-background focus:border-primary"
+                            value={formData.quantity === 0 ? "" : formData.quantity}
+                            onChange={(e) => setFormData(f => ({ ...f, quantity: parseInt(e.target.value) || 0 }))}
+                          />
+                          <Button 
+                            onClick={handleUpdateStock} 
+                            className="h-12 px-8 shadow-lg shadow-primary/25 font-black uppercase tracking-wider text-xs"
+                            disabled={formData.quantity <= 0}
+                          >
+                            <Save className="h-4 w-4 mr-2" />
+                            Обновить
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               ) : null}
@@ -475,18 +542,20 @@ export default function AdminInventory() {
       </Card>
 
       {/* Filter and Table Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          Весь ассортимент
-          <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-            {filteredInventory.length} позиций
-          </span>
-        </h2>
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-10">
+        <div>
+          <h2 className="text-2xl font-black tracking-tight flex items-center gap-3">
+            Весь ассортимент
+            <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-widest">
+              {filteredInventory.length} шт.
+            </span>
+          </h2>
+        </div>
+        <div className="relative w-full md:w-96">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Поиск по названию или цвету..." 
-            className="pl-10 h-10 border-2 bg-white"
+            className="pl-12 h-12 border-2 bg-background shadow-sm hover:border-primary transition-all rounded-xl"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -512,7 +581,7 @@ export default function AdminInventory() {
       ) : (
         <>
           {/* Desktop Table View */}
-          <div className="hidden md:block overflow-hidden rounded-2xl border shadow-sm bg-white">
+          <div className="hidden md:block overflow-hidden rounded-2xl border shadow-sm bg-card">
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow className="hover:bg-transparent">
