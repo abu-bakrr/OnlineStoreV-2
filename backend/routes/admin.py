@@ -734,6 +734,60 @@ def admin_get_statistics():
         ''')
         recent_rows = cur.fetchall()
         recent_orders = [{'date': str(r['date']), 'count': r['count'], 'revenue': r['revenue']} for r in recent_rows]
+
+        # Top Products
+        cur.execute('''
+            SELECT p.id, p.name, SUM(oi.quantity) as total_quantity, SUM(oi.quantity * oi.price) as total_revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE o.status != 'cancelled'
+            GROUP BY p.id, p.name
+            ORDER BY total_revenue DESC
+            LIMIT 5
+        ''')
+        top_products = cur.fetchall()
+
+        # Top Customers
+        cur.execute('''
+            SELECT u.id, u.email, u.first_name, u.last_name, u.telegram_username, COUNT(o.id) as order_count, SUM(o.total) as total_spent
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE o.status != 'cancelled'
+            GROUP BY u.id, u.email, u.first_name, u.last_name, u.telegram_username
+            ORDER BY total_spent DESC
+            LIMIT 5
+        ''')
+        top_customers = cur.fetchall()
+
+        # Revenue by Category
+        cur.execute('''
+            SELECT c.name as category_name, SUM(oi.quantity * oi.price) as revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN categories c ON p.category_id = c.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE o.status != 'cancelled'
+            GROUP BY c.name
+            ORDER BY revenue DESC
+        ''')
+        category_revenue = cur.fetchall()
+
+        # Monthly Revenue (last 6 months)
+        cur.execute('''
+            SELECT TO_CHAR(created_at, 'YYYY-MM') as month, SUM(total) as revenue
+            FROM orders
+            WHERE status != 'cancelled' AND created_at > NOW() - INTERVAL '6 months'
+            GROUP BY month
+            ORDER BY month ASC
+        ''')
+        monthly_revenue = cur.fetchall()
+
+        # Inventory Summary
+        cur.execute('SELECT COALESCE(SUM(quantity), 0) as total_stock FROM product_inventory')
+        total_stock = cur.fetchone()['total_stock']
+        cur.execute('SELECT COUNT(*) as low_stock_count FROM product_inventory WHERE quantity <= 5')
+        low_stock_count = cur.fetchone()['low_stock_count']
         
         cur.close(); conn.close()
         
@@ -745,7 +799,15 @@ def admin_get_statistics():
             'orders_by_status': orders_by_status,
             'total_products': p_count,
             'total_categories': c_count,
-            'recent_orders': recent_orders
+            'recent_orders': recent_orders,
+            'top_products': top_products,
+            'top_customers': top_customers,
+            'category_revenue': category_revenue,
+            'monthly_revenue': monthly_revenue,
+            'inventory_summary': {
+                'total_stock': total_stock,
+                'low_stock_count': low_stock_count
+            }
         })
     except Exception as e:
         if not cur.closed: cur.close()
