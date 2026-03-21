@@ -62,10 +62,10 @@ def get_config():
         from backend.database import get_payment_config
         db_payments = {}
         for p in ['click', 'payme', 'uzum', 'card_transfer']:
-            p_cfg = get_payment_config(p)
+            p_cfg = get_payment_config(p, include_env=False)
             # Standardize keys for frontend
             if p == 'card_transfer':
-                db_payments[p] = {
+                db_payments['cardTransfer'] = {
                     'enabled': p_cfg.get('enabled', False),
                     'cardNumber': p_cfg.get('card_number', ''),
                     'cardHolder': p_cfg.get('card_holder', ''),

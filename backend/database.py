@@ -284,31 +284,31 @@ def get_telegram_config():
         'notifications_enabled': notifications_enabled == 'true' if notifications_enabled else False
     }
 
-def get_payment_config(provider):
+def get_payment_config(provider, include_env=True):
     if provider == 'click':
         db_enabled = get_platform_setting('click_enabled')
-        env_enabled = os.getenv('CLICK_MERCHANT_ID') and os.getenv('CLICK_SERVICE_ID')
+        env_enabled = os.getenv('CLICK_MERCHANT_ID') and os.getenv('CLICK_SERVICE_ID') if include_env else False
         return {
-            'merchant_id': get_platform_setting('click_merchant_id') or os.getenv('CLICK_MERCHANT_ID') or '',
-            'service_id': get_platform_setting('click_service_id') or os.getenv('CLICK_SERVICE_ID') or '',
-            'secret_key': get_platform_setting('click_secret_key') or os.getenv('CLICK_SECRET_KEY') or '',
+            'merchant_id': get_platform_setting('click_merchant_id') or (os.getenv('CLICK_MERCHANT_ID') if include_env else '') or '',
+            'service_id': get_platform_setting('click_service_id') or (os.getenv('CLICK_SERVICE_ID') if include_env else '') or '',
+            'secret_key': get_platform_setting('click_secret_key') or (os.getenv('CLICK_SECRET_KEY') if include_env else '') or '',
             'enabled': db_enabled == 'true' if db_enabled else bool(env_enabled)
         }
     elif provider == 'payme':
         db_enabled = get_platform_setting('payme_enabled')
-        env_enabled = os.getenv('PAYME_MERCHANT_ID')
+        env_enabled = os.getenv('PAYME_MERCHANT_ID') if include_env else False
         return {
-            'merchant_id': get_platform_setting('payme_merchant_id') or os.getenv('PAYME_MERCHANT_ID') or '',
-            'key': get_platform_setting('payme_key') or os.getenv('PAYME_KEY') or '',
+            'merchant_id': get_platform_setting('payme_merchant_id') or (os.getenv('PAYME_MERCHANT_ID') if include_env else '') or '',
+            'key': get_platform_setting('payme_key') or (os.getenv('PAYME_KEY') if include_env else '') or '',
             'enabled': db_enabled == 'true' if db_enabled else bool(env_enabled)
         }
     elif provider == 'uzum':
         db_enabled = get_platform_setting('uzum_enabled')
-        env_enabled = os.getenv('UZUM_MERCHANT_ID')
+        env_enabled = os.getenv('UZUM_MERCHANT_ID') if include_env else False
         return {
-            'merchant_id': get_platform_setting('uzum_merchant_id') or os.getenv('UZUM_MERCHANT_ID') or '',
-            'service_id': get_platform_setting('uzum_service_id') or os.getenv('UZUM_SERVICE_ID') or '',
-            'secret_key': get_platform_setting('uzum_secret_key') or os.getenv('UZUM_SECRET_KEY') or '',
+            'merchant_id': get_platform_setting('uzum_merchant_id') or (os.getenv('UZUM_MERCHANT_ID') if include_env else '') or '',
+            'service_id': get_platform_setting('uzum_service_id') or (os.getenv('UZUM_SERVICE_ID') if include_env else '') or '',
+            'secret_key': get_platform_setting('uzum_secret_key') or (os.getenv('UZUM_SECRET_KEY') if include_env else '') or '',
             'enabled': db_enabled == 'true' if db_enabled else bool(env_enabled)
         }
     elif provider == 'card_transfer':

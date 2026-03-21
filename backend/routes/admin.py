@@ -645,13 +645,23 @@ def admin_delivery_settings():
     if not require_admin(): return admin_required_response()
     if request.method == 'GET':
         return jsonify({
-            'default_delivery_days': get_platform_setting('default_delivery_days') or 3,
+            'delivery_days_in_stock': get_platform_setting('delivery_days_in_stock') or get_platform_setting('default_delivery_days') or 3,
+            'delivery_days_backorder': get_platform_setting('delivery_days_backorder') or 14,
             'enabled': get_platform_setting('delivery_enabled') == 'true'
         })
     
     data = request.json
-    set_platform_setting('default_delivery_days', str(data.get('default_delivery_days')), False)
-    set_platform_setting('delivery_enabled', str(data.get('enabled')).lower(), False)
+    if 'delivery_days_in_stock' in data:
+        set_platform_setting('delivery_days_in_stock', str(data.get('delivery_days_in_stock')), False)
+        # Keep default_delivery_days for backward compatibility if needed
+        set_platform_setting('default_delivery_days', str(data.get('delivery_days_in_stock')), False)
+    
+    if 'delivery_days_backorder' in data:
+        set_platform_setting('delivery_days_backorder', str(data.get('delivery_days_backorder')), False)
+        
+    if 'enabled' in data:
+        set_platform_setting('delivery_enabled', str(data.get('enabled')).lower(), False)
+        
     return jsonify({'message': 'Delivery settings saved'})
 
 
