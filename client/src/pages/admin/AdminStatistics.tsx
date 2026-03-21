@@ -198,46 +198,53 @@ export default function AdminStatistics() {
             <CardDescription>Динамика за последние 6 месяцев (сум)</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px] pl-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={stats.monthly_revenue} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
-                <XAxis 
-                  dataKey="month" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(val: string) => {
-                    const [year, month] = val.split('-');
-                    const date = new Date(parseInt(year), parseInt(month) - 1);
-                    return date.toLocaleDateString('ru-RU', { month: 'short' });
-                  }}
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(val: number) => `${val / 1000000}M`}
-                />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  formatter={(value: any) => [formatPrice(value), 'Выручка']}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={3}
-                  fillOpacity={1} 
-                  fill="url(#colorRev)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {stats.monthly_revenue.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={stats.monthly_revenue} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
+                  <XAxis 
+                    dataKey="month" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(val: string) => {
+                      const [year, month] = val.split('-');
+                      const date = new Date(parseInt(year), parseInt(month) - 1);
+                      return date.toLocaleDateString('ru-RU', { month: 'short' });
+                    }}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(val: number) => `${val / 1000000}M`}
+                  />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    formatter={(value: any) => [formatPrice(value), 'Выручка']}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={3}
+                    fillOpacity={1} 
+                    fill="url(#colorRev)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground/50 italic text-sm">
+                <TrendingUp className="h-8 w-8 mb-2 opacity-20" />
+                <span>Данных о продажах пока нет</span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -250,28 +257,35 @@ export default function AdminStatistics() {
             <CardDescription>Распределение выручки (сум)</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.category_revenue}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="revenue"
-                  nameKey="category_name"
-                >
-                  {stats.category_revenue.map((_: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={`hsl(var(--primary), ${1 - index * 0.2})`} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  formatter={(value: any) => [formatPrice(value), 'Выручка']}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {stats.category_revenue.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.category_revenue}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="revenue"
+                    nameKey="category_name"
+                  >
+                    {stats.category_revenue.map((_: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={`hsl(var(--primary), ${1 - index * 0.2})`} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    formatter={(value: any) => [formatPrice(value), 'Выручка']}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground/50 italic text-sm">
+                <FolderOpen className="h-8 w-8 mb-2 opacity-20" />
+                <span>Нет данных по категориям</span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -291,23 +305,29 @@ export default function AdminStatistics() {
               <Package className="h-8 w-8 text-muted-foreground/10" />
             </div>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="divide-y">
-              {stats.top_products.map((p: any, idx: number) => (
-                <div key={p.id} className="flex items-center gap-4 p-4 hover:bg-muted/20 transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center font-bold text-xs text-muted-foreground">
-                    #{idx + 1}
+          <CardContent className="p-0 min-h-[100px]">
+            {stats.top_products.length > 0 ? (
+              <div className="divide-y">
+                {stats.top_products.map((p: any, idx: number) => (
+                  <div key={p.id} className="flex items-center gap-4 p-4 hover:bg-muted/20 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center font-bold text-xs text-muted-foreground">
+                      #{idx + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">{p.name}</p>
+                      <p className="text-xs text-muted-foreground">{p.total_quantity} шт. продано</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-black text-sm text-primary">{formatPrice(p.total_revenue)}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm truncate">{p.name}</p>
-                    <p className="text-xs text-muted-foreground">{p.total_quantity} шт. продано</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-black text-sm text-primary">{formatPrice(p.total_revenue)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-12 text-center text-muted-foreground/50 italic text-sm">
+                Проданных товаров пока нет
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -324,27 +344,33 @@ export default function AdminStatistics() {
               <Users className="h-8 w-8 text-muted-foreground/10" />
             </div>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="divide-y">
-              {stats.top_customers.map((c: any, idx: number) => (
-                <div key={c.id} className="flex items-center gap-4 p-4 hover:bg-muted/20 transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center font-bold text-xs text-muted-foreground">
-                    #{idx + 1}
+          <CardContent className="p-0 min-h-[100px]">
+            {stats.top_customers.length > 0 ? (
+              <div className="divide-y">
+                {stats.top_customers.map((c: any, idx: number) => (
+                  <div key={c.id} className="flex items-center gap-4 p-4 hover:bg-muted/20 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center font-bold text-xs text-muted-foreground">
+                      #{idx + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">
+                        {c.first_name} {c.last_name || ''}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        @{c.telegram_username || 'no_tg'} • {c.order_count} заказов
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-black text-sm text-blue-600">{formatPrice(c.total_spent)}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm truncate">
-                      {c.first_name} {c.last_name || ''}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      @{c.telegram_username || 'no_tg'} • {c.order_count} заказов
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-black text-sm text-blue-600">{formatPrice(c.total_spent)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-12 text-center text-muted-foreground/50 italic text-sm">
+                Активных покупателей пока нет
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -386,24 +412,30 @@ export default function AdminStatistics() {
             <CardTitle className="text-sm font-bold">Последние 7 дней</CardTitle>
           </CardHeader>
           <CardContent className="h-[200px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.recent_orders}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(val: string) => new Date(val).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
-                />
-                <YAxis hide />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  formatter={(value: any) => [formatPrice(value), 'Выручка']}
-                />
-                <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {stats.recent_orders.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.recent_orders}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
+                  <XAxis 
+                    dataKey="date" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(val: string) => new Date(val).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+                  />
+                  <YAxis hide />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    formatter={(value: any) => [formatPrice(value), 'Выручка']}
+                  />
+                  <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground/50 italic text-sm">
+                <span>Нет данных за последние 7 дней</span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
