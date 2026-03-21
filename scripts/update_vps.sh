@@ -81,9 +81,10 @@ fi
 if [ "$GIT_FOUND" = true ]; then
     print_step "Обнаружен Git репозиторий в $GIT_ROOT. Получаем обновления..."
     cd "$GIT_ROOT"
-    # Отбрасываем локальные изменения и берем версию из GitHub
-    sudo -u $APP_USER git reset --hard HEAD
-    sudo -u $APP_USER git pull
+    # Fetch fresh information from origin
+    sudo -u $APP_USER git fetch origin
+    # Force reset to match origin/main (handles forced updates and divergent branches)
+    sudo -u $APP_USER git reset --hard origin/main
 else
     print_warning "Git репозиторий (.git) не найден. Текущая папка: $(pwd). Убедитесь, что вы вручную обновили файлы."
 fi
