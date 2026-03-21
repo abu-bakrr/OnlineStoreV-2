@@ -20,6 +20,7 @@ import AdminOrders from './AdminOrders'
 import AdminProducts from './AdminProducts'
 import AdminSettings from './AdminSettings'
 import AdminStatistics from './AdminStatistics'
+import AdminUsers from './AdminUsers'
 
 export default function AdminLayout() {
 	const [activeTab, setActiveTab] = useState('products')
@@ -131,6 +132,13 @@ export default function AdminLayout() {
 								</TabsTrigger>
 							)}
 							<TabsTrigger
+								value='users'
+								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
+							>
+								<Users className='h-4 w-4 flex-shrink-0' />
+								<span>Пользователи</span>
+							</TabsTrigger>
+							<TabsTrigger
 								value='settings'
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
@@ -145,6 +153,7 @@ export default function AdminLayout() {
 					{activeTab === 'inventory' && <AdminInventory />}
 					{activeTab === 'orders' && <AdminOrders />}
 					{activeTab === 'statistics' && <AdminStatistics />}
+					{activeTab === 'users' && <AdminUsers onTabChange={setActiveTab} />}
 					{activeTab === 'managers' && admin?.is_superadmin && (
 						<AdminManagers />
 					)}

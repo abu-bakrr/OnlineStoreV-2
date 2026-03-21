@@ -95,6 +95,41 @@ def admin_me():
     cur.close(); conn.close()
     return jsonify({'user': user})
 
+@admin_bp.route('/users', methods=['GET'])
+def get_all_users():
+    if not require_admin(): return admin_required_response()
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    # Fetch users with aggregated order data
+    cur.execute('''
+        SELECT 
+            u.id, 
+            u.username, 
+            u.first_name, 
+            u.last_name, 
+            u.email, 
+            u.telegram_id, 
+            u.telegram_username,
+            u.phone,
+            u.created_at,
+            u.is_admin,
+            u.is_superadmin,
+            COALESCE(ARRAY_AGG(o.id) FILTER (WHERE o.id IS NOT NULL), '{}') as order_ids,
+            COUNT(o.id) as total_orders,
+            COALESCE(SUM(o.total), 0) as total_spent,
+            MAX(o.created_at) as last_order_at
+        FROM users u
+        LEFT JOIN orders o ON u.id = o.user_id
+        GROUP BY u.id
+        ORDER BY u.created_at DESC
+    ''')
+    users = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    return jsonify(users)
+
 @admin_bp.route('/admins', methods=['GET'])
 def get_all_admins():
     if not require_superadmin(): return superadmin_required_response()

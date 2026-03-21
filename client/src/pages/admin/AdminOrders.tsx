@@ -145,6 +145,13 @@ export default function AdminOrders() {
 	useEffect(() => {
 		fetchOrders()
 		fetchConfig()
+
+		// Check for deep link search from other pages (e.g. AdminUsers)
+		const pendingSearch = localStorage.getItem('admin_order_search')
+		if (pendingSearch) {
+			setSearchQuery(pendingSearch)
+			localStorage.removeItem('admin_order_search')
+		}
 	}, [statusFilter])
 
 	const fetchConfig = async () => {
