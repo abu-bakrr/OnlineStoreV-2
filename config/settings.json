@@ -1,28 +1,23 @@
 {
 	"language": "ru",
-	"shopName": "Tayhu",
-	"shopDescription": "Tayhu — Дизайнерский декор и изделия из высококачественного пластика.",
-	"contactEmail": "support@tayhu.uz",
-	"contactPhone": "+998 33 007 55 32",
-	"telegramLink": "https://t.me/uz_evil",
-	"description": "Tayhu — создаем уют с помощью современных технологий.",
-	"logo": "/config/logo copy.svg",
-	"darkLogo": "/config/logo copy.svg",
+	"shopName": "Milhive",
+	"description": "Будь в стиле. Будь с Milhive",
+	"logo": "/config/logoo.svg",
+	"darkLogo": "/config/logoo.svg",
 	"seo": {
-		"title": "Tayhu — Дизайнерский декор и инновационный пластик",
-		"description": "Tayhu — уникальные декоративные изделия и качественный пластик для вашего интерьера.",
-		"keywords": "Tayhu, декор, пластик, интерьер, дизайн, изделия из пластика, Узбекистан",
-		"siteUrl": "https://monvoir.shop",
-		"language": "ru",
-		"ogImage": "/config/logo.png"
+		"title": "Milhive — Стильная одежда | Интернет-магазин",
+		"description": "Milhive — интернет-магазин стильной одежды в Узбекистане. Головные уборы, верхняя одежда, обувь и аксессуары. Доставка по всей стране.",
+		"keywords": "одежда, Узбекистан, стиль, мода, головные уборы, верхняя одежда, обувь, аксессуары, milhive, Milhive, мужская",
+		"siteUrl": "https://milhive.shop",
+		"language": "ru"
 	},
 	"currency": {
 		"symbol": "UZS",
 		"code": "UZS",
 		"position": "after"
 	},
-	"managerContact": "@uz_evil",
-	"telegramBotUrl": "https://t.me/uz_evil",
+	"managerContact": "@milhiveAi_bot",
+	"telegramBotUrl": "https://t.me/milhiveAi_bot",
 	"colorScheme": {
 		"background": "#FFFFFF",
 		"foreground": "#111111",
@@ -30,24 +25,21 @@
 		"card": "#FFFFFF",
 		"cardForeground": "#111111",
 
-		"primary": "#B08354",
-		"primaryForeground": "#1a1a1a",
+		"primary": "#f5a40d",
+		"primaryForeground": "#111111",
 
-		"secondary": "#27272a",
-		"secondaryForeground": "#fafafa",
+		"secondary": "#ae883f",
+		"secondaryForeground": "#FFFFFF",
 
 		"muted": "#F7F7F7",
 		"mutedForeground": "#6B6B6B",
 
-		"accent": "#B08354",
-		"accentForeground": "#1a1a1a",
-
-		"destructive": "#7f1d1d",
-		"destructiveForeground": "#fafafa",
+		"accent": "#f5a40d",
+		"accentForeground": "#111111",
 
 		"border": "#E6E6E6",
 		"input": "#E6E6E6",
-		"ring": "#B08354"
+		"ring": "#f5a40d"
 	},
 	"colorSchemeDark": {
 		"background": "#0F0F0F",
@@ -56,24 +48,21 @@
 		"card": "#161616",
 		"cardForeground": "#F5F5F5",
 
-		"primary": "#B08354",
-		"primaryForeground": "#ffffff",
+		"primary": "#f5a40d",
+		"primaryForeground": "#0F0F0F",
 
-		"secondary": "#BDBDBD",
-		"secondaryForeground": "#1a1a1a",
+		"secondary": "#cca64b",
+		"secondaryForeground": "#0F0F0F",
 
 		"muted": "#1F1F1F",
 		"mutedForeground": "#9A9A9A",
 
-		"accent": "#B08354",
-		"accentForeground": "#ffffff",
-
-		"destructive": "#ef4444",
-		"destructiveForeground": "#fafafa",
+		"accent": "#f5a40d",
+		"accentForeground": "#0F0F0F",
 
 		"border": "#262626",
 		"input": "#262626",
-		"ring": "#B08354"
+		"ring": "#f5a40d"
 	},
 	"sortOptions": [
 		{
@@ -130,5 +119,5 @@
 		"shipped": "В пути",
 		"delivered": "Доставлен",
 		"cancelled": "Отменён"
-	}
-}
+	
+		}}
