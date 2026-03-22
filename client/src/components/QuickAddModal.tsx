@@ -198,12 +198,12 @@ export default function QuickAddModal({
 											{formatPrice(product.price)}
 										</p>
 										{product.old_price && product.old_price > product.price && (
-											<div className="flex flex-col">
+											<div className="flex items-center gap-2">
 												<p className='text-sm text-muted-foreground line-through opacity-60'>
 													{formatPrice(product.old_price)}
 												</p>
-												<span className="text-[10px] text-red-500 font-bold">
-													Скидка {Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
+												<span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+													-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
 												</span>
 											</div>
 										)}

@@ -170,7 +170,7 @@ export default function ProductCard({
 										{/* Sale Badge */}
 										{old_price && old_price > price && (
 											<div className='absolute top-2 right-2 z-10'>
-												<div className='bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 animate-pulse'>
+												<div className='bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1'>
 													<span>-{Math.round(((old_price - price) / old_price) * 100)}%</span>
 												</div>
 											</div>
@@ -267,7 +267,6 @@ export default function ProductCard({
 				</h3>
 
 				<div className='flex items-center justify-between'>
-					<div className='flex flex-col mb-2'>
 						<div className='flex items-baseline gap-2'>
 							<span
 								className='text-lg'
@@ -285,12 +284,6 @@ export default function ProductCard({
 								</span>
 							)}
 						</div>
-						{old_price && old_price > price && (
-							<span className='text-[10px] text-red-500 font-bold mt-0.5 animate-pulse'>
-								Вы сэкономили {Math.round(((old_price - price) / old_price) * 100)}%
-							</span>
-						)}
-					</div>
 					<Button
 						size='icon'
 						variant={isInCart ? 'default' : 'ghost'}

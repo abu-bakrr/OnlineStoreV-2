@@ -339,12 +339,12 @@ export default function ProductDetail({
 								{formatPrice(price)}
 							</p>
 							{old_price && old_price > price && (
-								<div className="flex flex-col">
+								<div className="flex items-center gap-2">
 									<p className='text-lg text-muted-foreground line-through opacity-60'>
 										{formatPrice(old_price)}
 									</p>
-									<span className="text-xs text-red-500 font-bold animate-pulse">
-										Вы сэкономили {Math.round(((old_price - price) / old_price) * 100)}%
+									<span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+										-{Math.round(((old_price - price) / old_price) * 100)}%
 									</span>
 								</div>
 							)}
