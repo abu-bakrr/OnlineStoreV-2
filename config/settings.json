@@ -99,6 +99,7 @@
 		"fontFile": null,
 		"shopNameFontFamily": "Montez",
 		"shopNameFontFile": "/config/Montez-Regular.ttf",
+		"shopNameFontSize": 30,
 		"productName": {
 			"weight": 700
 		},

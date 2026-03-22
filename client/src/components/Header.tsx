@@ -51,12 +51,16 @@ export default function Header({
 					)}
 					{showShopName && config?.shopName && (
 						<h1
-							className='text-lg font-semibold text-foreground transition-opacity duration-200'
+							className='font-semibold text-foreground transition-opacity duration-200'
 							data-testid='text-brand-name'
 							style={{
 								fontFamily:
 									config?.fonts?.shopNameFontFamily ?
 										'var(--font-family-shop-name)'
+									:	undefined,
+								fontSize: 
+									config?.fonts?.shopNameFontSize ? 
+										`${config.fonts.shopNameFontSize}px` 
 									:	undefined,
 							}}
 						>
