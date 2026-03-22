@@ -16,9 +16,11 @@ try:
         print("❌ Товаров в базе нет!")
     else:
         print(f"✅ Найдено товаров: {len(products)}")
-        print("\n--- Как это видит бот (raw data) ---")
-        print(products)
-        print("\n--- Как это видит AI (formatted) ---")
-        print(format_products_for_ai(products))
+        p = products[0]
+        print(f"Name: {p['name']}")
+        print(f"Price: {p['price']}")
+        print(f"Description (First 50 chars): {p.get('description', '')[:50]}...")
+        print("\n--- Как это видит AI (formatted sample) ---")
+        print(format_products_for_ai(products[:1]))
 except Exception as e:
     print(f"❌ Ошибка при получении данных: {e}")
