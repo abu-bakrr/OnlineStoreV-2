@@ -647,7 +647,7 @@ export default function AdminInventory() {
                             </Button>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 rounded-lg border-2 p-1 px-1.5">
+                          <div className="flex items-center gap-2 bg-muted/50 rounded-lg border-2 p-1 px-1.5">
                             <Button 
                               size="sm" 
                               variant="outline" 
@@ -726,7 +726,7 @@ export default function AdminInventory() {
                   </div>
                   
                   <div className="mt-4 pt-4 border-t flex items-center justify-between">
-                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-900 rounded-lg border-2 p-1 px-1.5">
+                    <div className="flex items-center gap-2 bg-muted/50 rounded-lg border-2 p-1 px-1.5">
                       <Button 
                         size="sm" 
                         variant="outline" 
