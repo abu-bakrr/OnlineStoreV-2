@@ -654,7 +654,6 @@ export default function AdminInventory() {
                               className="h-8 px-2 rounded-md bg-background border-2 shadow-sm hover:border-red-500 hover:text-red-500 transition-all font-bold"
                               onClick={() => item.quantity > 0 && updateMutation.mutate({ id: item.id, data: { quantity: item.quantity - 1 } })}
                             >
-                              <Minus className="h-3 w-3 mr-1" />
                               -1
                             </Button>
                             <span className="w-8 text-center font-black text-sm">{item.quantity}</span>
@@ -664,7 +663,6 @@ export default function AdminInventory() {
                               className="h-8 px-2 rounded-md bg-background border-2 shadow-sm hover:border-green-500 hover:text-green-500 transition-all font-bold"
                               onClick={() => updateMutation.mutate({ id: item.id, data: { quantity: item.quantity + 1 } })}
                             >
-                              <Plus className="h-3 w-3 mr-1" />
                               +1
                             </Button>
                           </div>
@@ -727,25 +725,40 @@ export default function AdminInventory() {
                   
                   <div className="mt-4 pt-4 border-t flex items-center justify-between">
                     <div className="flex items-center gap-2 bg-muted/50 rounded-lg border-2 p-1 px-1.5">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="h-9 px-3 rounded-md bg-background border-2 shadow-sm font-bold active:scale-95 transition-all"
-                        onClick={() => item.quantity > 0 && updateMutation.mutate({ id: item.id, data: { quantity: item.quantity - 1 } })}
-                      >
-                        <Minus className="h-4 w-4 mr-1" />
-                        -1
-                      </Button>
-                      <span className="w-10 text-center font-black text-lg">{item.quantity}</span>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="h-9 px-3 rounded-md bg-background border-2 shadow-sm font-bold active:scale-95 transition-all text-green-600 border-green-200"
-                        onClick={() => updateMutation.mutate({ id: item.id, data: { quantity: item.quantity + 1 } })}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        +1
-                      </Button>
+                      {editingItem?.id === item.id ? (
+                        <div className="flex items-center gap-2">
+                          <Input 
+                            type="number"
+                            className="w-24 h-9 text-center font-bold bg-background"
+                            value={editingItem.quantity === 0 ? '' : editingItem.quantity}
+                            onChange={(e: any) => setEditingItem({ ...editingItem, quantity: e.target.value === '' ? 0 : parseInt(e.target.value) })}
+                            autoFocus
+                          />
+                          <Button size="icon" className="h-9 w-9" onClick={() => updateMutation.mutate({ id: item.id, data: { quantity: editingItem.quantity } })}>
+                            <Check className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-9 px-3 rounded-md bg-background border-2 shadow-sm font-bold active:scale-95 transition-all"
+                            onClick={() => item.quantity > 0 && updateMutation.mutate({ id: item.id, data: { quantity: item.quantity - 1 } })}
+                          >
+                            -1
+                          </Button>
+                          <span className="w-10 text-center font-black text-lg">{item.quantity}</span>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-9 px-3 rounded-md bg-background border-2 shadow-sm font-bold active:scale-95 transition-all text-green-600 border-green-200"
+                            onClick={() => updateMutation.mutate({ id: item.id, data: { quantity: item.quantity + 1 } })}
+                          >
+                            +1
+                          </Button>
+                        </>
+                      )}
                     </div>
                     
                     <div className="flex gap-2">
