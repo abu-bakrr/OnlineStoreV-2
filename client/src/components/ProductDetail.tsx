@@ -188,25 +188,25 @@ export default function ProductDetail({
 			data-testid='product-detail'
 		>
 			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-				{/* Back Button Header - Visible on Mobile, integrated on Desktop */}
-				<div className='sticky top-0 z-40 bg-background/95 backdrop-blur-sm px-0 py-3 mb-4 flex items-center gap-3 md:pt-8 md:pb-6 md:static md:bg-transparent'>
+				{/* Back Button Header */}
+				<div className='sticky top-0 z-40 bg-background/95 backdrop-blur-sm px-0 py-2 mb-2 flex items-center gap-3 md:pt-8 md:pb-6 md:static md:bg-transparent'>
 					<Button
 						size='icon'
 						variant='ghost'
 						onClick={onBack}
-						className="rounded-full bg-muted/30 hover:bg-muted"
+						className="rounded-full bg-muted/30 hover:bg-muted w-9 h-9 md:w-10 md:h-10"
 						data-testid='button-back'
 					>
-						<ArrowLeft className='w-5 h-5' />
+						<ArrowLeft className='w-4 h-4 md:w-5 md:h-5' />
 					</Button>
-					<h2 className='text-lg font-bold md:text-xl'>Детали товара</h2>
+					<h2 className='text-base font-bold md:text-xl'>Детали товара</h2>
 				</div>
 
-				<div className='grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-start'>
+				<div className='grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-16 items-start'>
 					{/* Image Gallery Column */}
 					<div className='space-y-4'>
 						<div
-							className='relative aspect-square bg-muted rounded-3xl overflow-hidden shadow-sm group'
+							className='relative aspect-square bg-muted rounded-2xl md:rounded-3xl overflow-hidden shadow-sm group'
 							onTouchStart={handleTouchStart}
 							onTouchMove={handleTouchMove}
 							onTouchEnd={handleTouchEnd}
@@ -218,14 +218,14 @@ export default function ProductDetail({
 
 									return (
 										<div key={idx} className='absolute inset-0 w-full h-full'>
-											{/* Skeleton заставка */}
+											{/* Skeleton */}
 											{isLoading && (
 												<div
 													className={`absolute inset-0 w-full h-full rounded-2xl transition-opacity duration-300 ${
 														isVisible ? 'opacity-100' : 'opacity-0'
 													}`}
 												>
-													<div className='absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted rounded-2xl animate-pulse'>
+													<div className='absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted animate-pulse'>
 														<div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer' />
 													</div>
 												</div>
@@ -238,7 +238,7 @@ export default function ProductDetail({
 														isVisible ? 'opacity-100' : 'opacity-0'
 													}`}
 												>
-													<ImageIcon className='w-20 h-20 text-muted-foreground/30' />
+													<ImageIcon className='w-12 h-12 md:w-20 md:h-20 text-muted-foreground/30' />
 												</div>
 											) : (
 												<img
@@ -288,11 +288,11 @@ export default function ProductDetail({
 							{/* Favorite Button */}
 							<button
 								onClick={handleFavorite}
-								className='absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-sm border flex items-center justify-center z-10 transition-transform active:scale-95 hover:bg-white'
+								className='absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur-md shadow-sm border flex items-center justify-center z-10 transition-transform active:scale-95'
 								data-testid='button-toggle-favorite'
 							>
 								<Heart
-									className={`w-5 h-5 transition-colors ${
+									className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${
 										isFavorite ? 'fill-red-500 text-red-500' : 'text-foreground/40'
 									}`}
 								/>
@@ -300,8 +300,8 @@ export default function ProductDetail({
 
 							{/* Discount Badge */}
 							{old_price && old_price > price && (
-								<div className='absolute top-4 left-4 z-10'>
-									<div className='bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-2xl shadow-lg border border-red-400/20'>
+								<div className='absolute top-3 left-3 md:top-4 md:left-4 z-10'>
+									<div className='bg-red-500 text-white text-[10px] md:text-xs font-black px-2 py-1 md:px-3 md:py-1.5 rounded-xl md:rounded-2xl shadow-lg'>
 										-{Math.round(((old_price - price) / old_price) * 100)}%
 									</div>
 								</div>
@@ -309,14 +309,14 @@ export default function ProductDetail({
 
 							{/* Image Indicators */}
 							{images.length > 1 && (
-								<div className='absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 bg-black/10 backdrop-blur-sm px-2 py-1.5 rounded-full'>
+								<div className='absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10 bg-black/10 backdrop-blur-sm px-2 py-1 rounded-full'>
 									{images.map((_, idx) => (
 										<div
 											key={idx}
-											className={`h-1.5 rounded-full transition-all duration-300 ${
+											className={`h-1 md:h-1.5 rounded-full transition-all duration-300 ${
 												idx === currentImage
-													? 'w-4 bg-white'
-													: 'w-1.5 bg-white/40'
+													? 'w-3 md:w-4 bg-white'
+													: 'w-1 md:w-1.5 bg-white/40'
 											}`}
 										/>
 									))}
@@ -331,7 +331,7 @@ export default function ProductDetail({
 									<button
 										key={idx}
 										onClick={() => setCurrentImage(idx)}
-										className={`relative w-20 aspect-square rounded-xl overflow-hidden border-2 transition-all shrink-0 ${
+										className={`relative w-16 md:w-20 aspect-square rounded-xl overflow-hidden border-2 transition-all shrink-0 ${
 											idx === currentImage ? 'border-primary ring-2 ring-primary/10' : 'border-transparent opacity-60 hover:opacity-100'
 										}`}
 									>
@@ -343,10 +343,10 @@ export default function ProductDetail({
 					</div>
 
 					{/* Product Info Column */}
-					<div className='md:sticky md:top-24 space-y-8'>
-						<div className='space-y-4'>
+					<div className='md:sticky md:top-24 space-y-4 md:space-y-6'>
+						<div className='space-y-1.5 md:space-y-4'>
 							<h1
-								className='text-3xl lg:text-4xl leading-tight'
+								className='text-xl md:text-3xl lg:text-4xl leading-tight'
 								style={{
 									fontFamily: 'var(--font-family-custom, Inter)',
 									fontWeight: 'var(--font-weight-product-name, 700)',
@@ -356,10 +356,10 @@ export default function ProductDetail({
 								{name}
 							</h1>
 							
-							<div className='flex flex-wrap items-center gap-4'>
-								<div className='flex items-baseline gap-3 bg-secondary/30 px-4 py-3 rounded-2xl border border-secondary'>
+							<div className='flex flex-wrap items-center gap-2 md:gap-4'>
+								<div className='flex items-baseline gap-2 md:gap-3'>
 									<span
-										className='text-3xl lg:text-4xl text-foreground'
+										className='text-2xl md:text-3xl lg:text-4xl text-foreground font-bold'
 										style={{
 											fontFamily: 'var(--font-family-custom, Inter)',
 											fontWeight: 'var(--font-weight-price, 700)',
@@ -369,41 +369,56 @@ export default function ProductDetail({
 										{formatPrice(price)}
 									</span>
 									{old_price && old_price > price && (
-										<span className='text-lg text-muted-foreground line-through opacity-50 font-medium'>
+										<span className='text-base md:text-lg text-muted-foreground line-through opacity-50 font-medium'>
 											{formatPrice(old_price)}
 										</span>
 									)}
 								</div>
 								
 								{old_price && old_price > price && (
-									<span className='bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 px-3 py-1.5 rounded-xl text-sm font-black'>
+									<span className='bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 px-2 py-1 md:px-3 md:py-1.5 rounded-lg md:rounded-xl text-[10px] md:text-sm font-black'>
 										ВЫГОДА {formatPrice(old_price - price)}
 									</span>
 								)}
 							</div>
 						</div>
 
-						<div className='bg-card rounded-3xl p-6 border shadow-sm space-y-6'>
+						{/* Description Section - MOVED UP */}
+						<div className='space-y-1.5 md:space-y-3'>
+							<h3 className='text-[10px] md:text-xs font-black uppercase tracking-widest text-muted-foreground/80'>Описание</h3>
+							<p
+								className='text-sm md:text-base text-foreground/80 leading-relaxed whitespace-pre-wrap'
+								style={{
+									fontFamily: 'var(--font-family-custom, Inter)',
+									fontWeight: 'var(--font-weight-description, 400)',
+								}}
+								data-testid='text-product-description'
+							>
+								{description}
+							</p>
+						</div>
+
+						<div className='bg-card rounded-2xl md:rounded-3xl p-4 md:p-6 border shadow-sm space-y-4 md:space-y-6'>
 							{/* Attributes Selection */}
 							{attributes && attributes.length > 0 && (
-								<div className='space-y-6'>
+								<div className='space-y-4 md:space-y-6'>
 									{attributes.map((attr, idx) => (
-										<div key={idx} className='space-y-3'>
+										<div key={idx} className='space-y-2 md:space-y-3'>
 											<div className='flex items-center justify-between'>
-												<h3 className='text-sm font-bold uppercase tracking-wider text-muted-foreground'>{attr.name}</h3>
+												<h3 className='text-[10px] md:text-xs font-bold uppercase tracking-wider text-muted-foreground'>{attr.name}</h3>
 												{selectedAttributes[attr.name] && (
-													<span className="text-xs font-semibold text-primary">{selectedAttributes[attr.name]}</span>
+													<span className="text-[10px] md:text-xs font-semibold text-primary">{selectedAttributes[attr.name]}</span>
 												)}
 											</div>
-											<div className='flex flex-wrap gap-2.5'>
+											<div className='flex flex-wrap gap-2 md:gap-2.5'>
 												{attr.values.map((value, vIdx) => (
 													<button
 														key={vIdx}
 														onClick={() => handleAttributeSelect(attr.name, value)}
-														className={`px-5 py-2.5 rounded-xl border-2 text-sm font-bold transition-all ${
+														className={`px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl border-2 text-xs md:text-sm font-bold transition-all ${
 															selectedAttributes[attr.name] === value
-																? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105'
-																: 'border-muted bg-muted/20 hover:border-primary/30 hover:bg-muted/40'
+																? 'border-primary bg-primary text-primary-foreground shadow-sm'
+																: 'border-muted bg-muted/20 hover:border-primary/30'
 														}`}
 														data-testid={`button-attribute-${attr.name}-${value}`}
 													>
@@ -418,22 +433,22 @@ export default function ProductDetail({
 
 							{/* Color Selection */}
 							{colors && colors.length > 0 && (
-								<div className='space-y-3'>
+								<div className='space-y-2 md:space-y-3'>
 									<div className='flex items-center justify-between'>
-										<h3 className='text-sm font-bold uppercase tracking-wider text-muted-foreground'>Цвет</h3>
+										<h3 className='text-[10px] md:text-xs font-bold uppercase tracking-wider text-muted-foreground'>Цвет</h3>
 										{selectedColor && (
-											<span className="text-xs font-semibold text-primary">{selectedColor}</span>
+											<span className="text-[10px] md:text-xs font-semibold text-primary">{selectedColor}</span>
 										)}
 									</div>
-									<div className='flex flex-wrap gap-4'>
+									<div className='flex flex-wrap gap-2 md:gap-4'>
 										{colors.map((color, idx) => (
 											<button
 												key={idx}
 												onClick={() => handleColorSelect(color)}
-												className={`w-12 h-12 rounded-full border-4 transition-all relative ${
+												className={`w-8 h-8 md:w-12 md:h-12 rounded-full border-2 md:border-4 transition-all relative ${
 													selectedColor === color
-														? 'border-primary ring-4 ring-primary/10 scale-110 shadow-lg'
-														: 'border-white dark:border-zinc-800 shadow-sm hover:scale-105'
+														? 'border-primary ring-2 md:ring-4 ring-primary/10 shadow-md'
+														: 'border-white dark:border-zinc-800 shadow-sm'
 												}`}
 												style={{ backgroundColor: color }}
 												title={color}
@@ -441,7 +456,7 @@ export default function ProductDetail({
 											>
 												{selectedColor === color && (
 													<div className="absolute inset-0 flex items-center justify-center">
-														<div className="w-1.5 h-1.5 rounded-full bg-white shadow-xl" />
+														<div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-white shadow-xl" />
 													</div>
 												)}
 											</button>
@@ -450,7 +465,7 @@ export default function ProductDetail({
 								</div>
 							)}
 
-							{/* Action Button Section Area */}
+							{/* Action Button Section */}
 							{(() => {
 								const hasColors = colors && colors.length > 0
 								const hasAttributes = attributes && attributes.length > 0
@@ -473,23 +488,23 @@ export default function ProductDetail({
 								}
 
 								return (
-									<div className='space-y-4 pt-4 border-t'>
+									<div className='space-y-3 md:space-y-4 pt-4 border-t'>
 										<div className='flex items-center justify-between px-1'>
 											{canAddToCart ? (
 												currentInventory && currentInventory.quantity > 0 ? (
-													<span className='inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-tight text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg dark:bg-emerald-900/30 dark:text-emerald-400'>
-														<Package className='w-3.5 h-3.5' />
+													<span className='inline-flex items-center gap-1.5 text-[10px] md:text-xs font-black uppercase tracking-tight text-emerald-600 bg-emerald-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg dark:bg-emerald-900/30 dark:text-emerald-400'>
+														<Package className='w-3 h-3 md:w-3.5 md:h-3.5' />
 														<span>В наличии</span>
 													</span>
 												) : (
-													<span className='inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-tight text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg dark:bg-amber-900/30 dark:text-amber-400'>
-														<Clock className='w-3.5 h-3.5' />
+													<span className='inline-flex items-center gap-1.5 text-[10px] md:text-xs font-black uppercase tracking-tight text-amber-600 bg-amber-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg dark:bg-amber-900/30 dark:text-amber-400'>
+														<Clock className='w-3 h-3 md:w-3.5 md:h-3.5' />
 														<span>Под заказ</span>
 													</span>
 												)
 											) : (
-												<span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest animate-pulse">
-													Выберите опции ниже
+												<span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">
+													Выберите опции
 												</span>
 											)}
 										</div>
@@ -497,7 +512,7 @@ export default function ProductDetail({
 										<div className="flex gap-4">
 											<Button
 												onClick={handleCartAction}
-												className='flex-1 h-16 rounded-[20px] text-lg font-bold gap-3 shadow-xl transition-all active:scale-[0.98]'
+												className='flex-1 h-12 md:h-16 rounded-xl md:rounded-[20px] text-base md:text-lg font-bold gap-2 md:gap-3 shadow-lg transition-all active:scale-[0.98]'
 												size='lg'
 												variant={isInCart ? 'secondary' : 'default'}
 												disabled={!isInCart && !canAddToCart}
@@ -505,41 +520,26 @@ export default function ProductDetail({
 											>
 												{isInCart ? (
 													<>
-														<Check className='w-6 h-6' />
-														Перейти в корзину
+														<Check className='w-5 h-5 md:w-6 md:h-6' />
+														В корзине
 													</>
 												) : (
 													<>
-														<ShoppingCart className='w-6 h-6' />
-														Добавить в корзину
+														<ShoppingCart className='w-5 h-5 md:w-6 md:h-6' />
+														{canAddToCart ? 'В корзину' : 'Выбрать опции'}
 													</>
 												)}
 											</Button>
 										</div>
 
 										{!isInCart && !canAddToCart && (
-											<p className='text-xs text-center text-muted-foreground/60 font-medium'>
-												Для покупки нужно выбрать: {getMissingSelections().join(', ')}
+											<p className='text-[10px] text-center text-muted-foreground/60 font-medium'>
+												{getMissingSelections().join(', ')}
 											</p>
 										)}
 									</div>
 								)
 							})()}
-						</div>
-
-						{/* Description Section */}
-						<div className='bg-muted/30 rounded-3xl p-6 space-y-4'>
-							<h3 className='text-sm font-bold uppercase tracking-widest text-muted-foreground'>Описание товара</h3>
-							<p
-								className='text-base text-foreground/80 leading-relaxed whitespace-pre-wrap'
-								style={{
-									fontFamily: 'var(--font-family-custom, Inter)',
-									fontWeight: 'var(--font-weight-description, 400)',
-								}}
-								data-testid='text-product-description'
-							>
-								{description}
-							</p>
 						</div>
 					</div>
 				</div>
