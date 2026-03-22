@@ -288,7 +288,7 @@ export default function ProductDetail({
 							{/* Favorite Button */}
 							<button
 								onClick={handleFavorite}
-								className='absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/90 backdrop-blur-md shadow-sm border flex items-center justify-center z-10 transition-transform active:scale-95'
+								className='absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 rounded-full bg-background/80 flex items-center justify-center z-10 transition-transform active:scale-95 shadow-sm'
 								data-testid='button-toggle-favorite'
 							>
 								<Heart
