@@ -647,23 +647,25 @@ export default function AdminInventory() {
                             </Button>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-3 bg-slate-50 rounded-lg border p-1 px-2">
+                          <div className="flex items-center gap-2 bg-muted/50 rounded-lg border-2 p-1 px-1.5">
                             <Button 
-                              size="icon" 
-                              variant="ghost" 
-                              className="h-7 w-7 rounded-md hover:bg-white hover:shadow-sm text-muted-foreground hover:text-red-500"
+                              size="sm" 
+                              variant="outline" 
+                              className="h-8 px-2 rounded-md bg-background border-2 shadow-sm hover:border-red-500 hover:text-red-500 transition-all font-bold"
                               onClick={() => item.quantity > 0 && updateMutation.mutate({ id: item.id, data: { quantity: item.quantity - 1 } })}
                             >
-                              <Minus className="h-3 w-3" />
+                              <Minus className="h-3 w-3 mr-1" />
+                              -1
                             </Button>
                             <span className="w-8 text-center font-black text-sm">{item.quantity}</span>
                             <Button 
-                              size="icon" 
-                              variant="ghost" 
-                              className="h-7 w-7 rounded-md hover:bg-white hover:shadow-sm text-muted-foreground hover:text-green-500"
+                              size="sm" 
+                              variant="outline" 
+                              className="h-8 px-2 rounded-md bg-background border-2 shadow-sm hover:border-green-500 hover:text-green-500 transition-all font-bold"
                               onClick={() => updateMutation.mutate({ id: item.id, data: { quantity: item.quantity + 1 } })}
                             >
-                              <Plus className="h-3 w-3" />
+                              <Plus className="h-3 w-3 mr-1" />
+                              +1
                             </Button>
                           </div>
                         )}
@@ -724,23 +726,25 @@ export default function AdminInventory() {
                   </div>
                   
                   <div className="mt-4 pt-4 border-t flex items-center justify-between">
-                    <div className="flex items-center gap-3 bg-slate-50 rounded-lg border p-1 px-3">
+                    <div className="flex items-center gap-2 bg-muted/50 rounded-lg border-2 p-1 px-1.5">
                       <Button 
-                        size="icon" 
-                        variant="ghost" 
-                        className="h-8 w-8"
+                        size="sm" 
+                        variant="outline" 
+                        className="h-9 px-3 rounded-md bg-background border-2 shadow-sm font-bold active:scale-95 transition-all"
                         onClick={() => item.quantity > 0 && updateMutation.mutate({ id: item.id, data: { quantity: item.quantity - 1 } })}
                       >
-                        <Minus className="h-4 w-4" />
+                        <Minus className="h-4 w-4 mr-1" />
+                        -1
                       </Button>
                       <span className="w-10 text-center font-black text-lg">{item.quantity}</span>
                       <Button 
-                        size="icon" 
-                        variant="ghost" 
-                        className="h-8 w-8"
+                        size="sm" 
+                        variant="outline" 
+                        className="h-9 px-3 rounded-md bg-background border-2 shadow-sm font-bold active:scale-95 transition-all text-green-600 border-green-200"
                         onClick={() => updateMutation.mutate({ id: item.id, data: { quantity: item.quantity + 1 } })}
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-4 w-4 mr-1" />
+                        +1
                       </Button>
                     </div>
                     
