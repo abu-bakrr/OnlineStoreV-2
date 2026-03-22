@@ -267,20 +267,27 @@ export default function ProductCard({
 				</h3>
 
 				<div className='flex items-center justify-between'>
-					<div className='flex items-baseline gap-2 mb-2'>
-						<span
-							className='text-lg'
-							style={{
-								fontFamily: 'var(--font-family-custom, Inter)',
-								fontWeight: 'var(--font-weight-price, 700)',
-							}}
-							data-testid='text-product-price'
-						>
-							{formatPrice(price)}
-						</span>
+					<div className='flex flex-col mb-2'>
+						<div className='flex items-baseline gap-2'>
+							<span
+								className='text-lg'
+								style={{
+									fontFamily: 'var(--font-family-custom, Inter)',
+									fontWeight: 'var(--font-weight-price, 700)',
+								}}
+								data-testid='text-product-price'
+							>
+								{formatPrice(price)}
+							</span>
+							{old_price && old_price > price && (
+								<span className='text-xs text-muted-foreground line-through opacity-70'>
+									{formatPrice(old_price)}
+								</span>
+							)}
+						</div>
 						{old_price && old_price > price && (
-							<span className='text-xs text-muted-foreground line-through opacity-70'>
-								{formatPrice(old_price)}
+							<span className='text-[10px] text-red-500 font-bold mt-0.5 animate-pulse'>
+								Вы сэкономили {Math.round(((old_price - price) / old_price) * 100)}%
 							</span>
 						)}
 					</div>
