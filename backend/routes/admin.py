@@ -241,13 +241,14 @@ def admin_create_product():
     cur = conn.cursor()
     try:
         cur.execute('''
-            INSERT INTO products (name, description, price, images, category_id, colors, attributes)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO products (name, description, price, old_price, images, category_id, colors, attributes)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
         ''', (
             data['name'], 
             data.get('description'), 
             data['price'], 
+            data.get('old_price'),
             data.get('images', []), 
             data.get('category_id'),
             data.get('colors', []),
@@ -272,12 +273,13 @@ def admin_update_product(product_id):
     try:
         cur.execute('''
             UPDATE products 
-            SET name = %s, description = %s, price = %s, images = %s, category_id = %s, colors = %s, attributes = %s
+            SET name = %s, description = %s, price = %s, old_price = %s, images = %s, category_id = %s, colors = %s, attributes = %s
             WHERE id = %s
         ''', (
             data['name'], 
             data.get('description'), 
             data['price'], 
+            data.get('old_price'),
             data.get('images', []), 
             data.get('category_id'),
             data.get('colors', []),

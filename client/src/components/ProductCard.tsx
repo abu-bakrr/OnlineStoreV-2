@@ -15,6 +15,7 @@ interface ProductCardProps {
 	id: string
 	name: string
 	price: number
+	old_price?: number
 	images: string[]
 	isFavorite?: boolean
 	isInCart?: boolean
@@ -30,6 +31,7 @@ export default function ProductCard({
 	id,
 	name,
 	price,
+	old_price,
 	images,
 	isFavorite = false,
 	isInCart = false,
@@ -164,35 +166,46 @@ export default function ProductCard({
 										<ImageIcon className='w-16 h-16 text-muted-foreground/40' />
 									</div>
 								) : (
-									<img
-										src={
-											priority && idx === 0
-												? optimizeProductHero(img)
-												: optimizeProductThumbnail(img)
-										}
-										alt={name}
-										className={`absolute inset-0 w-full h-full object-cover rounded-2xl transition-opacity duration-300 ${
-											isVisible ? 'opacity-100' : 'opacity-0'
-										}`}
-										loading={priority ? 'eager' : 'lazy'}
-										fetchPriority={priority ? 'high' : 'low'}
-										decoding='async'
-										onLoad={() => {
-											setImageLoading(prev => {
-												const next = new Set(prev)
-												next.delete(idx)
-												return next
-											})
-										}}
-										onError={() => {
-											setImageErrors(prev => new Set(prev).add(idx))
-											setImageLoading(prev => {
-												const next = new Set(prev)
-												next.delete(idx)
-												return next
-											})
-										}}
-									/>
+									<>
+										{/* Sale Badge */}
+										{old_price && old_price > price && (
+											<div className='absolute top-2 right-2 z-10'>
+												<div className='bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 animate-pulse'>
+													<span>-{Math.round(((old_price - price) / old_price) * 100)}%</span>
+												</div>
+											</div>
+										)}
+
+										<img
+											src={
+												priority && idx === 0
+													? optimizeProductHero(img)
+													: optimizeProductThumbnail(img)
+											}
+											alt={name}
+											className={`absolute inset-0 w-full h-full object-cover rounded-2xl transition-opacity duration-300 ${
+												isVisible ? 'opacity-100' : 'opacity-0'
+											}`}
+											loading={priority ? 'eager' : 'lazy'}
+											fetchPriority={priority ? 'high' : 'low'}
+											decoding='async'
+											onLoad={() => {
+												setImageLoading(prev => {
+													const next = new Set(prev)
+													next.delete(idx)
+													return next
+												})
+											}}
+											onError={() => {
+												setImageErrors(prev => new Set(prev).add(idx))
+												setImageLoading(prev => {
+													const next = new Set(prev)
+													next.delete(idx)
+													return next
+												})
+											}}
+										/>
+									</>
 								)}
 							</div>
 						)
@@ -254,16 +267,23 @@ export default function ProductCard({
 				</h3>
 
 				<div className='flex items-center justify-between'>
-					<p
-						className='text-[14px] text-foreground'
-						style={{
-							fontFamily: 'var(--font-family-custom, Inter)',
-							fontWeight: 'var(--font-weight-price, 600)',
-						}}
-						data-testid={`text-product-price-${id}`}
-					>
-						{formatPrice(price)}
-					</p>
+					<div className='flex items-baseline gap-2 mb-2'>
+						<span
+							className='text-lg'
+							style={{
+								fontFamily: 'var(--font-family-custom, Inter)',
+								fontWeight: 'var(--font-weight-price, 700)',
+							}}
+							data-testid='text-product-price'
+						>
+							{formatPrice(price)}
+						</span>
+						{old_price && old_price > price && (
+							<span className='text-xs text-muted-foreground line-through opacity-70'>
+								{formatPrice(old_price)}
+							</span>
+						)}
+					</div>
 					<Button
 						size='icon'
 						variant={isInCart ? 'default' : 'ghost'}

@@ -25,6 +25,7 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   description: text("description"),
   price: integer("price").notNull(),
+  old_price: integer("old_price"),
   images: text("images").array().notNull(),
   category_id: text("category_id"), // Stores category ID from config (e.g., "category-1")
 });

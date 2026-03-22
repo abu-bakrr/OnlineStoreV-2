@@ -6,6 +6,7 @@ interface Product {
 	id: string
 	name: string
 	price: number
+	old_price?: number
 	images: string[]
 	isFavorite?: boolean
 }

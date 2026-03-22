@@ -21,6 +21,7 @@ interface Product {
 	id: string
 	name: string
 	price: number
+	old_price?: number
 	images: string[]
 	colors?: string[]
 	attributes?: Attribute[]
@@ -192,9 +193,16 @@ export default function QuickAddModal({
 								</div>
 								<div className='flex-1 min-w-0'>
 									<h4 className='font-medium line-clamp-2'>{product.name}</h4>
-									<p className='text-lg font-bold mt-1'>
-										{formatPrice(product.price)}
-									</p>
+									<div className='flex items-baseline gap-2 mt-1'>
+										<p className='text-lg font-bold'>
+											{formatPrice(product.price)}
+										</p>
+										{product.old_price && product.old_price > product.price && (
+											<p className='text-sm text-muted-foreground line-through opacity-60'>
+												{formatPrice(product.old_price)}
+											</p>
+										)}
+									</div>
 								</div>
 							</div>
 

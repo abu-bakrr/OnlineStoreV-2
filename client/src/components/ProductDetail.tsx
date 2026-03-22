@@ -30,6 +30,7 @@ interface ProductDetailProps {
 	name: string
 	description: string
 	price: number
+	old_price?: number
 	images: string[]
 	colors?: string[]
 	attributes?: Attribute[]
@@ -51,6 +52,7 @@ export default function ProductDetail({
 	name,
 	description,
 	price,
+	old_price,
 	images,
 	colors,
 	attributes,
@@ -325,16 +327,23 @@ export default function ProductDetail({
 						>
 							{name}
 						</h1>
-						<p
-							className='text-3xl text-foreground'
-							style={{
-								fontFamily: 'var(--font-family-custom, Inter)',
-								fontWeight: 'var(--font-weight-price, 600)',
-							}}
-							data-testid='text-product-detail-price'
-						>
-							{formatPrice(price)}
-						</p>
+						<div className='flex items-baseline gap-3'>
+							<p
+								className='text-3xl text-foreground'
+								style={{
+									fontFamily: 'var(--font-family-custom, Inter)',
+									fontWeight: 'var(--font-weight-price, 600)',
+								}}
+								data-testid='text-product-detail-price'
+							>
+								{formatPrice(price)}
+							</p>
+							{old_price && old_price > price && (
+								<p className='text-lg text-muted-foreground line-through opacity-60'>
+									{formatPrice(old_price)}
+								</p>
+							)}
+						</div>
 					</div>
 
 					<div className='border-t pt-4'>

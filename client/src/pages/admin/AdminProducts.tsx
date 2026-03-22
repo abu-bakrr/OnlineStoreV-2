@@ -41,6 +41,7 @@ interface Product {
   category_id: string;
   colors: string[];
   attributes: Attribute[];
+  old_price?: number;
 }
 
 interface Category {
@@ -68,6 +69,7 @@ export default function AdminProducts() {
     category_id: '',
     colors: [] as string[],
     attributes: [] as Attribute[],
+    old_price: '',
   });
 
   const [newColor, setNewColor] = useState('#000000');
@@ -172,6 +174,7 @@ export default function AdminProducts() {
       category_id: '',
       colors: [],
       attributes: [],
+      old_price: '',
     });
     setNewColor('#000000');
     setNewAttrName('');
@@ -189,6 +192,7 @@ export default function AdminProducts() {
       category_id: product.category_id || '',
       colors: product.colors || [],
       attributes: product.attributes || [],
+      old_price: product.old_price?.toString() || '',
     });
     setNewColor('#000000');
     setNewAttrName('');
@@ -268,6 +272,7 @@ export default function AdminProducts() {
         category_id: formData.category_id || null as any,
         colors: formData.colors,
         attributes: formData.attributes.filter((attr: Attribute) => attr.values.length > 0),
+        old_price: formData.old_price ? parseInt(formData.old_price) : null,
       };
 
       const url = editingProduct 
@@ -433,9 +438,9 @@ export default function AdminProducts() {
                     placeholder="Подробное описание товара..."
                   />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold">Цена (сум)</Label>
+                    <Label className="text-sm font-semibold">Цена</Label>
                     <Input
                       type="number"
                       value={formData.price}
@@ -443,6 +448,16 @@ export default function AdminProducts() {
                       required
                       className="h-11"
                       placeholder="0"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">Старая цена</Label>
+                    <Input
+                      type="number"
+                      value={formData.old_price}
+                      onChange={(e) => setFormData({ ...formData, old_price: e.target.value })}
+                      className="h-11"
+                      placeholder="Без скидки"
                     />
                   </div>
                   <div className="space-y-2">
@@ -668,9 +683,16 @@ export default function AdminProducts() {
                       <p className="text-[10px] uppercase font-black tracking-tighter text-muted-foreground/40 leading-none mb-1">
                         Цена
                       </p>
-                      <p className="text-xl font-black text-primary">
-                        {formatPrice(product.price)}
-                      </p>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-xl font-black text-primary">
+                          {formatPrice(product.price)}
+                        </p>
+                        {product.old_price && product.old_price > product.price && (
+                          <p className="text-sm text-muted-foreground line-through decoration-destructive/30">
+                            {formatPrice(product.old_price)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <Button 

@@ -7,6 +7,7 @@ import re
 from datetime import datetime
 from dotenv import load_dotenv
 from groq import Groq
+from openai import OpenAI
 
 # --- 1. CONFIGURATION & LOGGING ---
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -61,6 +62,12 @@ class MillyBot:
         self.bot = telebot.TeleBot(self.token)
         self.groq_key = os.getenv('GROQ_API_KEY')
         self.groq = Groq(api_key=self.groq_key) if self.groq_key else None
+        
+        self.openai_client = OpenAI(
+            base_url="http://127.0.0.1:8045/v1",
+            api_key="sk-7e99611a4f024951a5b192fd92dc9e65"
+        )
+
         self.logger = logger
         self.sessions = {}
         self.ADMIN_ID = 5644397480
@@ -144,6 +151,33 @@ JSON: {
         return self.sessions[user_id]
 
     def _ai_think(self, messages):
+        last_error = ""
+        wait_time = "несколько секунд"
+        full_msgs = [{"role": "system", "content": self.system_prompt}] + messages
+
+        if hasattr(self, 'openai_client') and self.openai_client:
+            try:
+                self.logger.info(f"🤖 [REQUEST] Priority Model: gemini-2.5-flash (OpenAI endpoint)")
+                completion = self.openai_client.chat.completions.create(
+                    model="gemini-2.5-flash",
+                    messages=full_msgs,
+                    temperature=0.1,
+                    # response_format={"type": "json_object"}
+                )
+                content = completion.choices[0].message.content.strip()
+                # In case model returns markdown json block, clean it up
+                if content.startswith("```json"):
+                    content = content[7:].strip()
+                elif content.startswith("```"):
+                    content = content[3:].strip()
+                if content.endswith("```"):
+                    content = content[:-3].strip()
+                res = json.loads(content)
+                self.logger.info(f"🧠 [THOUGHT] {res.get('thoughts')}")
+                return res
+            except Exception as e:
+                self.logger.warning(f"⚠️ [FAIL] Priority Model gemini-2.5-flash: {e}")
+
         if not self.groq: return None
         MODELS = [
             "meta-llama/llama-4-scout-17b-16e-instruct",
@@ -151,12 +185,10 @@ JSON: {
             "llama-3.3-70b-versatile",
             "openai/gpt-oss-120b"
         ]
-        last_error = ""
-        wait_time = "несколько секунд"
+        
         for model_name in MODELS:
             try:
                 self.logger.info(f"🤖 [REQUEST] Model: {model_name}")
-                full_msgs = [{"role": "system", "content": self.system_prompt}] + messages
                 completion = self.groq.chat.completions.create(
                     model=model_name,
                     messages=full_msgs,

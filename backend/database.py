@@ -60,6 +60,7 @@ def init_db():
             name TEXT NOT NULL,
             description TEXT,
             price INTEGER NOT NULL,
+            old_price INTEGER,
             images TEXT[] NOT NULL,
             category_id TEXT,
             colors TEXT[],
@@ -82,6 +83,10 @@ def init_db():
             IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                           WHERE table_name='products' AND column_name='attributes') THEN
                 ALTER TABLE products ADD COLUMN attributes JSONB;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name='products' AND column_name='old_price') THEN
+                ALTER TABLE products ADD COLUMN old_price INTEGER;
             END IF;
         END $$;
     ''')
