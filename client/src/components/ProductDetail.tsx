@@ -188,169 +188,165 @@ export default function ProductDetail({
 			data-testid='product-detail'
 		>
 			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-				{/* Navigation Header */}
-				<div className='sticky top-0 z-40 bg-background/95 backdrop-blur-sm px-0 py-4 flex items-center gap-4 md:static md:bg-transparent md:backdrop-filter-none md:border-none'>
+				{/* Back Button Header - Visible on Mobile, integrated on Desktop */}
+				<div className='sticky top-0 z-40 bg-background/95 backdrop-blur-sm px-0 py-3 mb-4 flex items-center gap-3 md:pt-8 md:pb-6 md:static md:bg-transparent'>
 					<Button
 						size='icon'
-						variant='outline'
+						variant='ghost'
 						onClick={onBack}
-						className='rounded-full h-10 w-10 border-border/40 hover:bg-muted transition-colors'
+						className="rounded-full bg-muted/30 hover:bg-muted"
 						data-testid='button-back'
 					>
 						<ArrowLeft className='w-5 h-5' />
 					</Button>
-					<h2 className='text-lg font-bold md:hidden'>Детали товара</h2>
+					<h2 className='text-lg font-bold md:text-xl'>Детали товара</h2>
 				</div>
 
-				<div className='grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mt-4'>
-					{/* Left Column: Image Gallery */}
-					<div className='space-y-6 lg:sticky lg:top-8'>
+				<div className='grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-start'>
+					{/* Image Gallery Column */}
+					<div className='space-y-4'>
 						<div
-							className='relative aspect-square bg-muted/30 rounded-[32px] overflow-hidden group shadow-sm'
+							className='relative aspect-square bg-muted rounded-3xl overflow-hidden shadow-sm group'
 							onTouchStart={handleTouchStart}
 							onTouchMove={handleTouchMove}
 							onTouchEnd={handleTouchEnd}
 						>
-						<div className='relative w-full h-full'>
-							{images.map((img, idx) => {
-								const isLoading = imageLoading.has(idx) && !imageErrors.has(idx)
-								const isVisible = idx === currentImage
+							<div className='relative w-full h-full'>
+								{images.map((img, idx) => {
+									const isLoading = imageLoading.has(idx) && !imageErrors.has(idx)
+									const isVisible = idx === currentImage
 
-								return (
-									<div key={idx} className='absolute inset-0 w-full h-full'>
-										{/* Skeleton заставка */}
-										{isLoading && (
-											<div
-												className={`absolute inset-0 w-full h-full rounded-[32px] transition-opacity duration-300 ${
-													isVisible ? 'opacity-100' : 'opacity-0'
-												}`}
-											>
-												<div className='absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted rounded-[32px] animate-pulse'>
-													<div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer' />
+									return (
+										<div key={idx} className='absolute inset-0 w-full h-full'>
+											{/* Skeleton заставка */}
+											{isLoading && (
+												<div
+													className={`absolute inset-0 w-full h-full rounded-2xl transition-opacity duration-300 ${
+														isVisible ? 'opacity-100' : 'opacity-0'
+													}`}
+												>
+													<div className='absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted rounded-2xl animate-pulse'>
+														<div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer' />
+													</div>
 												</div>
-											</div>
-										)}
+											)}
 
-										{/* Изображение или ошибка */}
-										{imageErrors.has(idx) ? (
-											<div
-												className={`absolute inset-0 w-full h-full flex items-center justify-center transition-opacity duration-300 ${
-													isVisible ? 'opacity-100' : 'opacity-0'
-												}`}
-											>
-												<ImageIcon className='w-20 h-20 text-muted-foreground/40' />
-											</div>
-										) : (
-											<img
-												src={optimizeProductDetail(img)}
-												alt={name}
-												className={`absolute inset-0 w-full h-full object-cover rounded-[32px] transition-opacity duration-300 ${
-													isVisible ? 'opacity-100' : 'opacity-0'
-												}`}
-												loading={idx === 0 ? 'eager' : 'lazy'}
-												fetchPriority={idx === 0 ? 'high' : 'low'}
-												decoding='async'
-												onLoad={() => {
-													setImageLoading(prev => {
-														const next = new Set(prev)
-														next.delete(idx)
-														return next
-													})
-												}}
-												onError={() => {
-													setImageErrors(prev => new Set(prev).add(idx))
-													setImageLoading(prev => {
-														const next = new Set(prev)
-														next.delete(idx)
-														return next
-													})
-												}}
-											/>
-										)}
+											{/* Изображение или ошибка */}
+											{imageErrors.has(idx) ? (
+												<div
+													className={`absolute inset-0 w-full h-full flex items-center justify-center transition-opacity duration-300 ${
+														isVisible ? 'opacity-100' : 'opacity-0'
+													}`}
+												>
+													<ImageIcon className='w-20 h-20 text-muted-foreground/30' />
+												</div>
+											) : (
+												<img
+													src={optimizeProductDetail(img)}
+													alt={name}
+													className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 transform group-hover:scale-105 ${
+														isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+													}`}
+													loading={idx === 0 ? 'eager' : 'lazy'}
+													fetchPriority={idx === 0 ? 'high' : 'low'}
+													decoding='async'
+													onLoad={() => {
+														setImageLoading(prev => {
+															const next = new Set(prev)
+															next.delete(idx)
+															return next
+														})
+													}}
+													onError={() => {
+														setImageErrors(prev => new Set(prev).add(idx))
+														setImageLoading(prev => {
+															const next = new Set(prev)
+															next.delete(idx)
+															return next
+														})
+													}}
+												/>
+											)}
+										</div>
+									)
+								})}
+							</div>
+
+							{/* Hover-зоны для ПК */}
+							{images.length > 1 && (
+								<div className='absolute inset-0 hidden md:flex z-[1]'>
+									{images.map((_, idx) => (
+										<div
+											key={idx}
+											className='flex-1 h-full cursor-pointer'
+											onMouseEnter={() => setCurrentImage(idx)}
+										/>
+									))}
+								</div>
+							)}
+
+							{/* Favorite Button */}
+							<button
+								onClick={handleFavorite}
+								className='absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-sm border flex items-center justify-center z-10 transition-transform active:scale-95 hover:bg-white'
+								data-testid='button-toggle-favorite'
+							>
+								<Heart
+									className={`w-5 h-5 transition-colors ${
+										isFavorite ? 'fill-red-500 text-red-500' : 'text-foreground/40'
+									}`}
+								/>
+							</button>
+
+							{/* Discount Badge */}
+							{old_price && old_price > price && (
+								<div className='absolute top-4 left-4 z-10'>
+									<div className='bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-2xl shadow-lg border border-red-400/20'>
+										-{Math.round(((old_price - price) / old_price) * 100)}%
 									</div>
-								)
-							})}
+								</div>
+							)}
+
+							{/* Image Indicators */}
+							{images.length > 1 && (
+								<div className='absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 bg-black/10 backdrop-blur-sm px-2 py-1.5 rounded-full'>
+									{images.map((_, idx) => (
+										<div
+											key={idx}
+											className={`h-1.5 rounded-full transition-all duration-300 ${
+												idx === currentImage
+													? 'w-4 bg-white'
+													: 'w-1.5 bg-white/40'
+											}`}
+										/>
+									))}
+								</div>
+							)}
 						</div>
 
-						{/* Click zones for desktop */}
+						{/* Thumbnails (Desktop) */}
 						{images.length > 1 && (
-							<div className='absolute inset-0 hidden lg:flex z-[5]'>
-								<div className='w-1/4 h-full cursor-pointer' onClick={prevImage} />
-								<div className='flex-1 h-full' />
-								<div className='w-1/4 h-full cursor-pointer' onClick={nextImage} />
-							</div>
-						)}
-
-						{/* Favorite Button */}
-						<button
-							onClick={handleFavorite}
-							className='absolute top-6 right-6 w-12 h-12 rounded-full bg-background/80 backdrop-blur-md border border-white/20 flex items-center justify-center z-10 shadow-lg hover:scale-110 active:scale-90 transition-all'
-							data-testid='button-toggle-favorite'
-						>
-							<Heart
-								className={`w-6 h-6 transition-colors ${
-									isFavorite ? 'fill-red-500 text-red-500' : 'text-foreground/60'
-								}`}
-							/>
-						</button>
-
-						{/* Sale Badge */}
-						{old_price && old_price > price && (
-							<div className='absolute top-6 left-6 z-10'>
-								<div className='bg-red-500 text-white text-sm font-black px-4 py-1.5 rounded-full shadow-xl flex items-center gap-1.5 backdrop-blur-md bg-red-500/90 border border-white/20'>
-									<span>-{Math.round(((old_price - price) / old_price) * 100)}%</span>
-								</div>
-							</div>
-						)}
-
-						{/* Image Indicators */}
-						{images.length > 1 && (
-							<div className='absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10'>
-								{images.map((_, idx) => (
+							<div className='hidden md:flex gap-3 overflow-x-auto pb-2 scrollbar-none'>
+								{images.map((img, idx) => (
 									<button
 										key={idx}
 										onClick={() => setCurrentImage(idx)}
-										className={`h-2 rounded-full transition-all duration-300 ${
-											idx === currentImage
-												? 'w-8 bg-foreground shadow-sm'
-												: 'w-2 bg-foreground/20 hover:bg-foreground/40'
+										className={`relative w-20 aspect-square rounded-xl overflow-hidden border-2 transition-all shrink-0 ${
+											idx === currentImage ? 'border-primary ring-2 ring-primary/10' : 'border-transparent opacity-60 hover:opacity-100'
 										}`}
-									/>
+									>
+										<img src={img} alt="" className="w-full h-full object-cover" />
+									</button>
 								))}
 							</div>
 						)}
 					</div>
 
-					{/* Thumbnail List for Desktop */}
-					{images.length > 1 && (
-						<div className='hidden lg:flex gap-4 overflow-x-auto pb-2 scrollbar-none'>
-							{images.map((img, idx) => (
-								<button
-									key={idx}
-									onClick={() => setCurrentImage(idx)}
-									className={`relative w-24 aspect-square rounded-2xl overflow-hidden shrink-0 border-2 transition-all ${
-										currentImage === idx 
-											? 'border-primary shadow-md scale-105' 
-											: 'border-transparent opacity-60 hover:opacity-100'
-									}`}
-								>
-									<img 
-										src={optimizeProductDetail(img)} 
-										alt={`${name} thumbnail ${idx}`}
-										className='w-full h-full object-cover'
-									/>
-								</button>
-							))}
-						</div>
-					)}
-				</div>
-
-				{/* Right Column: Product Info */}
-				<div className='space-y-8 lg:py-4'>
-					<div className='space-y-4'>
-						<div className='space-y-2'>
+					{/* Product Info Column */}
+					<div className='md:sticky md:top-24 space-y-8'>
+						<div className='space-y-4'>
 							<h1
-								className='text-3xl md:text-4xl tracking-tight'
+								className='text-3xl lg:text-4xl leading-tight'
 								style={{
 									fontFamily: 'var(--font-family-custom, Inter)',
 									fontWeight: 'var(--font-weight-product-name, 700)',
@@ -359,41 +355,183 @@ export default function ProductDetail({
 							>
 								{name}
 							</h1>
-							<div className='h-1.5 w-20 bg-primary/20 rounded-full' />
+							
+							<div className='flex flex-wrap items-center gap-4'>
+								<div className='flex items-baseline gap-3 bg-secondary/30 px-4 py-3 rounded-2xl border border-secondary'>
+									<span
+										className='text-3xl lg:text-4xl text-foreground'
+										style={{
+											fontFamily: 'var(--font-family-custom, Inter)',
+											fontWeight: 'var(--font-weight-price, 700)',
+										}}
+										data-testid='text-product-detail-price'
+									>
+										{formatPrice(price)}
+									</span>
+									{old_price && old_price > price && (
+										<span className='text-lg text-muted-foreground line-through opacity-50 font-medium'>
+											{formatPrice(old_price)}
+										</span>
+									)}
+								</div>
+								
+								{old_price && old_price > price && (
+									<span className='bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 px-3 py-1.5 rounded-xl text-sm font-black'>
+										ВЫГОДА {formatPrice(old_price - price)}
+									</span>
+								)}
+							</div>
 						</div>
 
-						<div className='flex items-baseline gap-4 flex-wrap'>
-							<p
-								className='text-4xl md:text-5xl tracking-tighter text-primary'
-								style={{
-									fontFamily: 'var(--font-family-custom, Inter)',
-									fontWeight: 'var(--font-weight-price, 800)',
-								}}
-								data-testid='text-product-detail-price'
-							>
-								{formatPrice(price)}
-							</p>
-							{old_price && old_price > price && (
-								<div className='flex items-center gap-3 bg-muted/50 px-3 py-1.5 rounded-2xl'>
-									<p className='text-xl text-muted-foreground line-through opacity-40 font-medium'>
-										{formatPrice(old_price)}
-									</p>
-									<span className='bg-red-500/10 text-red-500 text-xs font-black px-2 py-0.5 rounded-lg border border-red-500/20'>
-										-{Math.round(((old_price - price) / old_price) * 100)}%
-									</span>
+						<div className='bg-card rounded-3xl p-6 border shadow-sm space-y-6'>
+							{/* Attributes Selection */}
+							{attributes && attributes.length > 0 && (
+								<div className='space-y-6'>
+									{attributes.map((attr, idx) => (
+										<div key={idx} className='space-y-3'>
+											<div className='flex items-center justify-between'>
+												<h3 className='text-sm font-bold uppercase tracking-wider text-muted-foreground'>{attr.name}</h3>
+												{selectedAttributes[attr.name] && (
+													<span className="text-xs font-semibold text-primary">{selectedAttributes[attr.name]}</span>
+												)}
+											</div>
+											<div className='flex flex-wrap gap-2.5'>
+												{attr.values.map((value, vIdx) => (
+													<button
+														key={vIdx}
+														onClick={() => handleAttributeSelect(attr.name, value)}
+														className={`px-5 py-2.5 rounded-xl border-2 text-sm font-bold transition-all ${
+															selectedAttributes[attr.name] === value
+																? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105'
+																: 'border-muted bg-muted/20 hover:border-primary/30 hover:bg-muted/40'
+														}`}
+														data-testid={`button-attribute-${attr.name}-${value}`}
+													>
+														{value}
+													</button>
+												))}
+											</div>
+										</div>
+									))}
 								</div>
 							)}
-						</div>
-					</div>
 
-					<div className='space-y-3'>
-						<div className='flex items-center gap-2 text-sm font-bold text-foreground/40 uppercase tracking-widest'>
-							<Package className='w-4 h-4' />
-							<span>Описание</span>
+							{/* Color Selection */}
+							{colors && colors.length > 0 && (
+								<div className='space-y-3'>
+									<div className='flex items-center justify-between'>
+										<h3 className='text-sm font-bold uppercase tracking-wider text-muted-foreground'>Цвет</h3>
+										{selectedColor && (
+											<span className="text-xs font-semibold text-primary">{selectedColor}</span>
+										)}
+									</div>
+									<div className='flex flex-wrap gap-4'>
+										{colors.map((color, idx) => (
+											<button
+												key={idx}
+												onClick={() => handleColorSelect(color)}
+												className={`w-12 h-12 rounded-full border-4 transition-all relative ${
+													selectedColor === color
+														? 'border-primary ring-4 ring-primary/10 scale-110 shadow-lg'
+														: 'border-white dark:border-zinc-800 shadow-sm hover:scale-105'
+												}`}
+												style={{ backgroundColor: color }}
+												title={color}
+												data-testid={`button-color-${idx}`}
+											>
+												{selectedColor === color && (
+													<div className="absolute inset-0 flex items-center justify-center">
+														<div className="w-1.5 h-1.5 rounded-full bg-white shadow-xl" />
+													</div>
+												)}
+											</button>
+										))}
+									</div>
+								</div>
+							)}
+
+							{/* Action Button Section Area */}
+							{(() => {
+								const hasColors = colors && colors.length > 0
+								const hasAttributes = attributes && attributes.length > 0
+								const colorSelected = !hasColors || selectedColor
+								const allAttributesSelected =
+									!hasAttributes ||
+									attributes.every(attr => selectedAttributes[attr.name])
+								const canAddToCart = colorSelected && allAttributesSelected
+
+								const getMissingSelections = () => {
+									const missing = []
+									if (hasColors && !selectedColor) missing.push('цвет')
+									if (hasAttributes) {
+										attributes.forEach(attr => {
+											if (!selectedAttributes[attr.name])
+												missing.push(attr.name.toLowerCase())
+										})
+									}
+									return missing
+								}
+
+								return (
+									<div className='space-y-4 pt-4 border-t'>
+										<div className='flex items-center justify-between px-1'>
+											{canAddToCart ? (
+												currentInventory && currentInventory.quantity > 0 ? (
+													<span className='inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-tight text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg dark:bg-emerald-900/30 dark:text-emerald-400'>
+														<Package className='w-3.5 h-3.5' />
+														<span>В наличии</span>
+													</span>
+												) : (
+													<span className='inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-tight text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg dark:bg-amber-900/30 dark:text-amber-400'>
+														<Clock className='w-3.5 h-3.5' />
+														<span>Под заказ</span>
+													</span>
+												)
+											) : (
+												<span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest animate-pulse">
+													Выберите опции ниже
+												</span>
+											)}
+										</div>
+										
+										<div className="flex gap-4">
+											<Button
+												onClick={handleCartAction}
+												className='flex-1 h-16 rounded-[20px] text-lg font-bold gap-3 shadow-xl transition-all active:scale-[0.98]'
+												size='lg'
+												variant={isInCart ? 'secondary' : 'default'}
+												disabled={!isInCart && !canAddToCart}
+												data-testid='button-add-to-cart-detail'
+											>
+												{isInCart ? (
+													<>
+														<Check className='w-6 h-6' />
+														Перейти в корзину
+													</>
+												) : (
+													<>
+														<ShoppingCart className='w-6 h-6' />
+														Добавить в корзину
+													</>
+												)}
+											</Button>
+										</div>
+
+										{!isInCart && !canAddToCart && (
+											<p className='text-xs text-center text-muted-foreground/60 font-medium'>
+												Для покупки нужно выбрать: {getMissingSelections().join(', ')}
+											</p>
+										)}
+									</div>
+								)
+							})()}
 						</div>
-						<div className='bg-muted/30 p-6 rounded-[24px] border border-border/10'>
+
+						{/* Description Section */}
+						<div className='bg-muted/30 rounded-3xl p-6 space-y-4'>
+							<h3 className='text-sm font-bold uppercase tracking-widest text-muted-foreground'>Описание товара</h3>
 							<p
-								className='text-base text-muted-foreground leading-relaxed whitespace-pre-wrap'
+								className='text-base text-foreground/80 leading-relaxed whitespace-pre-wrap'
 								style={{
 									fontFamily: 'var(--font-family-custom, Inter)',
 									fontWeight: 'var(--font-weight-description, 400)',
@@ -404,133 +542,8 @@ export default function ProductDetail({
 							</p>
 						</div>
 					</div>
-
-					{/* Attributes Selection */}
-					{attributes && attributes.length > 0 && (
-						<div className='space-y-6'>
-							{attributes.map((attr, idx) => (
-								<div key={idx} className='space-y-3'>
-									<h3 className='text-sm font-bold uppercase tracking-wider text-foreground/40'>{attr.name}</h3>
-									<div className='flex flex-wrap gap-2'>
-										{attr.values.map((value, vIdx) => (
-											<button
-												key={vIdx}
-												onClick={() => handleAttributeSelect(attr.name, value)}
-												className={`px-6 py-3 rounded-2xl border-2 text-sm font-bold transition-all duration-300 shadow-sm ${
-													selectedAttributes[attr.name] === value
-														? 'border-primary bg-primary text-primary-foreground scale-105 shadow-primary/20 shadow-lg'
-														: 'border-border bg-card hover:border-primary/50 hover:bg-muted'
-												}`}
-												data-testid={`button-attribute-${attr.name}-${value}`}
-											>
-												{value}
-											</button>
-										))}
-									</div>
-								</div>
-							))}
-						</div>
-					)}
-
-					{/* Action Section */}
-					{(() => {
-						const hasColors = colors && colors.length > 0
-						const hasAttributes = attributes && attributes.length > 0
-						const colorSelected = !hasColors || selectedColor
-						const allAttributesSelected =
-							!hasAttributes ||
-							attributes.every(attr => selectedAttributes[attr.name])
-						const canAddToCart = colorSelected && allAttributesSelected
-
-						const getMissingSelections = () => {
-							const missing = []
-							if (hasColors && !selectedColor) missing.push('цвет')
-							if (hasAttributes) {
-								attributes.forEach(attr => {
-									if (!selectedAttributes[attr.name])
-										missing.push(attr.name.toLowerCase())
-								})
-							}
-							return missing
-						}
-
-						return (
-							<div className='space-y-6 pt-4'>
-								{colors && colors.length > 0 && (
-									<div className='space-y-3'>
-										<h3 className='text-sm font-bold uppercase tracking-wider text-foreground/40'>Цвет</h3>
-										<div className='flex flex-wrap gap-4'>
-											{colors.map((color, idx) => (
-												<button
-													key={idx}
-													onClick={() => handleColorSelect(color)}
-													className={`w-12 h-12 rounded-full border-4 transition-all duration-300 shadow-sm ${
-														selectedColor === color
-															? 'border-primary scale-110 shadow-lg'
-															: 'border-card hover:scale-105 hover:border-primary/20'
-													}`}
-													style={{ backgroundColor: color }}
-													title={color}
-													data-testid={`button-color-${idx}`}
-												>
-													{selectedColor === color && (
-														<Check className='w-6 h-6 mx-auto text-white drop-shadow-lg' />
-													)}
-												</button>
-											))}
-										</div>
-									</div>
-								)}
-
-								<div className='space-y-3'>
-									<div className='h-8 flex items-center'>
-										{canAddToCart &&
-											(currentInventory && currentInventory.quantity > 0 ? (
-												<div className='flex items-center gap-2 text-green-500 font-bold bg-green-500/10 px-4 py-1.5 rounded-full border border-green-500/20'>
-													<Package className='w-4 h-4' />
-													<span className='text-xs uppercase tracking-widest'>В наличии</span>
-												</div>
-											) : (
-												<div className='flex items-center gap-2 text-amber-500 font-bold bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20'>
-													<Clock className='w-4 h-4' />
-													<span className='text-xs uppercase tracking-widest'>Под заказ</span>
-												</div>
-											))}
-									</div>
-									<Button
-										onClick={handleCartAction}
-										className='w-full gap-3 h-16 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all'
-										size='lg'
-										variant={isInCart ? 'default' : 'default'}
-										disabled={!isInCart && !canAddToCart}
-										data-testid='button-add-to-cart-detail'
-									>
-										{isInCart ? (
-											<>
-												<Check className='w-6 h-6' />
-												ПЕРЕЙТИ В КОРЗИНУ
-											</>
-										) : (
-											<>
-												<ShoppingCart className='w-6 h-6' />
-												ДОБАВИТЬ В КОРЗИНУ
-											</>
-										)}
-									</Button>
-									{!isInCart && !canAddToCart && (
-										<div className='bg-muted/50 py-3 rounded-xl border border-dashed border-border/60 text-center animate-pulse'>
-											<p className='text-xs font-medium text-muted-foreground'>
-												Выберите: <span className='text-foreground font-bold'>{getMissingSelections().join(', ')}</span>
-											</p>
-										</div>
-									)}
-								</div>
-							</div>
-						)
-					})()}
 				</div>
 			</div>
 		</div>
-	</div>
-)
+	)
 }

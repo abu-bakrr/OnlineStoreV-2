@@ -157,14 +157,14 @@ export default function QuickAddModal({
 		>
 			<div className='absolute inset-0 bg-black/50' onClick={onClose} />
 
-			<div className='relative w-full max-w-md bg-card rounded-t-[32px] sm:rounded-[32px] max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom duration-500 shadow-2xl border border-white/10'>
-				<div className='sticky top-0 bg-card/80 backdrop-blur-md z-10 flex items-center justify-between p-6 border-b border-border/10'>
-					<h3 className='font-bold text-xl tracking-tight'>Добавить в корзину</h3>
+			<div className='relative w-full max-w-md bg-background rounded-t-2xl sm:rounded-2xl max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom duration-300'>
+				<div className='sticky top-0 bg-background z-10 flex items-center justify-between p-4 border-b'>
+					<h3 className='font-semibold text-lg'>Добавить в корзину</h3>
 					<button
 						onClick={onClose}
-						className='w-10 h-10 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors'
+						className='w-8 h-8 rounded-full bg-muted flex items-center justify-center'
 					>
-						<X className='w-5 h-5' />
+						<X className='w-4 h-4' />
 					</button>
 				</div>
 
@@ -175,34 +175,34 @@ export default function QuickAddModal({
 						</div>
 					) : product ? (
 						<>
-							<div className='flex gap-6 items-start'>
-								<div className='w-24 h-24 rounded-2xl overflow-hidden bg-muted flex-shrink-0 shadow-inner'>
+							<div className='flex gap-4'>
+								<div className='w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0'>
 									{product.images && product.images[0] ? (
 										<img
 											src={optimizeProductThumbnail(product.images[0])}
 											alt={product.name}
-											className='w-full h-full object-cover transition-transform duration-500 hover:scale-110'
+											className='w-full h-full object-cover'
 											loading='lazy'
 											decoding='async'
 										/>
 									) : (
-										<div className='w-full h-full flex items-center justify-center text-muted-foreground bg-muted'>
-											<Package className='w-8 h-8 opacity-20' />
+										<div className='w-full h-full flex items-center justify-center text-muted-foreground'>
+											Нет фото
 										</div>
 									)}
 								</div>
-								<div className='flex-1 min-w-0 py-1'>
-									<h4 className='font-bold text-lg leading-tight line-clamp-2 tracking-tight'>{product.name}</h4>
-									<div className='flex items-baseline gap-3 mt-2 flex-wrap'>
-										<p className='text-2xl font-black text-primary tracking-tighter'>
+								<div className='flex-1 min-w-0'>
+									<h4 className='font-medium line-clamp-2'>{product.name}</h4>
+									<div className='flex items-baseline gap-2 mt-1'>
+										<p className='text-lg font-bold'>
 											{formatPrice(product.price)}
 										</p>
 										{product.old_price && product.old_price > product.price && (
-											<div className="flex items-center gap-2 bg-red-500/10 px-2 py-0.5 rounded-lg border border-red-500/20">
-												<p className='text-sm text-muted-foreground line-through opacity-40 font-medium'>
+											<div className="flex items-center gap-2">
+												<p className='text-sm text-muted-foreground line-through opacity-60'>
 													{formatPrice(product.old_price)}
 												</p>
-												<span className="text-red-500 text-[10px] font-black">
+												<span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
 													-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
 												</span>
 											</div>
@@ -212,27 +212,23 @@ export default function QuickAddModal({
 							</div>
 
 							{product.colors && product.colors.length > 0 && (
-								<div className='space-y-3'>
-									<label className='text-xs font-black uppercase tracking-widest text-foreground/40'>
+								<div className='space-y-2'>
+									<label className='text-sm font-medium text-muted-foreground'>
 										Цвет
 									</label>
-									<div className='flex flex-wrap gap-3'>
+									<div className='flex flex-wrap gap-2'>
 										{product.colors.map(color => (
 											<button
 												key={color}
 												onClick={() => setSelectedColor(color)}
-												className={`w-10 h-10 rounded-full border-4 transition-all duration-300 shadow-sm ${
+												className={`w-8 h-8 rounded-full border-2 transition-all ${
 													selectedColor === color
-														? 'border-primary scale-110 shadow-primary/20 shadow-md'
-														: 'border-card hover:scale-105 hover:border-primary/20'
+														? 'border-primary ring-2 ring-primary ring-offset-2'
+														: 'border-border hover:border-primary/50'
 												}`}
 												style={{ backgroundColor: color }}
 												title={color}
-											>
-												{selectedColor === color && (
-													<Check className='w-5 h-5 mx-auto text-white drop-shadow-md' />
-												)}
-											</button>
+											/>
 										))}
 									</div>
 								</div>
@@ -240,8 +236,8 @@ export default function QuickAddModal({
 
 							{product.attributes &&
 								product.attributes.map(attr => (
-									<div key={attr.name} className='space-y-3'>
-										<label className='text-xs font-black uppercase tracking-widest text-foreground/40'>
+									<div key={attr.name} className='space-y-2'>
+										<label className='text-sm font-medium text-muted-foreground'>
 											{attr.name}
 										</label>
 										<div className='flex flex-wrap gap-2'>
@@ -251,10 +247,10 @@ export default function QuickAddModal({
 													onClick={() =>
 														handleAttributeSelect(attr.name, value)
 													}
-													className={`px-5 py-2.5 rounded-2xl border-2 text-sm font-bold transition-all duration-300 shadow-sm ${
+													className={`px-3 py-1.5 rounded-md border text-sm transition-all ${
 														selectedAttributes[attr.name] === value
-															? 'bg-primary text-primary-foreground border-primary scale-105 shadow-primary/20 shadow-lg'
-															: 'bg-card border-border hover:border-primary/50 hover:bg-muted'
+															? 'bg-primary text-primary-foreground border-primary'
+															: 'bg-background border-border hover:border-primary/50'
 													}`}
 												>
 													{value}
@@ -277,7 +273,7 @@ export default function QuickAddModal({
 					)}
 				</div>
 
-				<div className='sticky bottom-0 bg-card/80 backdrop-blur-md border-t border-border/10 p-6 space-y-4'>
+				<div className='sticky bottom-0 bg-background border-t p-4 space-y-3'>
 					{product && (
 						<div className='flex justify-center'>
 							{(() => {
@@ -298,16 +294,16 @@ export default function QuickAddModal({
 								if (hasInventoryTracking) {
 									if (currentInventory && currentInventory.quantity > 0) {
 										return (
-											<div className='flex items-center gap-2 text-green-500 font-bold bg-green-500/10 px-4 py-1.5 rounded-full border border-green-500/20'>
+											<span className='inline-flex items-center gap-1.5 text-sm font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full'>
 												<Package className='w-4 h-4' />
-												<span className='text-xs uppercase tracking-widest'>В наличии</span>
-											</div>
+												<span>В наличии</span>
+											</span>
 										)
 									} else {
 										return (
-											<div className='flex items-center gap-2 text-amber-500 font-bold bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20'>
+											<span className='inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 bg-amber-100 px-3 py-1 rounded-full'>
 												<Clock className='w-4 h-4' />
-												<span className='text-xs uppercase tracking-widest'>
+												<span>
 													Под заказ
 													{currentInventory?.backorder_lead_time_days && (
 														<span className='ml-1'>
@@ -315,7 +311,7 @@ export default function QuickAddModal({
 														</span>
 													)}
 												</span>
-											</div>
+											</span>
 										)
 									}
 								}
@@ -324,19 +320,19 @@ export default function QuickAddModal({
 						</div>
 					)}
 					<Button
-						className='w-full h-16 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all'
+						className='w-full'
 						size='lg'
 						onClick={handleAddToCart}
 						disabled={loading || !product}
 					>
 						{isInCart ? (
 							<>
-								<Check className='w-5 h-5 mr-3' />
-								ПЕРЕЙТИ В КОРЗИНУ
+								<Check className='w-4 h-4 mr-2' />
+								Перейти в корзину
 							</>
 						) : (
 							<>
-								<ShoppingCart className='w-5 h-5 mr-3' />В КОРЗИНУ
+								<ShoppingCart className='w-4 h-4 mr-2' />В корзину
 							</>
 						)}
 					</Button>
