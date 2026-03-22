@@ -688,9 +688,14 @@ export default function AdminProducts() {
                           {formatPrice(product.price)}
                         </p>
                         {product.old_price && product.old_price > product.price && (
-                          <p className="text-sm text-muted-foreground line-through decoration-destructive/30">
-                            {formatPrice(product.old_price)}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-muted-foreground line-through decoration-destructive/30">
+                              {formatPrice(product.old_price)}
+                            </p>
+                            <span className="bg-destructive/10 text-destructive text-[10px] font-black px-1.5 py-0.5 rounded-lg border border-destructive/20">
+                              -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>

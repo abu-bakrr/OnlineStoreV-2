@@ -126,11 +126,11 @@ export default function ProductCard({
 	return (
 		<div
 			onClick={handleCardClick}
-			className='bg-transparent cursor-pointer rounded-2xl p-1.5 -m-1.5 hover:bg-muted/60 active:bg-muted/80'
+			className='group bg-card cursor-pointer rounded-[32px] p-2 transition-all duration-300 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] active:scale-[0.98] border border-transparent hover:border-border/40'
 			data-testid={`card-product-${id}`}
 		>
 			<div
-				className='relative aspect-square bg-muted/50 rounded-2xl overflow-hidden'
+				className='relative aspect-square bg-muted/30 rounded-[24px] overflow-hidden'
 				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
@@ -169,8 +169,8 @@ export default function ProductCard({
 									<>
 										{/* Sale Badge */}
 										{old_price && old_price > price && (
-											<div className='absolute top-2 right-2 z-10'>
-												<div className='bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1'>
+											<div className='absolute top-3 left-3 z-10'>
+												<div className='bg-red-500 text-white text-[11px] font-black px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 backdrop-blur-sm bg-red-500/90'>
 													<span>-{Math.round(((old_price - price) / old_price) * 100)}%</span>
 												</div>
 											</div>
@@ -228,11 +228,11 @@ export default function ProductCard({
 					onClick={handleFavoriteClick}
 					onTouchStart={handleFavoriteTouchStart}
 					onTouchEnd={handleFavoriteTouchEnd}
-					className='absolute top-2 right-2 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center z-10 active:scale-90 transition-transform'
+					className='absolute top-3 right-3 w-9 h-9 rounded-full bg-background/80 backdrop-blur-md border border-white/20 flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 active:scale-90 shadow-sm'
 					data-testid={`button-favorite-${id}`}
 				>
 					<Heart
-						className={`w-4 h-4 ${
+						className={`w-4.5 h-4.5 transition-colors ${
 							isFavorite ? 'fill-red-500 text-red-500' : 'text-foreground/60'
 						}`}
 					/>
@@ -254,47 +254,46 @@ export default function ProductCard({
 				)}
 			</div>
 
-			<div className='pt-2.5 pb-1 px-1 space-y-1'>
+			<div className='pt-4 pb-2 px-2 space-y-2'>
 				<h3
-					className='text-[13px] text-foreground line-clamp-2 leading-tight'
+					className='text-[14px] text-foreground/80 line-clamp-1 leading-tight group-hover:text-foreground transition-colors'
 					style={{
 						fontFamily: 'var(--font-family-custom, Inter)',
-						fontWeight: 'var(--font-weight-product-name, 400)',
+						fontWeight: 'var(--font-weight-product-name, 500)',
 					}}
 					data-testid={`text-product-name-${id}`}
 				>
 					{name}
 				</h3>
 
-				<div className='flex items-center justify-between'>
-						<div className='flex items-baseline gap-2'>
+				<div className='flex items-center justify-between gap-2'>
+						<div className='flex items-baseline gap-1.5 flex-wrap'>
 							<span
-								className='text-lg'
+								className='text-[17px] font-black tracking-tight'
 								style={{
 									fontFamily: 'var(--font-family-custom, Inter)',
-									fontWeight: 'var(--font-weight-price, 700)',
 								}}
 								data-testid='text-product-price'
 							>
 								{formatPrice(price)}
 							</span>
 							{old_price && old_price > price && (
-								<span className='text-xs text-muted-foreground line-through opacity-70'>
+								<span className='text-[11px] text-muted-foreground line-through opacity-50 font-medium'>
 									{formatPrice(old_price)}
 								</span>
 							)}
 						</div>
 					<Button
-						size='icon'
-						variant={isInCart ? 'default' : 'ghost'}
+						size='sm'
+						variant={isInCart ? 'default' : 'secondary'}
 						onClick={handleCartClick}
-						className='h-7 w-7 rounded-full shrink-0'
+						className={`h-8 w-8 rounded-2xl shrink-0 transition-all duration-300 ${!isInCart && 'bg-primary/5 hover:bg-primary hover:text-white'}`}
 						data-testid={`button-add-to-cart-${id}`}
 					>
 						{isInCart ? (
-							<Check className='w-3.5 h-3.5' />
+							<Check className='w-4 h-4' />
 						) : (
-							<ShoppingCart className='w-3.5 h-3.5' />
+							<ShoppingCart className='w-4 h-4' />
 						)}
 					</Button>
 				</div>
