@@ -405,7 +405,7 @@ def format_products_for_ai(products):
             if inv['quantity'] > 0:
                 color = hex_to_color_name(inv['color']) if '#' in str(inv['color']) or len(str(inv['color'])) == 6 else inv['color']
                 # Скрываем точное количество от ИИ
-                item["stock"].append(f"{color}/{inv['attribute1_value']}:В наличии (✅)")
+                item["stock"].append(f"{color}/{inv['attribute1_value']}:✅")
         out.append(item)
     return json.dumps(out, ensure_ascii=False)
 
@@ -521,7 +521,7 @@ def search(keywords):
             inv_data.append({
                 "color": hex_to_color_name(inv['color']) if '#' in str(inv['color']) else inv['color'],
                 "size": inv['attribute1_value'],
-                "available": "В наличии (✅)" if is_avail else "НЕТ в наличии (❌)"
+                "available": "✅" if is_avail else "❌"
             })
         
         clean_res.append({
@@ -560,7 +560,7 @@ def info(product_id):
             # Конвертируем HEX в название
             color_raw = inv.get('color')
             inv['color'] = hex_to_color_name(color_raw) if color_raw and '#' in str(color_raw) else color_raw
-            inv['available'] = "В наличии (✅)" if inv['quantity'] > 0 else "НЕТ в наличии (❌)"
+            inv['available'] = "✅" if inv['quantity'] > 0 else "❌"
             del inv['quantity']
     return json.dumps(product, ensure_ascii=False, default=str)
 

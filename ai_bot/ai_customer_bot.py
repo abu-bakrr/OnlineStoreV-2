@@ -7,7 +7,6 @@ import re
 from datetime import datetime
 from dotenv import load_dotenv
 from groq import Groq
-from openai import OpenAI
 
 # --- 1. CONFIGURATION & LOGGING ---
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -62,12 +61,6 @@ class MillyBot:
         self.bot = telebot.TeleBot(self.token)
         self.groq_key = os.getenv('GROQ_API_KEY')
         self.groq = Groq(api_key=self.groq_key) if self.groq_key else None
-        
-        self.openai_client = OpenAI(
-            base_url="http://127.0.0.1:8045/v1",
-            api_key="sk-7e99611a4f024951a5b192fd92dc9e65"
-        )
-
         self.logger = logger
         self.sessions = {}
         self.ADMIN_ID = 5644397480
@@ -90,13 +83,10 @@ Milhive — онлайн-магазин качественной мужской 
 - Контакт владельца: **[@milhivee](https://t.me/milhivee)**
 
 #### 🧠 АЛГОРИТМ МЫШЛЕНИЯ (СТРОГО):
-1. **Анализ запроса**: Если клиент спрашивает о товаре — ты **ОБЯЗАНА** использовать `search`. 
-2. **Язык поиска**: Наша база данных заполнена на **РУССКОМ** языке. Если клиент пишет на узбекском, английском или другом языке, **СНАЧАЛА** мысленно переведи ключевые слова на русский, а потом используй их в инструменте `search`.
-3. **Строгая проверка наличия**: Проверяй конкретный цвет и размер, который просит клиент.
-   - Если клиент просит "Черный XL", а в данных `inventory` под "Черный / XL" стоит `❌`, ты **ОБЯЗАНА** написать, что его нет, даже если другие размеры есть.
-   - Никогда не подтверждай наличие товара, пока не увидишь `✅` напротив нужного варианта.
-4. **Видимость товаров**: Если товара нет совсем (все варианты `❌`), вежливо предложи альтернативу.
-5. **Описание товара**: ИСПОЛЬЗУЙ ТОЛЬКО описание из инструмента `search` или `info`. Не выдумывай детали про ткань или стиль, если их нет.
+1. **Анализ запроса**: Если клиент спрашивает о товаре — ты **ОБЯЗАНА** использовать `search`.
+2. **Видимость товаров**: Рассказывай о товаре, даже если его сейчас **НЕТ в наличии** (помечен ❌ в инструменте). Просто вежливо предупреди об этом.
+3. **Описание товара**: ИСПОЛЬЗУЙ ТОЛЬКО описание из инструмента `info`. Не выдумывай детали.
+4. **Проверка заказов**: При ID заказа используй `order` сама, не отправляй к админу.
 
 #### 🔧 ИНСТРУМЕНТЫ:
 - `search`, `in_stock`, `info`, `order`, `catalog`.
@@ -126,12 +116,12 @@ JSON: {
   "response": "С радостью расскажу об этой *великолепной* модели! ✨\n\n**[Пальто Wool Classic](https://milhive.shop/product/p1)**\n💰 **Цена**: `1,200,000` сум\n📝 **Описание**: Изысканное шерстяное пальто прямого кроя. Идеально подчеркивает статус.\n✨ **Наличие**:\n• Серый / L: ✅\n• Черный / XL: ❌ (уже разобрали)\n\nЭто пальто станет жемчужиной вашего гардероба! 💎 Хотите оформить заказ?"
 }
 
-Пример 2: Товар не в наличии (Специфичный размер).
-User: "Oq ko'ylak bormi? M razmer" (Узбекский: 'Есть белая рубашка? М размер')
+Пример 2: Товар не в наличии.
+User: "Есть белые кеды?" (search выдал ❌)
 JSON: {
-  "thoughts": "Перевожу 'Oq ko'ylak' как 'Белая рубашка'. Ищу через search. Вижу, что М размер - ❌.",
-  "action": { "tool": "search", "args": { "query": "белая рубашка" } },
-  "response": "На данный момент белых рубашек в размере М *к сожалению* нет в наличии... 😔\n\n**[Рубашка Oxford White](https://milhive.shop/product/r1)**\n💰 **Цена**: `350,000` сум\n📝 **Описание**: Классическая белая рубашка из хлопка.\n✨ **Наличие**:\n• Белый / S: ✅\n• Белый / M: ❌\n• Белый / L: ✅\n\nНо есть размеры S и L! Подойдет ли вам один из них? 🛍️"
+  "thoughts": "Товар найден, но его нет в наличии. Все равно рассказываю о нем.",
+  "action": { "tool": "none" },
+  "response": "У нас были *потрясающие* белые кеды, но сейчас их временно нет в наличии... 😔\n\n**[Кеды White Minimal](https://milhive.shop/product/k1)**\n💰 **Цена**: `550,000` сум\n📝 **Описание**: Кожаные кеды на мягкой подошве.\n✨ **Наличие**:\n• Белый / 42: ❌\n\nНо не расстраивайтесь! Мы можем подобрать для вас похожую модель в наличии. Желаете посмотреть? 🛍️"
 }
 """
 
@@ -151,33 +141,6 @@ JSON: {
         return self.sessions[user_id]
 
     def _ai_think(self, messages):
-        last_error = ""
-        wait_time = "несколько секунд"
-        full_msgs = [{"role": "system", "content": self.system_prompt}] + messages
-
-        if hasattr(self, 'openai_client') and self.openai_client:
-            try:
-                self.logger.info(f"🤖 [REQUEST] Priority Model: gemini-2.5-flash (OpenAI endpoint)")
-                completion = self.openai_client.chat.completions.create(
-                    model="gemini-2.5-flash",
-                    messages=full_msgs,
-                    temperature=0.1,
-                    # response_format={"type": "json_object"}
-                )
-                content = completion.choices[0].message.content.strip()
-                # In case model returns markdown json block, clean it up
-                if content.startswith("```json"):
-                    content = content[7:].strip()
-                elif content.startswith("```"):
-                    content = content[3:].strip()
-                if content.endswith("```"):
-                    content = content[:-3].strip()
-                res = json.loads(content)
-                self.logger.info(f"🧠 [THOUGHT] {res.get('thoughts')}")
-                return res
-            except Exception as e:
-                self.logger.warning(f"⚠️ [FAIL] Priority Model gemini-2.5-flash: {e}")
-
         if not self.groq: return None
         MODELS = [
             "meta-llama/llama-4-scout-17b-16e-instruct",
@@ -185,10 +148,12 @@ JSON: {
             "llama-3.3-70b-versatile",
             "openai/gpt-oss-120b"
         ]
-        
+        last_error = ""
+        wait_time = "несколько секунд"
         for model_name in MODELS:
             try:
                 self.logger.info(f"🤖 [REQUEST] Model: {model_name}")
+                full_msgs = [{"role": "system", "content": self.system_prompt}] + messages
                 completion = self.groq.chat.completions.create(
                     model=model_name,
                     messages=full_msgs,
