@@ -44,7 +44,7 @@ const sortOptions = [
 export default function FilterBar({
   categories = [],
   selectedCategory = "all",
-  selectedSort = "old",
+  selectedSort = "new",
   priceFrom = "",
   priceTo = "",
   searchQuery = "",
@@ -59,7 +59,7 @@ export default function FilterBar({
   onReset,
 }: FilterBarProps) {
 
-  const hasActiveFilters = selectedCategory !== "all" || priceFrom !== "" || priceTo !== "" || selectedSort !== "old" || searchQuery !== "";
+  const hasActiveFilters = selectedCategory !== "all" || priceFrom !== "" || priceTo !== "" || selectedSort !== "new" || searchQuery !== "";
 
   return (
     <div className="sticky top-[61px] md:top-[69px] z-40 bg-background border-b border-border py-3 md:py-4" data-testid="filter-bar">
@@ -145,8 +145,8 @@ export default function FilterBar({
 
             {/* Sort with Shadcn Select */}
             <Select value={selectedSort} onValueChange={onSortChange}>
-              <SelectTrigger 
-                className="w-[110px] h-8 rounded-full text-sm ml-2 focus:outline-none focus:!ring-0 focus:!ring-offset-0" 
+                <SelectTrigger 
+                className="w-[150px] h-8 rounded-full text-sm ml-2 focus:outline-none focus:!ring-0 focus:!ring-offset-0 transition-all duration-200 hover:bg-accent" 
                 data-testid="filter-sort"
               >
                 <SelectValue />
