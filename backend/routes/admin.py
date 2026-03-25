@@ -559,6 +559,22 @@ def admin_update_order_status(order_id):
     cur.close(); conn.close()
     return jsonify({'message': 'Status updated'})
 
+@admin_bp.route('/orders/<order_id>', methods=['DELETE'])
+def admin_delete_order(order_id):
+    if not require_admin(): return admin_required_response()
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute('DELETE FROM orders WHERE id = %s', (order_id,))
+        conn.commit()
+        return jsonify({'message': 'Order deleted successfully'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close(); conn.close()
+
 
 # --- Settings ---
 

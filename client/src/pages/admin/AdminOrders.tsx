@@ -28,6 +28,8 @@ import {
 	Search,
 	User,
 	X,
+	Trash2,
+	AlertCircle
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -110,6 +112,8 @@ export default function AdminOrders() {
 	const [orderStatuses, setOrderStatuses] = useState(DEFAULT_STATUSES)
 	const [receiptModalOpen, setReceiptModalOpen] = useState(false)
 	const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null)
+	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+	const [isDeleting, setIsDeleting] = useState(false)
 	const { toast } = useToast()
 
 	const filteredOrders = useMemo(() => {
@@ -218,6 +222,30 @@ export default function AdminOrders() {
 				description: 'Не удалось обновить статус',
 				variant: 'destructive',
 			})
+		}
+	}
+
+	const deleteOrder = async (orderId: string) => {
+		setIsDeleting(true)
+		try {
+			const response = await fetch(`/api/admin/orders/${orderId}`, {
+				method: 'DELETE',
+			})
+
+			if (!response.ok) throw new Error('Failed to delete order')
+
+			toast({ title: 'Успешно', description: 'Заказ удален' })
+			setDeleteConfirmOpen(false)
+			setSelectedOrder(null)
+			fetchOrders()
+		} catch (error) {
+			toast({
+				title: 'Ошибка',
+				description: 'Не удалось удалить заказ',
+				variant: 'destructive',
+			})
+		} finally {
+			setIsDeleting(false)
 		}
 	}
 
@@ -593,6 +621,46 @@ export default function AdminOrders() {
 								<span className='text-lg font-bold'>
 									{formatPrice(selectedOrder.total)}
 								</span>
+							</div>
+
+							<div className='pt-6 border-t'>
+								{deleteConfirmOpen ? (
+									<div className='bg-destructive/10 p-3 rounded-lg border border-destructive/20 space-y-3'>
+										<div className='flex items-center gap-2 text-destructive text-sm font-medium'>
+											<AlertCircle className='h-4 w-4' />
+											Вы уверены, что хотите удалить этот заказ?
+										</div>
+										<div className='flex gap-2'>
+											<Button
+												variant='destructive'
+												size='sm'
+												className='flex-1'
+												onClick={() => deleteOrder(selectedOrder.id)}
+												disabled={isDeleting}
+											>
+												{isDeleting ? 'Удаление...' : 'Да, удалить'}
+											</Button>
+											<Button
+												variant='outline'
+												size='sm'
+												className='flex-1'
+												onClick={() => setDeleteConfirmOpen(false)}
+												disabled={isDeleting}
+											>
+												Отмена
+											</Button>
+										</div>
+									</div>
+								) : (
+									<Button
+										variant='ghost'
+										className='w-full text-destructive hover:text-destructive hover:bg-destructive/10 gap-2'
+										onClick={() => setDeleteConfirmOpen(true)}
+									>
+										<Trash2 className='h-4 w-4' />
+										Удалить заказ
+									</Button>
+								)}
 							</div>
 						</div>
 					)}
