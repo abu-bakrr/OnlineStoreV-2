@@ -153,6 +153,10 @@ def impersonate_user(user_id):
     if not user:
         return jsonify({'error': 'User not found'}), 404
     
+    # Save current user as admin before impersonating
+    if 'admin_user_id' not in session:
+        session['admin_user_id'] = session.get('user_id')
+    
     # Update current session to be the target user
     session['user_id'] = user['id']
     

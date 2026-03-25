@@ -97,6 +97,13 @@ def logout():
     session.clear()
     return jsonify({'message': 'Logged out successfully'}), 200
 
+@auth_bp.route('/stop-impersonating', methods=['POST'])
+def stop_impersonating():
+    if 'admin_user_id' in session:
+        session['user_id'] = session.pop('admin_user_id')
+        return jsonify({'message': 'Stopped impersonating'}), 200
+    return jsonify({'error': 'Not impersonating'}), 400
+
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     try:
@@ -182,6 +189,11 @@ def get_current_user():
     if not user:
         session.clear()
         return jsonify({'error': 'User not found'}), 404
+    
+    # Include impersonation info
+    is_impersonating = 'admin_user_id' in session
+    user['is_impersonating'] = is_impersonating
+    
     return jsonify({'user': user}), 200
 
 @auth_bp.route('/profile', methods=['PATCH'])

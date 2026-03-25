@@ -9,6 +9,9 @@ interface User {
   telegram_username?: string;
   username?: string;
   telegram_id?: number;
+  is_impersonating?: boolean;
+  is_admin?: boolean;
+  is_superadmin?: boolean;
 }
 
 interface AuthContextType {

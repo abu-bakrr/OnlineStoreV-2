@@ -1,3 +1,4 @@
+import ImpersonationBanner from '@/components/ImpersonationBanner'
 import FontLoader from '@/components/FontLoader'
 import { OrganizationSchema } from '@/components/SEO'
 import ThemeApplier from '@/components/ThemeApplier'
@@ -206,6 +207,7 @@ function AppContent() {
 
 	return (
 		<div className='w-full mx-auto bg-background min-h-screen'>
+			<ImpersonationBanner />
 			<div className='w-full'>
 				<Switch>
 					<Route path='/admin/login'>
