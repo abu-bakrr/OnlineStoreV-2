@@ -133,7 +133,12 @@ export default function CheckoutModal({
 		}
 
 		const yandexApiKey = config?.yandexMaps?.apiKey
-		console.log('CheckoutModal: useEffect triggered. API Key found:', !!yandexApiKey)
+		if (yandexApiKey) {
+			const maskedKey = `${yandexApiKey.substring(0, 4)}...${yandexApiKey.substring(yandexApiKey.length - 4)}`
+			console.log('CheckoutModal: useEffect triggered. API Key found:', maskedKey)
+		} else {
+			console.log('CheckoutModal: useEffect triggered. API Key NOT FOUND in config.')
+		}
 		if (!yandexApiKey) {
 			setMapError('Карта недоступна. Введите адрес вручную.')
 			return
