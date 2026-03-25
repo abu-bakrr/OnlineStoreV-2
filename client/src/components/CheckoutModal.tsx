@@ -167,9 +167,6 @@ export default function CheckoutModal({
 		}, 10000)
 
 		script.onload = () => {
-			console.log('CheckoutModal: Yandex Maps v3 script object LOADED')
-			clearTimeout(loadTimeout)
-			try {
 				window.ymaps3.ready.then(async () => {
 					if (!isTimedOut) {
 						setMapError(null)
@@ -177,10 +174,6 @@ export default function CheckoutModal({
 					setMapLoaded(true)
 					await initMap()
 				})
-			} catch (error) {
-				console.error('Yandex Maps ready error:', error)
-				setMapError('Карта недоступна. Введите адрес вручную.')
-			}
 		}
 		script.onerror = (e) => {
 			console.error('CheckoutModal: Yandex Maps v3 script object LOAD ERROR:', e)
@@ -204,7 +197,12 @@ export default function CheckoutModal({
 		if (!mapContainerRef.current || !window.ymaps3) return
 
 		try {
-			console.log('ymaps3 object:', window.ymaps3)
+			// Import markers and controls
+			const [markersModule, controlsModule] = await Promise.all([
+				window.ymaps3.import('@yandex/ymaps3-markers@0.0.1'),
+				window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
+			])
+
 			const {
 				YMap,
 				YMapDefaultSchemeLayer,
@@ -212,29 +210,11 @@ export default function CheckoutModal({
 				YMapListener,
 				YMapControls,
 			} = window.ymaps3
-			
-			console.log('YMap constructor:', YMap)
-			console.log('YMapControls (core):', YMapControls)
 
-			// Import markers
-			const markersModule = await window.ymaps3.import('@yandex/ymaps3-markers@0.0.1')
-			console.log('Markers module exports:', Object.keys(markersModule))
 			const { YMapDefaultMarker } = markersModule
-
-			// Import controls safely
-			let YMapDefaultGeolocationControl;
-			try {
-				const controlsModule = await window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
-				console.log('Controls module keys:', Object.keys(controlsModule))
-				YMapDefaultGeolocationControl = 
-					controlsModule.YMapDefaultGeolocationControl || 
-					controlsModule.YMapGeolocationControl;
-			} catch (e) {
-				console.warn('Could not load controls package', e)
-			}
-
-			console.log('YMapDefaultMarker:', YMapDefaultMarker)
-			console.log('YMapDefaultGeolocationControl:', YMapDefaultGeolocationControl)
+			const YMapDefaultGeolocationControl = 
+				controlsModule.YMapDefaultGeolocationControl || 
+				controlsModule.YMapGeolocationControl;
 
 			const rawCenter = config?.yandexMaps?.defaultCenter
 			const defaultCenter = rawCenter
@@ -315,9 +295,15 @@ export default function CheckoutModal({
 			// Add suggest view (requires address input to be in DOM)
 			setTimeout(async () => {
 				try {
-					const { YMapSuggestView } = await window.ymaps3.import(
-						'@yandex/ymaps3-suggest-view@0.0.1'
-					)
+					// Try both package names for suggest
+					let suggestModule;
+					try {
+						suggestModule = await window.ymaps3.import('@yandex/ymaps3-suggest-view@0.0.1')
+					} catch (e) {
+						suggestModule = await window.ymaps3.import('@yandex/ymaps3-suggest@0.0.1')
+					}
+					
+					const { YMapSuggestView } = suggestModule
 					const suggest = new YMapSuggestView({
 						parentElement: document.getElementById('address') as HTMLDivElement,
 						onSelect: async (item: any) => {
