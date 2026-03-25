@@ -339,22 +339,36 @@ export default function CheckoutModal({
 	}
 
 	const geocodeCoords = async (coords: [number, number]) => {
+		if (!coords || !Array.isArray(coords) || coords.length < 2) return;
+		
 		try {
-			// v3 reverse geocoding
+			console.log('Geocoding coords:', coords)
+			
+			// Always update coordinates even if geocoding fails
+			setDeliveryInfo((prev: DeliveryInfo) => ({
+				...prev,
+				lat: coords[1],
+				lng: coords[0],
+			}))
+
 			const response = await fetch(
 				`https://geocode-maps.yandex.ru/1.x/?apikey=${config?.yandexMaps?.apiKey}&geocode=${coords[0]},${coords[1]}&format=json&lang=ru_RU`
 			)
 			const data = await response.json()
-			const address =
-				data.response.GeoObjectCollection.featureMember[0].GeoObject
-					.metaDataProperty.GeocoderMetaData.text
-
-			setDeliveryInfo((prev: DeliveryInfo) => ({
-				...prev,
-				address,
-				lat: coords[1], // [lng, lat] to [lat, lng]
-				lng: coords[0],
-			}))
+			
+			const featureMember = data?.response?.GeoObjectCollection?.featureMember
+			if (featureMember && featureMember.length > 0) {
+				const address = featureMember[0].GeoObject.metaDataProperty.GeocoderMetaData.text
+				console.log('Geocoding success:', address)
+				if (address) {
+					setDeliveryInfo((prev: DeliveryInfo) => ({
+						...prev,
+						address,
+					}))
+				}
+			} else {
+				console.warn('Geocoding: no address found', data)
+			}
 		} catch (error) {
 			console.error('Geocoding error:', error)
 		}
