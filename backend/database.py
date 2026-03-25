@@ -64,7 +64,8 @@ def init_db():
             images TEXT[] NOT NULL,
             category_id TEXT,
             colors TEXT[],
-            attributes JSONB
+            attributes JSONB,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     
@@ -87,6 +88,10 @@ def init_db():
             IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                           WHERE table_name='products' AND column_name='old_price') THEN
                 ALTER TABLE products ADD COLUMN old_price INTEGER;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name='products' AND column_name='created_at') THEN
+                ALTER TABLE products ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
             END IF;
         END $$;
     ''')

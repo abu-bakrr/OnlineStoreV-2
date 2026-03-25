@@ -10,9 +10,9 @@ def get_products():
         conn = get_db_connection()
         cur = conn.cursor()
         if category:
-            cur.execute('SELECT * FROM products WHERE category_id = %s', (category,))
+            cur.execute('SELECT * FROM products WHERE category_id = %s ORDER BY created_at DESC', (category,))
         else:
-            cur.execute('SELECT * FROM products')
+            cur.execute('SELECT * FROM products ORDER BY created_at DESC')
         products = cur.fetchall()
         cur.close()
         conn.close()
