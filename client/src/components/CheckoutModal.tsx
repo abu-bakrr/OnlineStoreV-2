@@ -210,19 +210,20 @@ export default function CheckoutModal({
 				YMapDefaultSchemeLayer,
 				YMapDefaultFeaturesLayer,
 				YMapListener,
+				YMapControls,
 			} = window.ymaps3
 			
 			console.log('YMap constructor:', YMap)
-			console.log('YMapDefaultSchemeLayer:', YMapDefaultSchemeLayer)
+			console.log('YMapControls (core):', YMapControls)
 
 			const { YMapDefaultMarker } = await window.ymaps3.import(
 				'@yandex/ymaps3-markers@0.0.1'
 			)
-			const { YMapDefaultGeolocationControl, YMapControls } =
+			const { YMapDefaultGeolocationControl } =
 				await window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
 
 			console.log('YMapDefaultMarker:', YMapDefaultMarker)
-			console.log('YMapControls:', YMapControls)
+			console.log('YMapDefaultGeolocationControl:', YMapDefaultGeolocationControl)
 
 			const rawCenter = config?.yandexMaps?.defaultCenter
 			const defaultCenter = rawCenter
