@@ -216,11 +216,22 @@ export default function CheckoutModal({
 			console.log('YMap constructor:', YMap)
 			console.log('YMapControls (core):', YMapControls)
 
-			const { YMapDefaultMarker } = await window.ymaps3.import(
-				'@yandex/ymaps3-markers@0.0.1'
-			)
-			const { YMapDefaultGeolocationControl } =
-				await window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
+			// Import markers
+			const markersModule = await window.ymaps3.import('@yandex/ymaps3-markers@0.0.1')
+			console.log('Markers module exports:', Object.keys(markersModule))
+			const { YMapDefaultMarker } = markersModule
+
+			// Import controls from the recommended package
+			let YMapDefaultGeolocationControl;
+			try {
+				const themeModule = await window.ymaps3.import('@yandex/ymaps3-default-ui-theme')
+				console.log('Theme module exports:', Object.keys(themeModule))
+				YMapDefaultGeolocationControl = themeModule.YMapDefaultGeolocationControl
+			} catch (e) {
+				console.warn('Could not load default-ui-theme, trying deprecated controls package', e)
+				const controlsModule = await window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
+				YMapDefaultGeolocationControl = controlsModule.YMapDefaultGeolocationControl
+			}
 
 			console.log('YMapDefaultMarker:', YMapDefaultMarker)
 			console.log('YMapDefaultGeolocationControl:', YMapDefaultGeolocationControl)
@@ -256,34 +267,43 @@ export default function CheckoutModal({
 				map.addChild(new YMapDefaultFeaturesLayer({}))
 			}
 
-			const controls = new YMapControls({ position: 'right' })
-			controls.addChild(new YMapDefaultGeolocationControl({}))
-			map.addChild(controls)
+			if (YMapControls && YMapDefaultGeolocationControl) {
+				const controls = new YMapControls({ position: 'right' })
+				controls.addChild(new YMapDefaultGeolocationControl({}))
+				map.addChild(controls)
+			}
 
-			const marker = new YMapDefaultMarker({
-				coordinates: defaultCenter,
-				draggable: true,
-				mapFollowsOnDrag: true,
-				onDragMove: (coords: [number, number]) => {
-					// We might want to throttle this or only do on drag end
-				},
-				onDragEnd: async (coords: [number, number]) => {
-					await geocodeCoords(coords)
-				},
-			})
+			if (YMapDefaultMarker) {
+				const marker = new YMapDefaultMarker({
+					coordinates: defaultCenter,
+					draggable: true,
+					mapFollowsOnDrag: true,
+					onDragMove: (coords: [number, number]) => {
+						// We might want to throttle this or only do on drag end
+					},
+					onDragEnd: async (coords: [number, number]) => {
+						await geocodeCoords(coords)
+					},
+				})
 
-			map.addChild(marker)
+				map.addChild(marker)
+				placemarkerRef.current = marker
+			}
+
 			mapInstanceRef.current = map
-			placemarkerRef.current = marker
 
-			const listener = new YMapListener({
-				onClick: async (object: any, event: any) => {
-					const coords = event.coords
-					marker.update({ coordinates: coords })
-					await geocodeCoords(coords)
-				},
-			})
-			map.addChild(listener)
+			if (YMapListener) {
+				const listener = new YMapListener({
+					onClick: async (object: any, event: any) => {
+						const coords = event.coords
+						if (placemarkerRef.current) {
+							placemarkerRef.current.update({ coordinates: coords })
+						}
+						await geocodeCoords(coords)
+					},
+				})
+				map.addChild(listener)
+			}
 
 			// Add suggest view (requires address input to be in DOM)
 			setTimeout(async () => {
