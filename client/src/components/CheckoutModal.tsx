@@ -204,17 +204,25 @@ export default function CheckoutModal({
 		if (!mapContainerRef.current || !window.ymaps3) return
 
 		try {
+			console.log('ymaps3 object:', window.ymaps3)
 			const {
 				YMap,
 				YMapDefaultSchemeLayer,
 				YMapDefaultFeaturesLayer,
 				YMapListener,
 			} = window.ymaps3
+			
+			console.log('YMap constructor:', YMap)
+			console.log('YMapDefaultSchemeLayer:', YMapDefaultSchemeLayer)
+
 			const { YMapDefaultMarker } = await window.ymaps3.import(
 				'@yandex/ymaps3-markers@0.0.1'
 			)
 			const { YMapDefaultGeolocationControl, YMapControls } =
 				await window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
+
+			console.log('YMapDefaultMarker:', YMapDefaultMarker)
+			console.log('YMapControls:', YMapControls)
 
 			const rawCenter = config?.yandexMaps?.defaultCenter
 			const defaultCenter = rawCenter
@@ -228,6 +236,10 @@ export default function CheckoutModal({
 				mapInstanceRef.current.destroy()
 			}
 
+			if (typeof YMap !== 'function') {
+				throw new Error('YMap is not a constructor/function. Check API version.')
+			}
+
 			const map = new YMap(mapContainerRef.current, {
 				location: {
 					center: defaultCenter,
@@ -236,8 +248,12 @@ export default function CheckoutModal({
 				behaviors: ['drag', 'scrollZoom', 'dblClick', 'pinchZoom'],
 			})
 
-			map.addChild(new YMapDefaultSchemeLayer({}))
-			map.addChild(new YMapDefaultFeaturesLayer({}))
+			if (YMapDefaultSchemeLayer) {
+				map.addChild(new YMapDefaultSchemeLayer({}))
+			}
+			if (YMapDefaultFeaturesLayer) {
+				map.addChild(new YMapDefaultFeaturesLayer({}))
+			}
 
 			const controls = new YMapControls({ position: 'right' })
 			controls.addChild(new YMapDefaultGeolocationControl({}))
