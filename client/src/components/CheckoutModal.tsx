@@ -157,7 +157,7 @@ export default function CheckoutModal({
 		}
 
 		const script = document.createElement('script')
-		script.src = `https://api-maps.yandex.ru/v3/?apikey=${yandexApiKey}&lang=ru_RU`
+		script.src = `https://api-maps.yandex.ru/v3/?apikey=${yandexApiKey}&lang=ru_RU&import=@yandex/ymaps3-markers@0.0.1,@yandex/ymaps3-controls@0.0.1,@yandex/ymaps3-suggest-view@0.0.1`
 		script.async = true
 
 		let isTimedOut = false
@@ -230,6 +230,7 @@ export default function CheckoutModal({
 			} catch (e) {
 				console.warn('Could not load default-ui-theme, trying deprecated controls package', e)
 				const controlsModule = await window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
+				console.log('Controls module exports:', Object.keys(controlsModule))
 				YMapDefaultGeolocationControl = controlsModule.YMapDefaultGeolocationControl
 			}
 
@@ -268,7 +269,7 @@ export default function CheckoutModal({
 			}
 
 			if (YMapControls && YMapDefaultGeolocationControl) {
-				const controls = new YMapControls({ position: 'right' })
+				const controls = new YMapControls({ position: 'top right' })
 				controls.addChild(new YMapDefaultGeolocationControl({}))
 				map.addChild(controls)
 			}
