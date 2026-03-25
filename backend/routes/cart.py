@@ -46,6 +46,8 @@ def get_cart_delivery_info(user_id):
             return jsonify({'has_backorder': False, 'max_backorder_days': 0, 'default_delivery_days': delivery_days_in_stock})
         
         has_backorder = False
+        max_days = 0
+        
         for item in cart_items:
             selected_attrs = item.get('selected_attributes')
             if isinstance(selected_attrs, str):
@@ -55,22 +57,29 @@ def get_cart_delivery_info(user_id):
             attr2_val = list(selected_attrs.values())[1] if selected_attrs and len(selected_attrs) > 1 else None
             
             cur.execute('''
-                SELECT quantity FROM product_inventory
+                SELECT quantity, backorder_lead_time_days FROM product_inventory
                 WHERE product_id = %s AND (color = %s OR (color IS NULL AND %s IS NULL))
                 AND (attribute1_value = %s OR (attribute1_value IS NULL AND %s IS NULL))
                 AND (attribute2_value = %s OR (attribute2_value IS NULL AND %s IS NULL))
             ''', (item['product_id'], item.get('selected_color'), item.get('selected_color'), attr1_val, attr1_val, attr2_val, attr2_val))
             
             inventory = cur.fetchone()
+            item_days = delivery_days_in_stock
+            
             if not inventory or inventory['quantity'] <= 0:
                 has_backorder = True
+                lead_time = (inventory.get('backorder_lead_time_days') if inventory else 0) or 0
+                item_days = max(delivery_days_backorder, lead_time)
+            
+            max_days = max(max_days, item_days)
         
         cur.close()
         conn.close()
         return jsonify({
             'has_backorder': has_backorder,
-            'max_backorder_days': delivery_days_backorder if has_backorder else 0,
-            'default_delivery_days': delivery_days_in_stock
+            'max_backorder_days': max_days if has_backorder else 0, # Note: max_days is already >= backorder days if has_backorder is true
+            'default_delivery_days': delivery_days_in_stock,
+            'estimated_days': max_days # Providing estimated_days for clarity
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500

@@ -120,18 +120,35 @@ def checkout_order():
         
         def safe_int(val, default):
             try:
-                if val is None or str(val).lower() == 'none':
+                if val is None or str(val).lower() == 'none' or str(val).strip() == '':
                     return default
-                return int(val)
+                return int(float(val))
             except (ValueError, TypeError):
                 return default
 
-        default_days = safe_int(get_platform_setting('default_delivery_days'), 3)
-        if has_backorder:
-            estimated_days = max_backorder_days if max_backorder_days > 0 else default_days
-        else:
-            estimated_days = default_days
+        # Get delivery settings
+        default_in_stock_days = safe_int(get_platform_setting('delivery_days_in_stock'), 3)
+        # Check backward compatibility for the setting name
+        if not get_platform_setting('delivery_days_in_stock'):
+            alt_in_stock = get_platform_setting('default_delivery_days')
+            if alt_in_stock:
+                default_in_stock_days = safe_int(alt_in_stock, 3)
+                
+        default_backorder_days = safe_int(get_platform_setting('delivery_days_backorder'), 14)
         
+        # Calculate maximum delivery days across all items
+        max_days = 0
+        for item in order_items_with_status:
+            if item['availability_status'] == 'backorder':
+                # For backordered items, take the max of the default backorder days 
+                # and the specific lead time set for this product variant
+                lead_time = item.get('backorder_lead_time_days') or 0
+                max_days = max(max_days, default_backorder_days, lead_time)
+            else:
+                # For in-stock items, use the default in-stock delivery days
+                max_days = max(max_days, default_in_stock_days)
+        
+        estimated_days = max_days
         backorder_date = datetime.now() + timedelta(days=estimated_days) if has_backorder else None
         
         initial_status = 'reviewing'
