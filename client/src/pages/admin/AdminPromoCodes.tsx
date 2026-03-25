@@ -31,8 +31,8 @@ export default function AdminPromoCodes() {
   const [formData, setFormData] = useState({
     code: '',
     discount_type: 'percentage' as 'percentage' | 'fixed',
-    discount_value: 0,
-    min_order_amount: 0,
+    discount_value: '' as string | number,
+    min_order_amount: '' as string | number,
     usage_limit: '' as string | number,
     is_active: true,
   });
@@ -58,8 +58,8 @@ export default function AdminPromoCodes() {
     setFormData({
       code: '',
       discount_type: 'percentage',
-      discount_value: 0,
-      min_order_amount: 0,
+      discount_value: '',
+      min_order_amount: '',
       usage_limit: '',
       is_active: true,
     });
@@ -84,6 +84,8 @@ export default function AdminPromoCodes() {
     
     const payload = {
       ...formData,
+      discount_value: formData.discount_value === '' ? 0 : Number(formData.discount_value),
+      min_order_amount: formData.min_order_amount === '' ? 0 : Number(formData.min_order_amount),
       usage_limit: formData.usage_limit === '' ? null : Number(formData.usage_limit)
     };
 
@@ -184,7 +186,7 @@ export default function AdminPromoCodes() {
                   <Input
                     type="number"
                     value={formData.discount_value}
-                    onChange={(e) => setFormData({ ...formData, discount_value: Number(e.target.value) })}
+                    onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
                     required
                   />
                 </div>
@@ -195,7 +197,7 @@ export default function AdminPromoCodes() {
                 <Input
                   type="number"
                   value={formData.min_order_amount}
-                  onChange={(e) => setFormData({ ...formData, min_order_amount: Number(e.target.value) })}
+                  onChange={(e) => setFormData({ ...formData, min_order_amount: e.target.value })}
                   placeholder="0"
                 />
               </div>

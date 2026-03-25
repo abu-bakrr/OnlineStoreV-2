@@ -56,7 +56,7 @@ interface CheckoutModalProps {
 
 declare global {
 	interface Window {
-		ymaps: any
+		ymaps3: any
 	}
 }
 
@@ -139,10 +139,10 @@ export default function CheckoutModal({
 			return
 		}
 
-		if (window.ymaps) {
+		if (window.ymaps3) {
 			try {
-				window.ymaps.ready(() => {
-					initMap()
+				window.ymaps3.ready.then(async () => {
+					await initMap()
 				})
 			} catch (error) {
 				console.error('Yandex Maps ready error:', error)
@@ -152,7 +152,7 @@ export default function CheckoutModal({
 		}
 
 		const script = document.createElement('script')
-		script.src = `https://api-maps.yandex.ru/2.1/?apikey=${yandexApiKey}&lang=ru_RU`
+		script.src = `https://api-maps.yandex.ru/v3/?apikey=${yandexApiKey}&lang=ru_RU`
 		script.async = true
 
 		let isTimedOut = false
@@ -164,12 +164,12 @@ export default function CheckoutModal({
 		script.onload = () => {
 			clearTimeout(loadTimeout)
 			try {
-				window.ymaps.ready(() => {
+				window.ymaps3.ready.then(async () => {
 					if (!isTimedOut) {
 						setMapError(null)
 					}
 					setMapLoaded(true)
-					initMap()
+					await initMap()
 				})
 			} catch (error) {
 				console.error('Yandex Maps ready error:', error)
@@ -193,102 +193,153 @@ export default function CheckoutModal({
 		}
 	}, [isOpen, config?.yandexMaps?.apiKey])
 
-	const initMap = () => {
-		if (!mapContainerRef.current || !window.ymaps) return
+	const initMap = async () => {
+		if (!mapContainerRef.current || !window.ymaps3) return
 
-		const defaultCenter = config?.yandexMaps?.defaultCenter || [
-			41.311081, 69.240562,
-		]
-		const defaultZoom = config?.yandexMaps?.defaultZoom || 12
+		try {
+			const {
+				YMap,
+				YMapDefaultSchemeLayer,
+				YMapDefaultFeaturesLayer,
+				YMapListener,
+			} = window.ymaps3
+			const { YMapDefaultMarker } = await window.ymaps3.import(
+				'@yandex/ymaps3-markers@0.0.1'
+			)
+			const { YMapDefaultGeolocationControl, YMapControls } =
+				await window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
 
-		setTimeout(() => {
-			try {
-				if (mapInstanceRef.current) {
-					try {
-						mapInstanceRef.current.destroy()
-					} catch (e) {}
-				}
+			const defaultCenter = config?.yandexMaps?.defaultCenter || [
+				69.240562, 41.311081,
+			] // [lng, lat] for v3
+			const defaultZoom = config?.yandexMaps?.defaultZoom || 12
 
-				if (!mapContainerRef.current) return
+			if (mapInstanceRef.current) {
+				mapInstanceRef.current.destroy()
+			}
 
-				mapInstanceRef.current = new window.ymaps.Map(mapContainerRef.current, {
+			const map = new YMap(mapContainerRef.current, {
+				location: {
 					center: defaultCenter,
 					zoom: defaultZoom,
-					controls: ['zoomControl', 'geolocationControl'],
-				})
+				},
+				behaviors: ['drag', 'scrollZoom', 'dblClick', 'pinchZoom'],
+			})
 
-				placemarkerRef.current = new window.ymaps.Placemark(
-					defaultCenter,
-					{ hintContent: 'Переместите маркер на адрес доставки' },
-					{ draggable: true, preset: 'islands#redDotIcon' }
-				)
+			map.addChild(new YMapDefaultSchemeLayer({}))
+			map.addChild(new YMapDefaultFeaturesLayer({}))
 
-				mapInstanceRef.current.geoObjects.add(placemarkerRef.current)
+			const controls = new YMapControls({ position: 'right' })
+			controls.addChild(new YMapDefaultGeolocationControl({}))
+			map.addChild(controls)
 
-				placemarkerRef.current.events.add('dragend', async function () {
-					const coords = placemarkerRef.current.geometry.getCoordinates()
+			const marker = new YMapDefaultMarker({
+				coordinates: defaultCenter,
+				draggable: true,
+				mapFollowsOnDrag: true,
+				onDragMove: (coords: [number, number]) => {
+					// We might want to throttle this or only do on drag end
+				},
+				onDragEnd: async (coords: [number, number]) => {
 					await geocodeCoords(coords)
-				})
+				},
+			})
 
-				mapInstanceRef.current.events.add('click', async function (e: any) {
-					const coords = e.get('coords')
-					placemarkerRef.current.geometry.setCoordinates(coords)
+			map.addChild(marker)
+			mapInstanceRef.current = map
+			placemarkerRef.current = marker
+
+			const listener = new YMapListener({
+				onClick: async (object: any, event: any) => {
+					const coords = event.coords
+					marker.update({ coordinates: coords })
 					await geocodeCoords(coords)
-				})
+				},
+			})
+			map.addChild(listener)
 
-				setTimeout(() => {
-					if (mapInstanceRef.current) {
-						mapInstanceRef.current.container.fitToViewport()
-					}
-				}, 100)
+			// Add suggest view (requires address input to be in DOM)
+			setTimeout(async () => {
+				try {
+					const { YMapSuggestView } = await window.ymaps3.import(
+						'@yandex/ymaps3-suggest-view@0.0.1'
+					)
+					const suggest = new YMapSuggestView({
+						parentElement: document.getElementById('address') as HTMLDivElement,
+						onSelect: async (item: any) => {
+							setDeliveryInfo((prev: DeliveryInfo) => ({ ...prev, address: item.title }))
+							await handleAddressSearch(item.title)
+						},
+					})
+				} catch (e) {
+					console.error('Suggest view error:', e)
+				}
+			}, 1000)
 
-				setMapError(null)
-				setMapLoaded(true)
-			} catch (error) {
-				console.error('Map initialization error:', error)
-				setMapError('Ошибка инициализации карты. Введите адрес вручную.')
-			}
-		}, 300)
+			setMapError(null)
+			setMapLoaded(true)
+		} catch (error) {
+			console.error('Map initialization error:', error)
+			setMapError('Ошибка инициализации карты. Введите адрес вручную.')
+		}
 	}
 
 	const geocodeCoords = async (coords: [number, number]) => {
 		try {
-			const result = await window.ymaps.geocode(coords)
-			const firstGeoObject = result.geoObjects.get(0)
-			const address = firstGeoObject.getAddressLine()
+			// v3 reverse geocoding
+			const response = await fetch(
+				`https://geocode-maps.yandex.ru/1.x/?apikey=${config?.yandexMaps?.apiKey}&geocode=${coords[0]},${coords[1]}&format=json&lang=ru_RU`
+			)
+			const data = await response.json()
+			const address =
+				data.response.GeoObjectCollection.featureMember[0].GeoObject
+					.metaDataProperty.GeocoderMetaData.text
 
-			setDeliveryInfo(prev => ({
+			setDeliveryInfo((prev: DeliveryInfo) => ({
 				...prev,
 				address,
-				lat: coords[0],
-				lng: coords[1],
+				lat: coords[1], // [lng, lat] to [lat, lng]
+				lng: coords[0],
 			}))
 		} catch (error) {
 			console.error('Geocoding error:', error)
 		}
 	}
 
-	const handleAddressSearch = async () => {
-		if (!deliveryInfo.address || !window.ymaps) return
+	const handleAddressSearch = async (query?: string) => {
+		const addressToSearch = query || deliveryInfo.address
+		if (!addressToSearch || !window.ymaps3) return
 
 		try {
-			const result = await window.ymaps.geocode(deliveryInfo.address)
-			const firstGeoObject = result.geoObjects.get(0)
+			const response = await fetch(
+				`https://geocode-maps.yandex.ru/1.x/?apikey=${config?.yandexMaps?.apiKey}&geocode=${encodeURIComponent(
+					addressToSearch
+				)}&format=json&lang=ru_RU`
+			)
+			const data = await response.json()
+			const geoObject =
+				data.response.GeoObjectCollection.featureMember[0].GeoObject
+			const coordsStr = geoObject.Point.pos.split(' ')
+			const coords: [number, number] = [Number(coordsStr[0]), Number(coordsStr[1])]
+			const fullAddress =
+				geoObject.metaDataProperty.GeocoderMetaData.text
 
-			if (firstGeoObject) {
-				const coords = firstGeoObject.geometry.getCoordinates()
-				const address = firstGeoObject.getAddressLine()
-
-				placemarkerRef.current?.geometry.setCoordinates(coords)
-				mapInstanceRef.current?.setCenter(coords, 16)
-
-				setDeliveryInfo(prev => ({
-					...prev,
-					address,
-					lat: coords[0],
-					lng: coords[1],
-				}))
+			if (placemarkerRef.current) {
+				placemarkerRef.current.update({ coordinates: coords })
 			}
+
+			if (mapInstanceRef.current) {
+				mapInstanceRef.current.update({
+					location: { center: coords, zoom: 16, duration: 800 },
+				})
+			}
+
+			setDeliveryInfo((prev: DeliveryInfo) => ({
+				...prev,
+				address: fullAddress,
+				lat: coords[1],
+				lng: coords[0],
+			}))
 		} catch (error) {
 			console.error('Address search error:', error)
 		}
@@ -325,6 +376,38 @@ export default function CheckoutModal({
 			setIsLoading(false)
 			setSelectedPayment(null)
 		}
+	}
+
+	const handleLocateMe = () => {
+		if (!navigator.geolocation) {
+			alert('Геолокация не поддерживается вашим браузером')
+			return
+		}
+
+		navigator.geolocation.getCurrentPosition(
+			async position => {
+				const coords: [number, number] = [
+					position.coords.longitude,
+					position.coords.latitude,
+				]
+
+				if (placemarkerRef.current) {
+					placemarkerRef.current.update({ coordinates: coords })
+				}
+
+				if (mapInstanceRef.current) {
+					mapInstanceRef.current.update({
+						location: { center: coords, zoom: 16, duration: 800 },
+					})
+				}
+
+				await geocodeCoords(coords)
+			},
+			error => {
+				console.error('Geolocation error:', error)
+				alert('Не удалось определить ваше местоположение')
+			}
+		)
 	}
 
 	const handleValidatePromo = async () => {
@@ -647,6 +730,17 @@ export default function CheckoutModal({
 														Загрузка карты...
 													</p>
 												</div>
+											)}
+											{mapLoaded && (
+												<Button
+													variant='secondary'
+													size='icon'
+													className='absolute bottom-16 right-3 z-10 shadow-md bg-background/90 hover:bg-background'
+													onClick={handleLocateMe}
+													type='button'
+												>
+													<MapPin className='w-5 h-5 text-primary' />
+												</Button>
 											)}
 										</div>
 									)}
