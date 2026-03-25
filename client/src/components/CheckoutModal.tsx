@@ -157,7 +157,7 @@ export default function CheckoutModal({
 		}
 
 		const script = document.createElement('script')
-		script.src = `https://api-maps.yandex.ru/v3/?apikey=${yandexApiKey}&lang=ru_RU&import=@yandex/ymaps3-markers@0.0.1,@yandex/ymaps3-controls@0.0.1,@yandex/ymaps3-suggest-view@0.0.1`
+		script.src = `https://api-maps.yandex.ru/v3/?apikey=${yandexApiKey}&lang=ru_RU`
 		script.async = true
 
 		let isTimedOut = false
@@ -221,17 +221,16 @@ export default function CheckoutModal({
 			console.log('Markers module exports:', Object.keys(markersModule))
 			const { YMapDefaultMarker } = markersModule
 
-			// Import controls from the recommended package
+			// Import controls safely
 			let YMapDefaultGeolocationControl;
 			try {
-				const themeModule = await window.ymaps3.import('@yandex/ymaps3-default-ui-theme')
-				console.log('Theme module exports:', Object.keys(themeModule))
-				YMapDefaultGeolocationControl = themeModule.YMapDefaultGeolocationControl
-			} catch (e) {
-				console.warn('Could not load default-ui-theme, trying deprecated controls package', e)
 				const controlsModule = await window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
-				console.log('Controls module exports:', Object.keys(controlsModule))
-				YMapDefaultGeolocationControl = controlsModule.YMapDefaultGeolocationControl
+				console.log('Controls module keys:', Object.keys(controlsModule))
+				YMapDefaultGeolocationControl = 
+					controlsModule.YMapDefaultGeolocationControl || 
+					controlsModule.YMapGeolocationControl;
+			} catch (e) {
+				console.warn('Could not load controls package', e)
 			}
 
 			console.log('YMapDefaultMarker:', YMapDefaultMarker)
@@ -269,9 +268,16 @@ export default function CheckoutModal({
 			}
 
 			if (YMapControls && YMapDefaultGeolocationControl) {
+				console.log('Adding GeolocationControl to map')
 				const controls = new YMapControls({ position: 'top right' })
-				controls.addChild(new YMapDefaultGeolocationControl({}))
-				map.addChild(controls)
+				try {
+					controls.addChild(new YMapDefaultGeolocationControl({}))
+					map.addChild(controls)
+				} catch (e) {
+					console.error('Error adding geolocation control:', e)
+				}
+			} else {
+				console.warn('YMapControls or YMapDefaultGeolocationControl not available for standard UI')
 			}
 
 			if (YMapDefaultMarker) {
