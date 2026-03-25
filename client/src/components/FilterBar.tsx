@@ -35,16 +35,16 @@ interface FilterBarProps {
 }
 
 const sortOptions = [
-  { id: "new", label: "Новые" },
+  { id: "old", label: "Сначала старые" },
+  { id: "new", label: "Сначала новые" },
   { id: "price-asc", label: "Дешевые" },
   { id: "price-desc", label: "Дорогие" },
-  { id: "old", label: "Старые" },
 ];
 
 export default function FilterBar({
   categories = [],
   selectedCategory = "all",
-  selectedSort = "new",
+  selectedSort = "old",
   priceFrom = "",
   priceTo = "",
   searchQuery = "",
@@ -59,7 +59,7 @@ export default function FilterBar({
   onReset,
 }: FilterBarProps) {
 
-  const hasActiveFilters = selectedCategory !== "all" || priceFrom !== "" || priceTo !== "" || selectedSort !== "new" || searchQuery !== "";
+  const hasActiveFilters = selectedCategory !== "all" || priceFrom !== "" || priceTo !== "" || selectedSort !== "old" || searchQuery !== "";
 
   return (
     <div className="sticky top-[61px] md:top-[69px] z-40 bg-background border-b border-border py-3 md:py-4" data-testid="filter-bar">

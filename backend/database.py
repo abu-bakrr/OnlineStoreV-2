@@ -92,6 +92,10 @@ def init_db():
             IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                           WHERE table_name='products' AND column_name='created_at') THEN
                 ALTER TABLE products ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+                -- Stagger existing timestamps slightly to preserve relative order
+                UPDATE products SET created_at = CURRENT_TIMESTAMP - (row_number * interval '1 minute')
+                FROM (SELECT id, row_number() OVER () as row_number FROM products) as sub
+                WHERE products.id = sub.id;
             END IF;
         END $$;
     ''')

@@ -70,7 +70,7 @@ export default function Home({
 		const params = new URLSearchParams(searchString)
 		return {
 			category: params.get('category') || 'all',
-			sort: params.get('sort') || 'new',
+			sort: params.get('sort') || 'old',
 			priceFrom: params.get('priceFrom') || '',
 			priceTo: params.get('priceTo') || '',
 			search: params.get('search') || '',
@@ -96,7 +96,7 @@ export default function Home({
 				if (
 					value &&
 					value !== 'all' &&
-					value !== 'new' &&
+					value !== 'old' &&
 					value !== '' &&
 					value !== 1
 				) {
@@ -256,7 +256,7 @@ export default function Home({
 
 	const handleResetFilters = () => {
 		setSelectedCategory('all')
-		setSelectedSort('new')
+		setSelectedSort('old')
 		setPriceFrom('')
 		setPriceTo('')
 		setSearchQuery('')
@@ -267,7 +267,7 @@ export default function Home({
 	// Check if any filters are active
 	const hasActiveFilters =
 		selectedCategory !== 'all' ||
-		selectedSort !== 'new' ||
+		selectedSort !== 'old' ||
 		priceFrom !== '' ||
 		priceTo !== '' ||
 		searchQuery !== ''
@@ -305,10 +305,11 @@ export default function Home({
 
 		// Apply sorting
 		switch (selectedSort) {
-			case 'new':
-				// Keep original order (newest first)
-				break
 			case 'old':
+				// Keep backend order (Oldest first)
+				break
+			case 'new':
+				// Newest first
 				filtered = [...filtered].reverse()
 				break
 			case 'price-asc':

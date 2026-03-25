@@ -66,16 +66,20 @@
 	},
 	"sortOptions": [
 		{
+			"id": "old",
+			"label": "Сначала старые"
+		},
+		{
 			"id": "new",
-			"label": "Новые"
+			"label": "Сначала новые"
 		},
 		{
-			"id": "price_asc",
-			"label": "Дешевле"
+			"id": "price-asc",
+			"label": "Сначала дешевые"
 		},
 		{
-			"id": "price_desc",
-			"label": "Дороже"
+			"id": "price-desc",
+			"label": "Сначала дорогие"
 		}
 	],
 	"ui": {

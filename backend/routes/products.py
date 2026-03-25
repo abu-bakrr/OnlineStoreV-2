@@ -9,10 +9,10 @@ def get_products():
         category = request.args.get('category')
         conn = get_db_connection()
         cur = conn.cursor()
-        if category:
-            cur.execute('SELECT * FROM products WHERE category_id = %s ORDER BY created_at DESC', (category,))
+        if category and category != 'all':
+            cur.execute('SELECT * FROM products WHERE category_id = %s ORDER BY created_at ASC', (category,))
         else:
-            cur.execute('SELECT * FROM products ORDER BY created_at DESC')
+            cur.execute('SELECT * FROM products ORDER BY created_at ASC')
         products = cur.fetchall()
         cur.close()
         conn.close()
