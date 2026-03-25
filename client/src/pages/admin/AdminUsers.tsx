@@ -23,7 +23,8 @@ import {
 	User as UserIcon,
 	Users as UsersIcon,
 	TrendingUp,
-	ArrowUpDown
+	ArrowUpDown,
+	LogIn
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -133,6 +134,32 @@ export default function AdminUsers({ onTabChange }: AdminUsersProps) {
 		if (onTabChange) {
 			onTabChange('orders')
 			localStorage.setItem('admin_order_search', orderId)
+		}
+	}
+
+	const handleImpersonate = async (userId: string) => {
+		if (!confirm('Вы действительно хотите войти в аккаунт этого пользователя?')) return
+
+		try {
+			const response = await fetch(`/api/admin/impersonate/${userId}`, {
+				method: 'POST',
+			})
+
+			if (!response.ok) throw new Error('Failed to impersonate')
+
+			toast({
+				title: 'Успех',
+				description: 'Выполняется вход под пользователем...',
+			})
+
+			// Redirect to home page
+			window.location.href = '/'
+		} catch (error) {
+			toast({
+				title: 'Ошибка',
+				description: 'Не удалось войти в аккаунт',
+				variant: 'destructive',
+			})
 		}
 	}
 
@@ -258,6 +285,15 @@ export default function AdminUsers({ onTabChange }: AdminUsersProps) {
 														Админ
 													</Badge>
 												)}
+												<Button
+													variant='ghost'
+													size='sm'
+													className='h-7 w-7 p-0 text-muted-foreground hover:text-primary'
+													onClick={() => handleImpersonate(user.id)}
+													title='Войти как пользователь'
+												>
+													<LogIn className='h-4 w-4' />
+												</Button>
 											</div>
 										</div>
 

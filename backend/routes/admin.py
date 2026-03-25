@@ -140,6 +140,27 @@ def get_all_admins():
     cur.close(); conn.close()
     return jsonify(admins)
 
+@admin_bp.route('/impersonate/<user_id>', methods=['POST'])
+def impersonate_user(user_id):
+    if not require_admin(): return admin_required_response()
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT id, email FROM users WHERE id = %s', (user_id,))
+    user = cur.fetchone()
+    cur.close(); conn.close()
+    
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    # Update current session to be the target user
+    session['user_id'] = user['id']
+    
+    return jsonify({
+        'message': f"Now impersonating {user['email']}",
+        'user': user
+    })
+
 @admin_bp.route('/admins', methods=['POST'])
 def add_admin():
     if not require_superadmin(): return superadmin_required_response()
