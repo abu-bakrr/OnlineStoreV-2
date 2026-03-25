@@ -130,10 +130,10 @@ export default function CheckoutModal({
 				customerName: '',
 				customerPhone: '',
 			})
-			return
 		}
 
 		const yandexApiKey = config?.yandexMaps?.apiKey
+		console.log('CheckoutModal: useEffect triggered. API Key found:', !!yandexApiKey)
 		if (!yandexApiKey) {
 			setMapError('Карта недоступна. Введите адрес вручную.')
 			return
@@ -162,6 +162,7 @@ export default function CheckoutModal({
 		}, 10000)
 
 		script.onload = () => {
+			console.log('CheckoutModal: Yandex Maps v3 script object LOADED')
 			clearTimeout(loadTimeout)
 			try {
 				window.ymaps3.ready.then(async () => {
@@ -176,7 +177,8 @@ export default function CheckoutModal({
 				setMapError('Карта недоступна. Введите адрес вручную.')
 			}
 		}
-		script.onerror = () => {
+		script.onerror = (e) => {
+			console.error('CheckoutModal: Yandex Maps v3 script object LOAD ERROR:', e)
 			clearTimeout(loadTimeout)
 			setMapError('Не удалось загрузить карту. Введите адрес вручную.')
 		}
@@ -209,10 +211,13 @@ export default function CheckoutModal({
 			const { YMapDefaultGeolocationControl, YMapControls } =
 				await window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
 
-			const defaultCenter = config?.yandexMaps?.defaultCenter || [
-				69.240562, 41.311081,
-			] // [lng, lat] for v3
+			const rawCenter = config?.yandexMaps?.defaultCenter
+			const defaultCenter = rawCenter
+				? [rawCenter[1], rawCenter[0]] // [lat, lng] -> [lng, lat]
+				: [69.240562, 41.311081]
 			const defaultZoom = config?.yandexMaps?.defaultZoom || 12
+
+			console.log('Initializing Yandex Maps v3 with center:', defaultCenter)
 
 			if (mapInstanceRef.current) {
 				mapInstanceRef.current.destroy()
