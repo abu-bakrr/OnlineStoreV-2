@@ -204,6 +204,36 @@ def init_db():
         )
     ''')
     
+    # Create promo_codes table
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS promo_codes (
+            id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+            code TEXT UNIQUE NOT NULL,
+            discount_type TEXT NOT NULL, -- 'percentage' or 'fixed'
+            discount_value INTEGER NOT NULL,
+            min_order_amount INTEGER DEFAULT 0,
+            usage_limit INTEGER,
+            used_count INTEGER DEFAULT 0,
+            is_active BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Add promo columns to orders if they don't exist
+    cur.execute('''
+        DO $$ 
+        BEGIN 
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name='orders' AND column_name='promo_code') THEN
+                ALTER TABLE orders ADD COLUMN promo_code TEXT;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name='orders' AND column_name='discount_amount') THEN
+                ALTER TABLE orders ADD COLUMN discount_amount INTEGER DEFAULT 0;
+            END IF;
+        END $$;
+    ''')
+    
     # Create product_inventory table
     cur.execute('''
         CREATE TABLE IF NOT EXISTS product_inventory (

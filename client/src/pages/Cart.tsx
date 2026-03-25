@@ -64,7 +64,8 @@ export default function Cart({
 	const handlePaymentSelect = async (
 		paymentMethod: string,
 		deliveryInfo: DeliveryInfo,
-		receiptUrl?: string
+		receiptUrl?: string,
+		promoCode?: string
 	): Promise<string | null> => {
 		if (!user?.id) {
 			console.error('User ID not available')
@@ -87,9 +88,9 @@ export default function Cart({
 					delivery_address: deliveryInfo.address,
 					delivery_lat: deliveryInfo.lat,
 					delivery_lng: deliveryInfo.lng,
-					customer_name: deliveryInfo.customerName,
 					customer_phone: deliveryInfo.customerPhone,
 					payment_receipt_url: receiptUrl,
+					promo_code: promoCode,
 				}),
 			})
 

@@ -10,6 +10,7 @@ import {
 	ShoppingCart,
 	Users,
 	Warehouse,
+	Ticket,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
@@ -21,6 +22,7 @@ import AdminProducts from './AdminProducts'
 import AdminSettings from './AdminSettings'
 import AdminStatistics from './AdminStatistics'
 import AdminUsers from './AdminUsers'
+import AdminPromoCodes from './AdminPromoCodes'
 
 export default function AdminLayout() {
 	const [activeTab, setActiveTab] = useState('products')
@@ -116,6 +118,13 @@ export default function AdminLayout() {
 								<span>Заказы</span>
 							</TabsTrigger>
 							<TabsTrigger
+								value='promo'
+								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
+							>
+								<Ticket className='h-4 w-4 flex-shrink-0' />
+								<span>Промокоды</span>
+							</TabsTrigger>
+							<TabsTrigger
 								value='statistics'
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
@@ -152,6 +161,7 @@ export default function AdminLayout() {
 					{activeTab === 'categories' && <AdminCategories />}
 					{activeTab === 'inventory' && <AdminInventory />}
 					{activeTab === 'orders' && <AdminOrders />}
+					{activeTab === 'promo' && <AdminPromoCodes />}
 					{activeTab === 'statistics' && <AdminStatistics />}
 					{activeTab === 'users' && <AdminUsers onTabChange={setActiveTab} />}
 					{activeTab === 'managers' && admin?.is_superadmin && (

@@ -741,7 +741,88 @@ def admin_delivery_settings():
         set_platform_setting('delivery_enabled', str(data.get('enabled')).lower(), False)
         
     return jsonify({'message': 'Delivery settings saved'})
+    
+# --- Promo Codes ---
 
+@admin_bp.route('/promo-codes', methods=['GET'])
+def admin_get_promo_codes():
+    if not require_admin(): return admin_required_response()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM promo_codes ORDER BY created_at DESC')
+    promos = cur.fetchall()
+    cur.close(); conn.close()
+    return jsonify(promos)
+
+@admin_bp.route('/promo-codes', methods=['POST'])
+def admin_create_promo_code():
+    if not require_admin(): return admin_required_response()
+    data = request.json
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute('''
+            INSERT INTO promo_codes (code, discount_type, discount_value, min_order_amount, usage_limit, is_active)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+        ''', (
+            data['code'].upper(),
+            data['discount_type'],
+            data['discount_value'],
+            data.get('min_order_amount', 0),
+            data.get('usage_limit'),
+            data.get('is_active', True)
+        ))
+        pid = cur.fetchone()['id']
+        conn.commit()
+        return jsonify({'message': 'Promo code created', 'id': pid}), 201
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close(); conn.close()
+
+@admin_bp.route('/promo-codes/<promo_id>', methods=['PUT'])
+def admin_update_promo_code(promo_id):
+    if not require_admin(): return admin_required_response()
+    data = request.json
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute('''
+            UPDATE promo_codes 
+            SET discount_type = %s, discount_value = %s, min_order_amount = %s, usage_limit = %s, is_active = %s
+            WHERE id = %s
+        ''', (
+            data['discount_type'],
+            data['discount_value'],
+            data.get('min_order_amount', 0),
+            data.get('usage_limit'),
+            data.get('is_active', True),
+            promo_id
+        ))
+        conn.commit()
+        return jsonify({'message': 'Promo code updated'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close(); conn.close()
+
+@admin_bp.route('/promo-codes/<promo_id>', methods=['DELETE'])
+def admin_delete_promo_code(promo_id):
+    if not require_admin(): return admin_required_response()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute('DELETE FROM promo_codes WHERE id = %s', (promo_id,))
+        conn.commit()
+        return jsonify({'message': 'Promo code deleted'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close(); conn.close()
 
 # --- Stats ---
 

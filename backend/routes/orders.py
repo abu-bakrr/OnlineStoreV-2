@@ -77,6 +77,36 @@ def checkout_order():
             return jsonify({'error': 'Cart is empty'}), 400
         
         total = sum(item['price'] * item['quantity'] for item in cart_items)
+        
+        # Promo code logic
+        promo_code = data.get('promo_code')
+        discount_amount = 0
+        if promo_code:
+            cur.execute('SELECT * FROM promo_codes WHERE code = %s AND is_active = TRUE', (promo_code.upper(),))
+            promo = cur.fetchone()
+            if promo:
+                # Check usage limit
+                if promo['usage_limit'] is None or promo['used_count'] < promo['usage_limit']:
+                    # Check min order amount
+                    if total >= promo['min_order_amount']:
+                        if promo['discount_type'] == 'percentage':
+                            discount_amount = int(total * (promo['discount_value'] / 100))
+                        else:
+                            discount_amount = promo['discount_value']
+                        
+                        discount_amount = min(discount_amount, total)
+                        total = max(0, total - discount_amount)
+                        
+                        # Increment used_count
+                        cur.execute('UPDATE promo_codes SET used_count = used_count + 1 WHERE id = %s', (promo['id'],))
+                        promo_code = promo['code'] # Use normalized code
+                    else:
+                        promo_code = None
+                else:
+                    promo_code = None
+            else:
+                promo_code = None
+
         has_backorder = False
         max_backorder_days = 0
         order_items_with_status = []
@@ -157,10 +187,11 @@ def checkout_order():
         cur.execute('''
             INSERT INTO orders (user_id, total, status, payment_method, payment_status, delivery_address, 
                                customer_phone, customer_name, payment_receipt_url, has_backorder, 
-                               backorder_delivery_date, estimated_delivery_days)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
+                               backorder_delivery_date, estimated_delivery_days, promo_code, discount_amount)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
         ''', (user_id, total, initial_status, payment_method, initial_pay_status, delivery_address, 
-              customer_phone, customer_name, payment_receipt_url, has_backorder, backorder_date, estimated_days))
+              customer_phone, customer_name, payment_receipt_url, has_backorder, backorder_date, estimated_days,
+              promo_code, discount_amount))
         order_id = cur.fetchone()['id']
         
         for item in order_items_with_status:

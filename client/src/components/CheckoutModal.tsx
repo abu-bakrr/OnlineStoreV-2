@@ -12,6 +12,8 @@ import {
 	MapPin,
 	Upload,
 	X,
+	Ticket,
+	Percent,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -47,7 +49,8 @@ interface CheckoutModalProps {
 	onPaymentSelect: (
 		paymentMethod: string,
 		deliveryInfo: DeliveryInfo,
-		receiptUrl?: string
+		receiptUrl?: string,
+		promoCode?: string
 	) => Promise<string | null>
 }
 
@@ -75,6 +78,10 @@ export default function CheckoutModal({
 	const [isUploadingReceipt, setIsUploadingReceipt] = useState(false)
 	const [orderSuccess, setOrderSuccess] = useState(false)
 	const [copiedField, setCopiedField] = useState<string | null>(null)
+	const [promoCodeInput, setPromoCodeInput] = useState('')
+	const [appliedPromo, setAppliedPromo] = useState<any>(null)
+	const [isValidatingPromo, setIsValidatingPromo] = useState(false)
+	const [promoError, setPromoError] = useState<string | null>(null)
 	const [deliveryEstimate, setDeliveryEstimate] =
 		useState<DeliveryEstimate | null>(null)
 
@@ -113,6 +120,9 @@ export default function CheckoutModal({
 			setMapError(null)
 			setMapLoaded(false)
 			setDeliveryEstimate(null)
+			setPromoCodeInput('')
+			setAppliedPromo(null)
+			setPromoError(null)
 			setDeliveryInfo({
 				address: '',
 				lat: null,
@@ -296,16 +306,16 @@ export default function CheckoutModal({
 	}
 
 	const handlePayment = async (method: string) => {
-		if (method === 'card_transfer') {
-			setStep('card_transfer')
-			return
-		}
-
 		setIsLoading(true)
 		setSelectedPayment(method)
 
 		try {
-			const paymentUrl = await onPaymentSelect(method, deliveryInfo)
+			const paymentUrl = await onPaymentSelect(
+				method,
+				deliveryInfo,
+				undefined,
+				appliedPromo?.code
+			)
 
 			if (paymentUrl) {
 				window.location.href = paymentUrl
@@ -314,6 +324,32 @@ export default function CheckoutModal({
 			console.error('Payment error:', error)
 			setIsLoading(false)
 			setSelectedPayment(null)
+		}
+	}
+
+	const handleValidatePromo = async () => {
+		if (!promoCodeInput) return
+		setIsValidatingPromo(true)
+		setPromoError(null)
+		try {
+			const response = await fetch('/api/promo/validate', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					code: promoCodeInput,
+					order_total: total,
+				}),
+			})
+			const data = await response.json()
+			if (response.ok) {
+				setAppliedPromo(data)
+			} else {
+				setPromoError(data.error || 'Ошибка проверки промокода')
+			}
+		} catch (error) {
+			setPromoError('Ошибка сети')
+		} finally {
+			setIsValidatingPromo(false)
 		}
 	}
 
@@ -359,7 +395,12 @@ export default function CheckoutModal({
 		setSelectedPayment('card_transfer')
 
 		try {
-			await onPaymentSelect('card_transfer', deliveryInfo, receiptUrl)
+			await onPaymentSelect(
+				'card_transfer',
+				deliveryInfo,
+				receiptUrl,
+				appliedPromo?.code
+			)
 			setOrderSuccess(true)
 		} catch (error) {
 			console.error('Order error:', error)
@@ -428,8 +469,23 @@ export default function CheckoutModal({
 									Сумма заказа:
 								</div>
 								<div className='text-xl font-bold text-primary'>
-									{formatPrice(total)}
+									{appliedPromo ? (
+										<div className='flex flex-col'>
+											<span className='line-through text-sm text-muted-foreground opacity-50'>
+												{formatPrice(total)}
+											</span>
+											<span>{formatPrice(appliedPromo.new_total)}</span>
+										</div>
+									) : (
+										formatPrice(total)
+									)}
 								</div>
+								{appliedPromo && (
+									<div className='text-xs text-green-600 font-medium mt-1 flex items-center gap-1'>
+										<Percent className='h-3 w-3' /> Экономия:{' '}
+										{formatPrice(appliedPromo.discount_amount)}
+									</div>
+								)}
 								<div className='text-xs text-muted-foreground mt-1'>
 									{config?.delivery?.freeDeliveryNote ||
 										'Доставка оплачивается при получении'}
@@ -486,6 +542,54 @@ export default function CheckoutModal({
 											}))
 										}
 									/>
+								</div>
+
+								<div className='pt-2'>
+									<Label htmlFor='promoCode'>У вас есть промокод?</Label>
+									<div className='flex gap-2 mt-1'>
+										<Input
+											id='promoCode'
+											placeholder='Введите код'
+											value={promoCodeInput}
+											onChange={e =>
+												setPromoCodeInput(e.target.value.toUpperCase())
+											}
+											disabled={!!appliedPromo || isValidatingPromo}
+										/>
+										{appliedPromo ? (
+											<Button
+												variant='outline'
+												onClick={() => {
+													setAppliedPromo(null)
+													setPromoCodeInput('')
+												}}
+											>
+												Отмена
+											</Button>
+										) : (
+											<Button
+												variant='outline'
+												onClick={handleValidatePromo}
+												disabled={!promoCodeInput || isValidatingPromo}
+											>
+												{isValidatingPromo ? (
+													<Loader2 className='h-4 w-4 animate-spin' />
+												) : (
+													'Применить'
+												)}
+											</Button>
+										)}
+									</div>
+									{promoError && (
+										<p className='text-xs text-destructive mt-1'>
+											{promoError}
+										</p>
+									)}
+									{appliedPromo && (
+										<p className='text-xs text-green-600 mt-1 font-medium'>
+											Промокод {appliedPromo.code} применен!
+										</p>
+									)}
 								</div>
 
 								<div>
@@ -588,7 +692,7 @@ export default function CheckoutModal({
 										К оплате:
 									</span>
 									<span className='text-xl font-bold text-primary'>
-										{formatPrice(total)}
+										{formatPrice(appliedPromo ? appliedPromo.new_total : total)}
 									</span>
 								</div>
 								<div className='text-xs text-muted-foreground'>
@@ -755,7 +859,9 @@ export default function CheckoutModal({
 												К оплате:
 											</div>
 											<div className='text-2xl font-bold text-primary'>
-												{formatPrice(total)}
+												{formatPrice(
+													appliedPromo ? appliedPromo.new_total : total
+												)}
 											</div>
 										</div>
 									</div>
