@@ -200,17 +200,14 @@ export default function CheckoutModal({
 			// Register CDN for v3 modules
 			if (window.ymaps3.import && window.ymaps3.import.registerCdn) {
 				window.ymaps3.import.registerCdn('https://cdn.jsdelivr.net/npm/{package}', [
-					'@yandex/ymaps3-markers@latest',
-					'@yandex/ymaps3-controls@latest',
-					'@yandex/ymaps3-default-ui-theme@latest'
+					'@yandex/ymaps3-default-ui-theme@latest',
+					'@yandex/ymaps3-suggest-view@latest'
 				]);
 			}
 
-			// Import markers and theme (without versions in strings)
-			const [markersModule, themeModule] = await Promise.all([
-				window.ymaps3.import('@yandex/ymaps3-markers'),
-				window.ymaps3.import('@yandex/ymaps3-default-ui-theme')
-			])
+			// Import theme and markers from the theme package
+			const themeModule = await window.ymaps3.import('@yandex/ymaps3-default-ui-theme');
+			const { YMapDefaultMarker } = themeModule;
 			
 			const {
 				YMap,
@@ -218,8 +215,6 @@ export default function CheckoutModal({
 				YMapDefaultFeaturesLayer,
 				YMapListener,
 			} = window.ymaps3
-
-			const { YMapDefaultMarker } = markersModule
 
 			const rawCenter = config?.yandexMaps?.defaultCenter
 			const defaultCenter = rawCenter
@@ -289,15 +284,20 @@ export default function CheckoutModal({
 			// Suggest view functionality
 			setTimeout(async () => {
 				try {
-					// Register CDN for suggest-view if needed
-					if (window.ymaps3.import && window.ymaps3.import.registerCdn) {
-						window.ymaps3.import.registerCdn('https://cdn.jsdelivr.net/npm/{package}', [
-							'@yandex/ymaps3-suggest-view@latest'
-						]);
+					let suggestModule;
+					try {
+						// Try to get YMapSuggestView from theme first
+						if (themeModule && themeModule.YMapSuggestView) {
+							suggestModule = themeModule;
+						} else {
+							suggestModule = await window.ymaps3.import('@yandex/ymaps3-suggest-view');
+						}
+					} catch (suggestErr) {
+						console.warn('Individual suggest-view import failed, trying fallback');
+						suggestModule = themeModule;
 					}
 
-					const suggestModule = await window.ymaps3.import('@yandex/ymaps3-suggest-view');
-					const { YMapSuggestView } = suggestModule;
+					const { YMapSuggestView } = suggestModule || {};
 					if (YMapSuggestView) {
 						const suggest = new YMapSuggestView({
 							parentElement: document.getElementById('address') as HTMLDivElement,
