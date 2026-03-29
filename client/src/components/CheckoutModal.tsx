@@ -198,23 +198,19 @@ export default function CheckoutModal({
 
 		try {
 			// Import markers and controls
-			const [markersModule, controlsModule] = await Promise.all([
+			const [markersModule, themeModule] = await Promise.all([
 				window.ymaps3.import('@yandex/ymaps3-markers@0.0.1'),
-				window.ymaps3.import('@yandex/ymaps3-controls@0.0.1')
+				window.ymaps3.import('@yandex/ymaps3-default-ui-theme@0.0.1')
 			])
-
+			
 			const {
 				YMap,
 				YMapDefaultSchemeLayer,
 				YMapDefaultFeaturesLayer,
 				YMapListener,
-				YMapControls,
 			} = window.ymaps3
 
 			const { YMapDefaultMarker } = markersModule
-			const YMapDefaultGeolocationControl = 
-				controlsModule.YMapDefaultGeolocationControl || 
-				controlsModule.YMapGeolocationControl;
 
 			const rawCenter = config?.yandexMaps?.defaultCenter
 			const defaultCenter = rawCenter
@@ -247,18 +243,7 @@ export default function CheckoutModal({
 				map.addChild(new YMapDefaultFeaturesLayer({}))
 			}
 
-			if (YMapControls && YMapDefaultGeolocationControl) {
-				console.log('Adding GeolocationControl to map')
-				const controls = new YMapControls({ position: 'top right' })
-				try {
-					controls.addChild(new YMapDefaultGeolocationControl({}))
-					map.addChild(controls)
-				} catch (e) {
-					console.error('Error adding geolocation control:', e)
-				}
-			} else {
-				console.warn('YMapControls or YMapDefaultGeolocationControl not available for standard UI')
-			}
+			// Native controls removed to avoid duplication with custom Locate Me button
 
 			if (YMapDefaultMarker) {
 				const marker = new YMapDefaultMarker({
@@ -292,27 +277,22 @@ export default function CheckoutModal({
 				map.addChild(listener)
 			}
 
-			// Add suggest view (requires address input to be in DOM)
+			// Suggest view functionality (v3 standard approach)
 			setTimeout(async () => {
 				try {
-					// Try both package names for suggest
-					let suggestModule;
-					try {
-						suggestModule = await window.ymaps3.import('@yandex/ymaps3-suggest-view@0.0.1')
-					} catch (e) {
-						suggestModule = await window.ymaps3.import('@yandex/ymaps3-suggest@0.0.1')
+					const { YMapSuggestView } = await window.ymaps3.import('@yandex/ymaps3-default-ui-theme@0.0.1');
+					if (YMapSuggestView) {
+						const suggest = new YMapSuggestView({
+							parentElement: document.getElementById('address') as HTMLDivElement,
+							onSelect: async (item: any) => {
+								setDeliveryInfo((prev: DeliveryInfo) => ({ ...prev, address: item.title }))
+								await handleAddressSearch(item.title)
+							},
+						})
 					}
-					
-					const { YMapSuggestView } = suggestModule
-					const suggest = new YMapSuggestView({
-						parentElement: document.getElementById('address') as HTMLDivElement,
-						onSelect: async (item: any) => {
-							setDeliveryInfo((prev: DeliveryInfo) => ({ ...prev, address: item.title }))
-							await handleAddressSearch(item.title)
-						},
-					})
 				} catch (e) {
 					console.error('Suggest view error:', e)
+					// Fallback to basic search if suggest fails
 				}
 			}, 1000)
 
@@ -371,8 +351,13 @@ export default function CheckoutModal({
 				)}&format=json&lang=ru_RU`
 			)
 			const data = await response.json()
-			const geoObject =
-				data.response.GeoObjectCollection.featureMember[0].GeoObject
+			const featureMember = data?.response?.GeoObjectCollection?.featureMember
+			if (!featureMember || featureMember.length === 0) {
+				console.warn('Address search: no results found')
+				return
+			}
+
+			const geoObject = featureMember[0].GeoObject
 			const coordsStr = geoObject.Point.pos.split(' ')
 			const coords: [number, number] = [Number(coordsStr[0]), Number(coordsStr[1])]
 			const fullAddress =
@@ -774,8 +759,8 @@ export default function CheckoutModal({
 										<div className='relative'>
 											<div
 												ref={mapContainerRef}
-												className='h-[300px] w-full'
-												style={{ minHeight: '300px' }}
+												className='h-[300px] w-full max-w-full overflow-hidden rounded-xl'
+												style={{ minHeight: '300px', width: '100%' }}
 											/>
 											{!mapLoaded && (
 												<div className='absolute inset-0 h-[300px] flex flex-col items-center justify-center bg-muted/80 z-20'>

@@ -13,7 +13,7 @@ const SERVER_PORT = 5000;
 log("Starting Flask API server...");
 
 // First, seed the database
-const seed = spawn('python', ['seed_db.py'], {
+const seed = spawn('python', ['scripts/seed_db.py'], {
   env: process.env,
   stdio: 'pipe'
 });
