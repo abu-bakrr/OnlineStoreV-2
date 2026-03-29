@@ -766,7 +766,8 @@ export default function CheckoutModal({
 										<Button
 											variant='secondary'
 											size='icon'
-											className='absolute top-3 right-3 z-[60] shadow-xl border border-primary/20 bg-background/95 hover:bg-background'
+											style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1000 }}
+											className='shadow-xl border border-primary/20 bg-background/95 hover:bg-background'
 											onClick={handleLocateMe}
 											type='button'
 										>
