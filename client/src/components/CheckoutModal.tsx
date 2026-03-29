@@ -200,16 +200,16 @@ export default function CheckoutModal({
 			// Register CDN for v3 modules
 			if (window.ymaps3.import && window.ymaps3.import.registerCdn) {
 				window.ymaps3.import.registerCdn('https://cdn.jsdelivr.net/npm/{package}', [
-					'@yandex/ymaps3-markers@0.0.1',
-					'@yandex/ymaps3-controls@0.0.1',
-					'@yandex/ymaps3-default-ui-theme@0.0.1'
+					'@yandex/ymaps3-markers@latest',
+					'@yandex/ymaps3-controls@latest',
+					'@yandex/ymaps3-default-ui-theme@latest'
 				]);
 			}
 
-			// Import markers and theme
+			// Import markers and theme (without versions in strings)
 			const [markersModule, themeModule] = await Promise.all([
-				window.ymaps3.import('@yandex/ymaps3-markers@0.0.1'),
-				window.ymaps3.import('@yandex/ymaps3-default-ui-theme@0.0.1')
+				window.ymaps3.import('@yandex/ymaps3-markers'),
+				window.ymaps3.import('@yandex/ymaps3-default-ui-theme')
 			])
 			
 			const {
@@ -292,11 +292,11 @@ export default function CheckoutModal({
 					// Register CDN for suggest-view if needed
 					if (window.ymaps3.import && window.ymaps3.import.registerCdn) {
 						window.ymaps3.import.registerCdn('https://cdn.jsdelivr.net/npm/{package}', [
-							'@yandex/ymaps3-suggest-view@0.0.1'
+							'@yandex/ymaps3-suggest-view@latest'
 						]);
 					}
 
-					const suggestModule = await window.ymaps3.import('@yandex/ymaps3-suggest-view@0.0.1');
+					const suggestModule = await window.ymaps3.import('@yandex/ymaps3-suggest-view');
 					const { YMapSuggestView } = suggestModule;
 					if (YMapSuggestView) {
 						const suggest = new YMapSuggestView({
