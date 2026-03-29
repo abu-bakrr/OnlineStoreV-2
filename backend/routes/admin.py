@@ -762,8 +762,8 @@ def admin_create_promo_code():
     cur = conn.cursor()
     try:
         cur.execute('''
-            INSERT INTO promo_codes (code, discount_type, discount_value, min_order_amount, usage_limit, is_active)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO promo_codes (code, discount_type, discount_value, min_order_amount, usage_limit, is_active, once_per_user)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING id
         ''', (
             data['code'].upper(),
@@ -771,7 +771,8 @@ def admin_create_promo_code():
             data['discount_value'],
             data.get('min_order_amount', 0),
             data.get('usage_limit'),
-            data.get('is_active', True)
+            data.get('is_active', True),
+            data.get('once_per_user', False)
         ))
         pid = cur.fetchone()['id']
         conn.commit()
@@ -791,7 +792,7 @@ def admin_update_promo_code(promo_id):
     try:
         cur.execute('''
             UPDATE promo_codes 
-            SET discount_type = %s, discount_value = %s, min_order_amount = %s, usage_limit = %s, is_active = %s
+            SET discount_type = %s, discount_value = %s, min_order_amount = %s, usage_limit = %s, is_active = %s, once_per_user = %s
             WHERE id = %s
         ''', (
             data['discount_type'],
@@ -799,6 +800,7 @@ def admin_update_promo_code(promo_id):
             data.get('min_order_amount', 0),
             data.get('usage_limit'),
             data.get('is_active', True),
+            data.get('once_per_user', False),
             promo_id
         ))
         conn.commit()

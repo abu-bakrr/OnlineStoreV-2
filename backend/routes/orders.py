@@ -87,8 +87,13 @@ def checkout_order():
             if promo:
                 # Check usage limit
                 if promo['usage_limit'] is None or promo['used_count'] < promo['usage_limit']:
-                    # Check min order amount
-                    if total >= promo['min_order_amount']:
+                    # Check if once per user
+                    if promo.get('once_per_user'):
+                        cur.execute('SELECT COUNT(*) as count FROM orders WHERE user_id = %s AND promo_code = %s', (user_id, promo['code']))
+                        if cur.fetchone()['count'] > 0:
+                            promo_code = None
+                    
+                    if promo_code and total >= promo['min_order_amount']:
                         if promo['discount_type'] == 'percentage':
                             discount_amount = int(total * (promo['discount_value'] / 100))
                         else:

@@ -18,6 +18,7 @@ interface PromoCode {
   usage_limit: number | null;
   used_count: number;
   is_active: boolean;
+  once_per_user: boolean;
   created_at: string;
 }
 
@@ -35,6 +36,7 @@ export default function AdminPromoCodes() {
     min_order_amount: '' as string | number,
     usage_limit: '' as string | number,
     is_active: true,
+    once_per_user: false,
   });
 
   useEffect(() => {
@@ -62,6 +64,7 @@ export default function AdminPromoCodes() {
       min_order_amount: '',
       usage_limit: '',
       is_active: true,
+      once_per_user: false,
     });
     setIsDialogOpen(true);
   };
@@ -75,6 +78,7 @@ export default function AdminPromoCodes() {
       min_order_amount: promo.min_order_amount,
       usage_limit: promo.usage_limit ?? '',
       is_active: promo.is_active,
+      once_per_user: promo.once_per_user,
     });
     setIsDialogOpen(true);
   };
@@ -223,6 +227,17 @@ export default function AdminPromoCodes() {
                 />
               </div>
 
+              <div className="flex items-center justify-between p-2 border rounded-lg">
+                <Label htmlFor="once-per-user-switch" className="flex items-center gap-2 cursor-pointer">
+                  Один раз на пользователя
+                </Label>
+                <Switch
+                  id="once-per-user-switch"
+                  checked={formData.once_per_user}
+                  onCheckedChange={(val) => setFormData({ ...formData, once_per_user: val })}
+                />
+              </div>
+
               <div className="flex justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Отмена
@@ -280,6 +295,11 @@ export default function AdminPromoCodes() {
                   <span className={promo.is_active ? 'text-green-600 font-medium' : 'text-muted-foreground'}>
                     {promo.is_active ? 'Активен' : 'Отключен'}
                   </span>
+                  {promo.once_per_user && (
+                    <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">
+                      1 раз
+                    </span>
+                  )}
                 </div>
               </div>
             </CardContent>

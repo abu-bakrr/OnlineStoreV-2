@@ -224,6 +224,7 @@ def init_db():
             usage_limit INTEGER,
             used_count INTEGER DEFAULT 0,
             is_active BOOLEAN DEFAULT TRUE,
+            once_per_user BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
@@ -239,6 +240,10 @@ def init_db():
             IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                           WHERE table_name='orders' AND column_name='discount_amount') THEN
                 ALTER TABLE orders ADD COLUMN discount_amount INTEGER DEFAULT 0;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name='promo_codes' AND column_name='once_per_user') THEN
+                ALTER TABLE promo_codes ADD COLUMN once_per_user BOOLEAN DEFAULT FALSE;
             END IF;
         END $$;
     ''')

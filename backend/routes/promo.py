@@ -8,6 +8,7 @@ def validate_promo():
     data = request.json
     code = data.get('code', '').strip().upper()
     order_total = data.get('order_total', 0)
+    user_id = data.get('user_id')
     
     if not code:
         return jsonify({'error': 'Код не введен'}), 400
@@ -15,7 +16,7 @@ def validate_promo():
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute('''
-        SELECT id, code, discount_type, discount_value, min_order_amount, usage_limit, used_count, is_active 
+        SELECT id, code, discount_type, discount_value, min_order_amount, usage_limit, used_count, is_active, once_per_user 
         FROM promo_codes 
         WHERE code = %s
     ''', (code,))
@@ -35,6 +36,13 @@ def validate_promo():
         return jsonify({
             'error': f"Минимальная сумма заказа для этого промокода: {promo['min_order_amount']} сумов"
         }), 400
+        
+    if promo['once_per_user'] and user_id:
+        cur.execute('SELECT COUNT(*) as count FROM orders WHERE user_id = %s AND promo_code = %s', (user_id, promo['code']))
+        usage = cur.fetchone()
+        if usage and usage['count'] > 0:
+            cur.close(); conn.close()
+            return jsonify({'error': 'Вы уже использовали этот промокод'}), 400
         
     # Calculate discount
     discount_amount = 0
