@@ -197,7 +197,16 @@ export default function CheckoutModal({
 		if (!mapContainerRef.current || !window.ymaps3) return
 
 		try {
-			// Import markers and controls
+			// Register CDN for v3 modules
+			if (window.ymaps3.import && window.ymaps3.import.registerCdn) {
+				window.ymaps3.import.registerCdn('https://cdn.jsdelivr.net/npm/{package}', [
+					'@yandex/ymaps3-markers@0.0.1',
+					'@yandex/ymaps3-controls@0.0.1',
+					'@yandex/ymaps3-default-ui-theme@0.0.1'
+				]);
+			}
+
+			// Import markers and theme
 			const [markersModule, themeModule] = await Promise.all([
 				window.ymaps3.import('@yandex/ymaps3-markers@0.0.1'),
 				window.ymaps3.import('@yandex/ymaps3-default-ui-theme@0.0.1')
@@ -277,10 +286,18 @@ export default function CheckoutModal({
 				map.addChild(listener)
 			}
 
-			// Suggest view functionality (v3 standard approach)
+			// Suggest view functionality
 			setTimeout(async () => {
 				try {
-					const { YMapSuggestView } = await window.ymaps3.import('@yandex/ymaps3-default-ui-theme@0.0.1');
+					// Register CDN for suggest-view if needed
+					if (window.ymaps3.import && window.ymaps3.import.registerCdn) {
+						window.ymaps3.import.registerCdn('https://cdn.jsdelivr.net/npm/{package}', [
+							'@yandex/ymaps3-suggest-view@0.0.1'
+						]);
+					}
+
+					const suggestModule = await window.ymaps3.import('@yandex/ymaps3-suggest-view@0.0.1');
+					const { YMapSuggestView } = suggestModule;
 					if (YMapSuggestView) {
 						const suggest = new YMapSuggestView({
 							parentElement: document.getElementById('address') as HTMLDivElement,
