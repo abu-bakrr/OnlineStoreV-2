@@ -762,15 +762,15 @@ export default function CheckoutModal({
 										</div>
 									</div>
 
-									{mapLoaded && !mapError && (
+									{isOpen && !mapError && (
 										<Button
 											variant='secondary'
 											size='icon'
-											className='absolute top-3 right-3 z-20 shadow-md bg-background/90 hover:bg-background'
+											className='absolute top-3 right-3 z-[60] shadow-xl border border-primary/20 bg-background/95 hover:bg-background'
 											onClick={handleLocateMe}
 											type='button'
 										>
-											<MapPin className='w-5 h-5 text-primary' />
+											<MapPin className='w-6 h-6 text-primary' />
 										</Button>
 									)}
 
