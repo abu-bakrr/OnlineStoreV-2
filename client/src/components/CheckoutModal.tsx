@@ -762,6 +762,18 @@ export default function CheckoutModal({
 										</div>
 									</div>
 
+									{mapLoaded && !mapError && (
+										<Button
+											variant='secondary'
+											size='icon'
+											className='absolute top-3 right-3 z-20 shadow-md bg-background/90 hover:bg-background'
+											onClick={handleLocateMe}
+											type='button'
+										>
+											<MapPin className='w-5 h-5 text-primary' />
+										</Button>
+									)}
+
 									{mapError ? (
 										<div className='h-[200px] flex flex-col items-center justify-center bg-muted/50 text-muted-foreground px-4'>
 											<MapPin className='w-10 h-10 mb-3 opacity-40' />
@@ -787,16 +799,13 @@ export default function CheckoutModal({
 													</p>
 												</div>
 											)}
-											{mapLoaded && (
-												<Button
-													variant='secondary'
-													size='icon'
-													className='absolute top-3 right-3 z-10 shadow-md bg-background/90 hover:bg-background'
-													onClick={handleLocateMe}
-													type='button'
-												>
-													<MapPin className='w-5 h-5 text-primary' />
-												</Button>
+											{!mapLoaded && (
+												<div className='absolute inset-0 h-[300px] flex flex-col items-center justify-center bg-muted/80 z-20'>
+													<Loader2 className='w-8 h-8 animate-spin text-primary mb-3' />
+													<p className='text-sm text-muted-foreground'>
+														Загрузка карты...
+													</p>
+												</div>
 											)}
 										</div>
 									)}
