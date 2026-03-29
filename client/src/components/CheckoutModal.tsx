@@ -791,7 +791,7 @@ export default function CheckoutModal({
 												<Button
 													variant='secondary'
 													size='icon'
-													className='absolute bottom-16 right-3 z-10 shadow-md bg-background/90 hover:bg-background'
+													className='absolute top-3 right-3 z-10 shadow-md bg-background/90 hover:bg-background'
 													onClick={handleLocateMe}
 													type='button'
 												>
