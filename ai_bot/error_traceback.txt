@@ -1,7 +1,0 @@
-Traceback (most recent call last):
-  File "C:\MiniTaskerBot3\ai_bot\capture_error.py", line 7, in capture_error
-    psycopg2.connect(
-  File "C:\Users\gayupovv\AppData\Local\Programs\Python\Python311\Lib\site-packages\psycopg2\__init__.py", line 135, in connect
-    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc2 in position 61: invalid continuation byte
