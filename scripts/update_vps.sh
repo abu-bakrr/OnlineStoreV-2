@@ -83,8 +83,10 @@ if [ "$GIT_FOUND" = true ]; then
     cd "$GIT_ROOT"
     # Fetch fresh information from origin
     sudo -u $APP_USER git fetch origin
-    # Force reset to match origin/main (handles forced updates and divergent branches)
-    sudo -u $APP_USER git reset --hard origin/main
+    # Detect current branch and reset to its origin
+    CURRENT_BRANCH=$(sudo -u $APP_USER git rev-parse --abbrev-ref HEAD)
+    print_step "Текущая ветка: $CURRENT_BRANCH"
+    sudo -u $APP_USER git reset --hard origin/$CURRENT_BRANCH
 else
     print_warning "Git репозиторий (.git) не найден. Текущая папка: $(pwd). Убедитесь, что вы вручную обновили файлы."
 fi
