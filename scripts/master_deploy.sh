@@ -486,6 +486,13 @@ if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
     systemctl start telegram-bot${INSTANCE_SUFFIX}
 fi
 
+# Применение тарифа
+print_step "Применение тарифов для ботов..."
+if [ -f "$APP_DIR/scripts/apply_tier.sh" ]; then
+    chmod +x "$APP_DIR/scripts/apply_tier.sh"
+    bash "$APP_DIR/scripts/apply_tier.sh" "${INSTANCE_SUFFIX}"
+fi
+
 sleep 3
 
 # Проверка статуса сервисов

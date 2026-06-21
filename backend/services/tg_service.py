@@ -2,10 +2,24 @@ import requests
 import os
 from datetime import datetime
 from ..database import get_telegram_config
+import json
 
 def send_telegram_notification(order_data, order_items, site_url=None):
     """Send order notification to Telegram admin"""
     try:
+        # Check tier
+        try:
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(os.path.dirname(current_dir))
+            config_path = os.path.join(project_root, 'config', 'settings.json')
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                if config.get('subscriptionTier', 'starter') == 'starter':
+                    print("⚠️ Telegram notifications disabled on starter tier")
+                    return False
+        except Exception as e:
+            print(f"Error checking tier: {e}")
+
         order_id = str(order_data.get('id', 'unknown'))
         order_id_short = order_id[:6]
         

@@ -137,15 +137,20 @@ fi
 print_step "Перезапуск сервисов..."
 systemctl restart shop-app
 
-# Перезапуск ботов
-if systemctl list-unit-files | grep -q ai-bot.service; then
-    print_step "Перезапуск AI бота..."
-    systemctl restart ai-bot
-fi
-
-if systemctl list-unit-files | grep -q telegram-bot.service; then
-    print_step "Перезапуск Shop бота..."
-    systemctl restart telegram-bot
+# Применение тарифов (включение/отключение ботов)
+print_step "Применение тарифов для ботов..."
+if [ -f "$APP_DIR/scripts/apply_tier.sh" ]; then
+    bash $APP_DIR/scripts/apply_tier.sh ""
+else
+    # Fallback to normal restart if script is missing
+    if systemctl list-unit-files | grep -q ai-bot.service; then
+        print_step "Перезапуск AI бота..."
+        systemctl restart ai-bot || true
+    fi
+    if systemctl list-unit-files | grep -q telegram-bot.service; then
+        print_step "Перезапуск Shop бота..."
+        systemctl restart telegram-bot || true
+    fi
 fi
 
 # Ожидание запуска

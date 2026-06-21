@@ -21,9 +21,9 @@ import {
 	MapPin,
 	Send,
 	Truck,
-	X,
-} from 'lucide-react'
+import { X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { PaywallModal } from '@/components/PaywallModal'
 
 interface CloudinarySettings {
 	cloud_name: string
@@ -82,6 +82,9 @@ interface SmtpSettings {
 
 export default function AdminSettings() {
 	const [loading, setLoading] = useState(true)
+	const [subscriptionTier, setSubscriptionTier] = useState('starter')
+	const [paywallOpen, setPaywallOpen] = useState(false)
+	const [paywallFeature, setPaywallFeature] = useState('')
 
 	const [cloudinary, setCloudinary] = useState<CloudinarySettings>({
 		cloud_name: '',
@@ -182,7 +185,13 @@ export default function AdminSettings() {
 				fetch('/api/admin/settings/yandex_maps'),
 				fetch('/api/admin/settings/smtp'),
 				fetch('/api/admin/settings/delivery'),
+				fetch('/api/config')
 			])
+
+			if (configRes.ok) {
+				const data = await configRes.json()
+				setSubscriptionTier(data.subscriptionTier || 'starter')
+			}
 
 			if (cloudinaryRes.ok) {
 				const data = await cloudinaryRes.json()
@@ -519,8 +528,14 @@ export default function AdminSettings() {
 
 	return (
 		<div className='space-y-6 overflow-hidden'>
+			<PaywallModal 
+				isOpen={paywallOpen} 
+				onClose={() => setPaywallOpen(false)} 
+				featureName={paywallFeature} 
+			/>
+			
 			<Tabs defaultValue='telegram' className='w-full overflow-hidden'>
-				<div className='overflow-x-auto -mx-2 px-2'>
+				<div className='overflow-x-auto -mx-2 px-2 flex justify-between items-center'>
 					<TabsList className='inline-flex w-max min-w-full sm:w-full sm:grid sm:grid-cols-6 gap-1'>
 						<TabsTrigger
 							value='telegram'
@@ -559,9 +574,20 @@ export default function AdminSettings() {
 							Доставка
 						</TabsTrigger>
 					</TabsList>
+					<div className='ml-4 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase whitespace-nowrap flex items-center border border-primary/20'>
+						Тариф: {subscriptionTier}
+					</div>
 				</div>
 
-				<TabsContent value='telegram' className='space-y-4 mt-4'>
+				<TabsContent value='telegram' className='space-y-4 mt-4 relative'>
+					{subscriptionTier === 'starter' && (
+						<div className="absolute inset-0 z-10 bg-background/60 backdrop-blur-[2px] flex items-center justify-center rounded-xl">
+							<Button size="lg" onClick={() => { setPaywallFeature('Telegram Уведомлений'); setPaywallOpen(true) }}>
+								Разблокировать
+							</Button>
+						</div>
+					)}
+					<div className={subscriptionTier === 'starter' ? 'opacity-30 pointer-events-none' : ''}>
 					<Card>
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
@@ -686,6 +712,7 @@ export default function AdminSettings() {
 							)}
 						</CardContent>
 					</Card>
+					</div>
 				</TabsContent>
 
 				<TabsContent value='smtp' className='space-y-4 mt-4'>

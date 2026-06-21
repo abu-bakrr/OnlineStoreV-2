@@ -41,6 +41,7 @@ function AppContent() {
 	const [lastHomeUrl, setLastHomeUrl] = useState<string>('/')
 
 	const { user, isLoading: isUserLoading } = useAuth()
+	const { config } = useConfig()
 
 	const {
 		cartItems,
@@ -345,6 +346,13 @@ function AppContent() {
 					</Route>
 				</Switch>
 			</div>
+			{config?.subscriptionTier === 'starter' && !location.startsWith('/admin') && (
+				<div className="w-full text-center py-6 mt-8">
+					<a href="https://profitstoresite.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground/50 hover:text-primary transition-colors font-medium tracking-wider uppercase">
+						Powered by OpenProfit
+					</a>
+				</div>
+			)}
 		</div>
 	)
 }

@@ -31,6 +31,8 @@ import {
   PieChart,
   Pie,
 } from 'recharts';
+import { PaywallModal } from '@/components/PaywallModal';
+import { Button } from '@/components/ui/button';
 
 interface Statistics {
   total_users: number;
@@ -54,11 +56,24 @@ interface Statistics {
 export default function AdminStatistics() {
   const [stats, setStats] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [subscriptionTier, setSubscriptionTier] = useState('starter');
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchStatistics();
+    fetchConfig();
   }, []);
+
+  const fetchConfig = async () => {
+    try {
+      const response = await fetch('/api/config');
+      const data = await response.json();
+      setSubscriptionTier(data.subscriptionTier || 'starter');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchStatistics = async () => {
     try {
@@ -107,8 +122,23 @@ export default function AdminStatistics() {
   }
 
   return (
-    <div className="space-y-8 pb-10">
-      {/* Top Level Metrics */}
+    <div className="space-y-8 pb-10 relative">
+      <PaywallModal 
+        isOpen={paywallOpen} 
+        onClose={() => setPaywallOpen(false)} 
+        featureName="Расширенной аналитики" 
+      />
+
+      {subscriptionTier === 'starter' && (
+        <div className="absolute inset-0 z-10 bg-background/60 backdrop-blur-[4px] flex items-center justify-center rounded-xl">
+          <Button size="lg" className="shadow-xl" onClick={() => setPaywallOpen(true)}>
+            Разблокировать аналитику
+          </Button>
+        </div>
+      )}
+      
+      <div className={`space-y-8 ${subscriptionTier === 'starter' ? 'opacity-40 pointer-events-none' : ''}`}>
+        {/* Top Level Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-none shadow-sm h-full overflow-hidden relative">
@@ -438,6 +468,7 @@ export default function AdminStatistics() {
             )}
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

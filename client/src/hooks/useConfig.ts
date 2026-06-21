@@ -99,6 +99,7 @@ export interface AppConfig {
 	orderStatuses?: {
 		[key: string]: string
 	}
+	subscriptionTier?: 'starter' | 'business' | 'pro'
 }
 
 export function useConfig() {

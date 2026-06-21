@@ -10,7 +10,10 @@ from datetime import datetime, timedelta
 def get_encryption_key():
     key = os.environ.get("SETTINGS_ENCRYPTION_KEY")
     if not key:
-        key = os.environ.get("SESSION_SECRET", "default-key-change-me")
+        print("⚠️ WARNING: SETTINGS_ENCRYPTION_KEY is not set. Using a randomly generated fallback key. Encrypted settings will be lost on restart!")
+        key = base64.b64encode(os.urandom(32)).decode('utf-8')
+        os.environ["SETTINGS_ENCRYPTION_KEY"] = key # Store it for this session
+    
     key_bytes = hashlib.sha256(key.encode()).digest()
     return base64.urlsafe_b64encode(key_bytes)
 
