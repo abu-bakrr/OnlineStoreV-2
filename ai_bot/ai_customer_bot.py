@@ -65,6 +65,7 @@ class MillyBot:
         self.sessions = {}
         self.ADMIN_ID = 5644397480
         self.waiting_for_support = set()
+        self.support_messages = {} # message_id: original_user_id
 
         self.system_prompt = """### 💎 MILLY v9.3: ЭЛИТНЫЙ ЭКСПЕРТ MILHIVE
 
@@ -125,7 +126,25 @@ JSON: {
 }
 """
 
+        self._set_bot_commands()
         self._register_handlers()
+
+    def _set_bot_commands(self):
+        try:
+            # Set Web App Menu Button
+            web_app = telebot.types.WebAppInfo("https://milhive.shop")
+            self.bot.set_chat_menu_button(menu_button=telebot.types.MenuButtonWebApp(type="web_app", text="🛍 Магазин", web_app=web_app))
+        except Exception as e:
+            self.logger.warning(f"Could not set Web App menu button: {e}")
+
+    def _get_main_keyboard(self):
+        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        markup.add(
+            telebot.types.KeyboardButton("🛍 Открыть магазин", web_app=telebot.types.WebAppInfo("https://milhive.shop")),
+            telebot.types.KeyboardButton("📦 Мои заказы")
+        )
+        markup.add(telebot.types.KeyboardButton("📞 Связаться с человеком"))
+        return markup
 
     def _get_session(self, user_id):
         now = datetime.now()
@@ -196,28 +215,47 @@ JSON: {
             user_id = m.from_user.id
             session = self._get_session(user_id)
             session['history'] = []
-            self.bot.send_message(m.chat.id, "✨ *Добро пожаловать в Milhive!*\n\nЯ Milly, ваш персональный AI-консультант. Просто напишите, что вы ищете... 👗", parse_mode='Markdown')
+            self.bot.send_message(
+                m.chat.id, 
+                "✨ *Добро пожаловать в Milhive!*\n\nЯ Milly, ваш персональный AI-консультант. Чем могу помочь сегодня? 👗\n\nВы можете открыть наш магазин прямо здесь, нажав кнопку ниже!", 
+                parse_mode='Markdown',
+                reply_markup=self._get_main_keyboard()
+            )
 
-        @self.bot.message_handler(commands=['manager'])
+        @self.bot.message_handler(func=lambda m: m.text == "📞 Связаться с человеком" or m.text == "/manager")
         def manager(m):
             self.waiting_for_support.add(m.from_user.id)
-            self.bot.send_message(m.chat.id, "👨‍💼 Введите ваше сообщение для менеджера:")
+            self.bot.send_message(m.chat.id, "👨‍💼 Пожалуйста, напишите ваше сообщение для менеджера:")
+
+        @self.bot.message_handler(func=lambda m: m.text == "📦 Мои заказы" or m.text == "/myorders")
+        def my_orders(m):
+            self.bot.send_message(m.chat.id, "📦 Чтобы посмотреть свои заказы, введите номер заказа или напишите ваш номер телефона, и я их найду!")
 
         @self.bot.message_handler(func=lambda m: m.chat.id == self.ADMIN_ID and m.reply_to_message)
         def admin_reply(m):
             try:
-                original_user_id = m.reply_to_message.forward_from.id
+                # Находим user_id по ID пересланного сообщения
+                original_user_id = self.support_messages.get(m.reply_to_message.message_id)
+                if not original_user_id:
+                    if m.reply_to_message.forward_from:
+                        original_user_id = m.reply_to_message.forward_from.id
+                    else:
+                        self.bot.reply_to(m, "❌ Ошибка: не удалось определить ID клиента (возможно скрыт настройками приватности).")
+                        return
+
                 self.bot.send_message(original_user_id, f"👨‍💼 *Ответ менеджера:*\n\n{m.text}", parse_mode='Markdown')
                 self.bot.reply_to(m, "✅ Сообщение доставлено клиенту.")
-            except Exception as e: self.bot.reply_to(m, f"❌ Ошибка отправки: {e}")
+            except Exception as e: 
+                self.bot.reply_to(m, f"❌ Ошибка отправки: {e}")
 
         @self.bot.message_handler(content_types=['text', 'photo'])
         def main_loop(m):
             user_id = m.from_user.id
             if user_id in self.waiting_for_support:
-                self.bot.forward_message(self.ADMIN_ID, m.chat.id, m.message_id)
+                fwd_msg = self.bot.forward_message(self.ADMIN_ID, m.chat.id, m.message_id)
+                self.support_messages[fwd_msg.message_id] = user_id
                 self.waiting_for_support.remove(user_id)
-                self.bot.send_message(m.chat.id, "✅ Сообщение передано менеджеру.")
+                self.bot.send_message(m.chat.id, "✅ Сообщение передано менеджеру. Он скоро вам ответит!", reply_markup=self._get_main_keyboard())
                 return
 
             session = self._get_session(user_id)

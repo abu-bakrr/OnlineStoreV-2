@@ -17,7 +17,8 @@ from db_operations import (
     get_all_products,
     get_product_by_id,
     get_categories_from_config,
-    find_products_by_name
+    find_products_by_name,
+    update_order_status
 )
 from bot_locales import get_bot_translation
 
@@ -321,6 +322,49 @@ class ProductBot:
                 )
             else:
                 self.bot.answer_callback_query(call.id, "❌ Ошибка удаления")
+
+        @self.bot.callback_query_handler(func=lambda call: call.data.startswith('order_status_'))
+        def handle_order_status(call):
+            """Обработка изменения статуса заказа"""
+            if not self._is_authorized(call.from_user.id):
+                self.bot.answer_callback_query(call.id, "❌ Доступ запрещен")
+                return
+
+            # Формат: order_status_{status}_{order_id}
+            parts = call.data.split('_')
+            if len(parts) >= 4:
+                status = parts[2]
+                order_id = parts[3]
+                
+                status_map = {
+                    'delivering': 'delivering',
+                    'delivered': 'delivered',
+                    'cancelled': 'cancelled'
+                }
+                
+                db_status = status_map.get(status)
+                if db_status and update_order_status(order_id, db_status):
+                    status_text = {
+                        'delivering': '🚚 В пути',
+                        'delivered': '✅ Доставлен',
+                        'cancelled': '❌ Отменен'
+                    }.get(status, status)
+                    
+                    self.bot.answer_callback_query(call.id, f"✅ Статус изменен на: {status_text}")
+                    # Обновляем сообщение, чтобы показать новый статус (добавляем текст вниз)
+                    new_text = call.message.text + f"\n\n<b>Статус обновлен:</b> {status_text}"
+                    try:
+                        self.bot.edit_message_text(
+                            new_text,
+                            call.message.chat.id,
+                            call.message.message_id,
+                            parse_mode='HTML',
+                            reply_markup=None # Убираем кнопки после нажатия
+                        )
+                    except:
+                        pass
+                else:
+                    self.bot.answer_callback_query(call.id, "❌ Ошибка изменения статуса")
         
         @self.bot.callback_query_handler(func=lambda call: call.data.startswith('color_') or call.data in ['colors_done', 'colors_skip'])
         def handle_color_callback(call):

@@ -243,3 +243,33 @@ def find_products_by_name(name: str) -> List[Dict[str, Any]]:
         if conn:
             conn.close()
         return []
+
+def update_order_status(order_id: str, status: str) -> bool:
+    """
+    Updates the status of an order in the database.
+    
+    Parameters:
+        order_id (str): Order ID
+        status (str): New status ('pending', 'processing', 'delivering', 'delivered', 'cancelled')
+        
+    Returns:
+        bool: True if updated successfully, False otherwise
+    """
+    conn = None
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return False
+        cur = conn.cursor()
+        cur.execute('UPDATE orders SET status = %s, updated_at = NOW() WHERE id = %s', (status, order_id))
+        updated_count = cur.rowcount
+        conn.commit()
+        cur.close()
+        conn.close()
+        return updated_count > 0
+    except Exception as e:
+        print(f"Error updating order status: {e}")
+        if conn:
+            conn.close()
+        return False
+
