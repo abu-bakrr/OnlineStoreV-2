@@ -11,9 +11,12 @@ import {
 	Users,
 	Warehouse,
 	Ticket,
+	Crown,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
+import { useConfig } from '@/hooks/useConfig'
+import { PaywallModal } from '@/components/PaywallModal'
 import AdminCategories from './AdminCategories'
 import AdminInventory from './AdminInventory'
 import AdminManagers from './AdminManagers'
@@ -29,6 +32,9 @@ export default function AdminLayout() {
 	const [admin, setAdmin] = useState<any>(null)
 	const [loading, setLoading] = useState(true)
 	const [, setLocation] = useLocation()
+	const { config } = useConfig()
+	const [paywallOpen, setPaywallOpen] = useState(false)
+	const tier = config?.subscriptionTier || 'starter'
 
 	useEffect(() => {
 		checkAuth()
@@ -65,9 +71,20 @@ export default function AdminLayout() {
 
 	return (
 		<div className='min-h-screen bg-background'>
+			<PaywallModal isOpen={paywallOpen} onClose={() => setPaywallOpen(false)} requiredTier="business" featureName="улучшения вашего магазина" />
 			<header className='border-b bg-card sticky top-0 z-50'>
 				<div className='max-w-7xl mx-auto px-4 py-3 flex items-center justify-between'>
-					<h1 className='text-xl font-bold'>Админ-панель</h1>
+					<div className='flex items-center gap-3'>
+						<h1 className='text-xl font-bold hidden sm:block'>Админ-панель</h1>
+						<div className='flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20'>
+							<span className='text-[10px] sm:text-xs font-bold text-primary uppercase tracking-wider'>{tier}</span>
+							{tier !== 'pro' && (
+								<Button size='sm' variant='ghost' className='h-5 sm:h-6 px-1.5 sm:px-2 text-[10px] sm:text-xs hover:bg-primary/20 text-primary' onClick={() => setPaywallOpen(true)}>
+									<Crown className='w-3 h-3 mr-1' /> Улучшить
+								</Button>
+							)}
+						</div>
+					</div>
 					<div className='flex items-center gap-4'>
 						<ThemeToggle />
 						<span className='text-sm text-muted-foreground hidden sm:inline'>
