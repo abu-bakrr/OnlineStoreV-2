@@ -21,7 +21,8 @@ import {
 	MapPin,
 	Send,
 	Truck,
-import { X } from 'lucide-react'
+	X
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { PaywallModal } from '@/components/PaywallModal'
 
