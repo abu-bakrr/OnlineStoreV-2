@@ -105,7 +105,7 @@ export default function AdminLayout() {
 					className='w-full overflow-hidden'
 				>
 					<div className='overflow-x-auto -mx-2 px-2 mb-6'>
-						<TabsList className='inline-flex w-max min-w-full sm:w-full sm:grid sm:grid-cols-6 lg:grid-cols-7 gap-1'>
+						<TabsList className='flex w-max min-w-full h-auto p-1 items-stretch justify-start gap-1'>
 							<TabsTrigger
 								value='products'
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
