@@ -537,7 +537,7 @@ export default function AdminSettings() {
 			
 			<Tabs defaultValue='telegram' className='w-full overflow-hidden'>
 				<div className='overflow-x-auto -mx-2 px-2 flex justify-between items-center'>
-					<TabsList className='flex w-max min-w-full h-auto p-1 items-stretch justify-start gap-1'>
+					<TabsList className='flex w-max min-w-full h-auto p-1 items-stretch justify-start gap-1 [&>*]:flex-1'>
 						<TabsTrigger
 							value='telegram'
 							className='whitespace-nowrap px-3 text-xs sm:text-sm'
