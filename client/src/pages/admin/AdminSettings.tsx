@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { PaywallModal } from '@/components/PaywallModal'
+import { useConfig } from '@/hooks/useConfig'
 
 interface CloudinarySettings {
 	cloud_name: string
@@ -83,7 +84,8 @@ interface SmtpSettings {
 
 export default function AdminSettings() {
 	const [loading, setLoading] = useState(true)
-	const [subscriptionTier, setSubscriptionTier] = useState('starter')
+	const { config } = useConfig()
+	const subscriptionTier = config?.subscriptionTier || 'starter'
 	const [paywallOpen, setPaywallOpen] = useState(false)
 	const [paywallFeature, setPaywallFeature] = useState('')
 
@@ -186,13 +188,7 @@ export default function AdminSettings() {
 				fetch('/api/admin/settings/yandex_maps'),
 				fetch('/api/admin/settings/smtp'),
 				fetch('/api/admin/settings/delivery'),
-				fetch('/api/config')
 			])
-
-			if (configRes.ok) {
-				const data = await configRes.json()
-				setSubscriptionTier(data.subscriptionTier || 'starter')
-			}
 
 			if (cloudinaryRes.ok) {
 				const data = await cloudinaryRes.json()

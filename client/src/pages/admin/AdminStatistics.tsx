@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useConfig } from '@/hooks/useConfig';
 import { 
   Users, 
   ShoppingCart, 
@@ -56,24 +57,14 @@ interface Statistics {
 export default function AdminStatistics() {
   const [stats, setStats] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [subscriptionTier, setSubscriptionTier] = useState('starter');
+  const { config } = useConfig();
+  const subscriptionTier = config?.subscriptionTier || 'starter';
   const [paywallOpen, setPaywallOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchStatistics();
-    fetchConfig();
   }, []);
-
-  const fetchConfig = async () => {
-    try {
-      const response = await fetch('/api/config');
-      const data = await response.json();
-      setSubscriptionTier(data.subscriptionTier || 'starter');
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const fetchStatistics = async () => {
     try {
