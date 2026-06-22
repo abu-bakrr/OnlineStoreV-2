@@ -1055,7 +1055,15 @@ export default function AdminSettings() {
 					</Card>
 				</TabsContent>
 
-				<TabsContent value='payments' className='space-y-4 mt-4'>
+				<TabsContent value='payments' className='space-y-4 mt-4 relative'>
+					{subscriptionTier === 'starter' && (
+						<div className="absolute inset-0 z-10 bg-background/60 backdrop-blur-[2px] flex items-center justify-center rounded-xl">
+							<Button size="lg" onClick={() => { setPaywallFeature('Интеграций Оплат'); setPaywallOpen(true) }}>
+								Разблокировать
+							</Button>
+						</div>
+					)}
+					<div className={subscriptionTier === 'starter' ? 'opacity-30 pointer-events-none' : ''}>
 					<Card>
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
@@ -1460,6 +1468,7 @@ export default function AdminSettings() {
 							)}
 						</CardContent>
 					</Card>
+					</div>
 				</TabsContent>
 
 				<TabsContent value='maps' className='space-y-4 mt-4'>
