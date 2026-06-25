@@ -543,14 +543,14 @@ export default function AdminOrders() {
 								</div>
 							</div>
 
-							{selectedOrder.payment_receipt_url && (
+							{selectedOrder.payment_receipt_url ? (
 								<div className='space-y-2'>
 									<Label className='text-xs text-muted-foreground flex items-center gap-1'>
 										<Receipt className='h-3.5 w-3.5' />
 										Чек оплаты
 									</Label>
 									<div
-										className='relative cursor-pointer rounded-lg overflow-hidden border'
+										className='relative cursor-pointer rounded-lg overflow-hidden border hover:opacity-90 transition-opacity'
 										onClick={() =>
 											openReceiptModal(selectedOrder.payment_receipt_url!)
 										}
@@ -572,7 +572,18 @@ export default function AdminOrders() {
 										</div>
 									</div>
 								</div>
-							)}
+							) : selectedOrder.payment_method === 'card_transfer' ? (
+								<div className='space-y-2'>
+									<Label className='text-xs text-muted-foreground flex items-center gap-1'>
+										<Receipt className='h-3.5 w-3.5' />
+										Чек оплаты
+									</Label>
+									<div className='bg-orange-50 border border-orange-200 text-orange-800 p-3 rounded-lg text-sm flex items-center gap-2'>
+										<AlertCircle className='h-4 w-4 shrink-0' />
+										<span>Пользователь еще не загрузил чек об оплате</span>
+									</div>
+								</div>
+							) : null}
 
 							<div className='space-y-2'>
 								<Label className='text-xs text-muted-foreground'>
@@ -580,38 +591,53 @@ export default function AdminOrders() {
 								</Label>
 								<div className='space-y-2'>
 									{selectedOrder.items?.map((item, idx) => (
-										<div
+										<a
 											key={idx}
-											className='flex gap-2.5 p-2 bg-muted/50 rounded-lg'
+											href={`/product/${item.product_id}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className='flex gap-2.5 p-2 bg-muted/30 hover:bg-muted/70 border border-transparent hover:border-border rounded-lg transition-all group'
 										>
 											{item.product_images && item.product_images[0] ? (
 												<img
 													src={item.product_images[0]}
 													alt={item.name}
-													className='w-12 h-12 object-cover rounded-lg shrink-0'
+													className='w-14 h-14 object-cover rounded-lg shrink-0 shadow-sm'
 												/>
 											) : (
-												<div className='w-12 h-12 bg-background rounded-lg flex items-center justify-center shrink-0'>
-													<Package className='h-5 w-5 text-muted-foreground' />
+												<div className='w-14 h-14 bg-background rounded-lg flex items-center justify-center shrink-0 shadow-sm'>
+													<Package className='h-6 w-6 text-muted-foreground' />
 												</div>
 											)}
-											<div className='flex-1 min-w-0'>
-												<h4 className='text-sm font-medium truncate'>
+											<div className='flex-1 min-w-0 flex flex-col justify-center'>
+												<h4 className='text-sm font-medium truncate group-hover:text-primary transition-colors'>
 													{item.name}
 												</h4>
-												<div className='flex items-center gap-2 text-xs text-muted-foreground'>
-													<span>
+												<div className='flex items-center flex-wrap gap-x-2 gap-y-1 mt-0.5 text-xs text-muted-foreground'>
+													<span className='font-medium text-foreground'>
 														{formatPrice(item.price)} × {item.quantity}
 													</span>
 													{item.selected_color && (
-														<span>• {item.selected_color}</span>
+														<span className="flex items-center gap-1">
+															<span className="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
+															{item.selected_color}
+														</span>
 													)}
+													{item.selected_attributes && typeof item.selected_attributes === 'object' && 
+														Object.entries(item.selected_attributes).map(([key, val]) => (
+															<span key={key} className="flex items-center gap-1">
+																<span className="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
+																{key}: {String(val)}
+															</span>
+														))
+													}
 												</div>
 											</div>
-											<div className='text-sm font-semibold shrink-0'>
+											<div className='text-sm font-semibold shrink-0 flex items-center'>
 												{formatPrice(item.price * item.quantity)}
+												<ExternalLink className='h-3.5 w-3.5 ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground' />
 											</div>
-										</div>
+										</a>
 									))}
 								</div>
 							</div>

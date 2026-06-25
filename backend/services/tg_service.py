@@ -33,14 +33,25 @@ def send_telegram_notification(order_data, order_items, site_url=None):
         if not bot_token or not admin_chat_id:
             return False
         
-        # Count items and format
         total_items = sum(item['quantity'] for item in order_items)
         items_text = ""
         for item in order_items:
             item_total = item['price'] * item['quantity']
             items_text += f"• {item['name']}"
+            
+            details = []
             if item.get('selected_color'):
-                items_text += f" ({item['selected_color']})"
+                details.append(item['selected_color'])
+            
+            # Format attributes like sizes
+            attrs = item.get('selected_attributes')
+            if attrs and isinstance(attrs, dict):
+                for k, v in attrs.items():
+                    details.append(f"{k}: {v}")
+                    
+            if details:
+                items_text += f" ({', '.join(details)})"
+                
             items_text += f"\n  {item['quantity']} шт × {item['price']:,} = <b>{item_total:,}</b> сум\n"
         
         payment_labels = {
@@ -64,10 +75,24 @@ def send_telegram_notification(order_data, order_items, site_url=None):
         else:
             date_str = 'Только что'
         
-        message = f"""🔔 <b>НОВЫЙ ЗАКАЗ #{order_id_short}</b>\n\n⏰ {date_str}\n\n━━━━━━━━━━━━━━━━━━\n\n👤 <b>{order_data.get('customer_name', 'Клиент')}</b>\n📞 <code>{order_data.get('customer_phone', 'Не указан')}</code>\n📍 {order_data.get('delivery_address', 'Адрес не указан')}\n\n━━━━━━━━━━━━━━━━━━\n\n🛍 <b>Товары ({total_items} шт):</b>\n\n{items_text}━━━━━━━━━━━━━━━━━━\n\n{payment_method}\n\n💰 <b>ИТОГО: {order_data['total']:,} сум</b>\n"""
+        customer_name = order_data.get('customer_name') or order_data.get('first_name') or 'Не указано'
+        user_email = order_data.get('user_email')
+        email_text = f"\n📧 <code>{user_email}</code>" if user_email else ""
+        
+        status_labels = {
+            'new': 'Новый', 'confirmed': 'Подтверждён', 'pending': 'В ожидании',
+            'reviewing': 'Рассматривается', 'awaiting_payment': 'Ожидает оплаты',
+            'paid': 'Оплачен', 'processing': 'Собирается', 'shipped': 'В пути',
+            'delivered': 'Доставлен', 'cancelled': 'Отменён'
+        }
+        order_status = status_labels.get(order_data.get('status', 'new'), order_data.get('status', 'Новый'))
+        
+        message = f"""🔔 <b>НОВЫЙ ЗАКАЗ #{order_id_short}</b>\n\n⏰ {date_str}\n📊 Статус: <b>{order_status}</b>\n\n━━━━━━━━━━━━━━━━━━\n\n👤 <b>{customer_name}</b>\n📞 <code>{order_data.get('customer_phone', 'Не указан')}</code>{email_text}\n📍 {order_data.get('delivery_address', 'Адрес не указан')}\n\n━━━━━━━━━━━━━━━━━━\n\n🛍 <b>Товары ({total_items} шт):</b>\n\n{items_text}━━━━━━━━━━━━━━━━━━\n\n{payment_method}\n\n💰 <b>ИТОГО: {order_data['total']:,} сум</b>\n"""
         
         if order_data.get('payment_receipt_url'):
-            message += f"\n📸 <a href=\"{order_data['payment_receipt_url']}\">Чек оплаты</a>"
+            message += f"\n📸 <a href=\"{order_data['payment_receipt_url']}\">Чек оплаты прикреплен</a>"
+        elif order_data.get('payment_method') == 'card_transfer':
+            message += f"\n⏳ <b>Ожидает чека оплаты</b>"
         
         if site_url:
             admin_url = f"{site_url.rstrip('/')}/admin/orders"
