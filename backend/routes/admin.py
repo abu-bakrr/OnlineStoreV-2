@@ -4,7 +4,7 @@ import json
 import io
 import csv
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from ..database import (
     get_db_connection, get_platform_setting, set_platform_setting,
@@ -833,103 +833,245 @@ def admin_get_statistics():
     if not require_admin(): return admin_required_response()
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     try:
-        # Basic counts
-        cur.execute('SELECT COUNT(*) as count FROM users'); u_count = cur.fetchone()['count']
-        cur.execute('SELECT COUNT(DISTINCT user_id) as count FROM orders'); u_with_orders = cur.fetchone()['count']
-        cur.execute('SELECT COUNT(*) as count FROM orders'); o_count = cur.fetchone()['count']
-        cur.execute("SELECT COALESCE(SUM(total), 0) as sum FROM orders WHERE status != 'cancelled'"); rev = cur.fetchone()['sum']
-        
-        # Product & Category counts
-        cur.execute('SELECT COUNT(*) as count FROM products'); p_count = cur.fetchone()['count']
-        cur.execute('SELECT COUNT(*) as count FROM categories'); c_count = cur.fetchone()['count']
-        
-        # Orders by status
-        cur.execute('SELECT status, COUNT(*) as count FROM orders GROUP BY status')
+        period = request.args.get('period', 'month')  # today, week, month, year
+        now = datetime.now()
+
+        if period == 'today':
+            start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            prev_start = start_date - timedelta(days=1)
+            prev_end = start_date
+        elif period == 'week':
+            start_date = now - timedelta(days=7)
+            prev_start = start_date - timedelta(days=7)
+            prev_end = start_date
+        elif period == 'year':
+            start_date = now - timedelta(days=365)
+            prev_start = start_date - timedelta(days=365)
+            prev_end = start_date
+        else:  # month (default)
+            start_date = now - timedelta(days=30)
+            prev_start = start_date - timedelta(days=30)
+            prev_end = start_date
+
+        # ── Basic counts (all-time) ──────────────────────────────────────────
+        cur.execute('SELECT COUNT(*) as count FROM users')
+        u_count = cur.fetchone()['count']
+        cur.execute('SELECT COUNT(DISTINCT user_id) as count FROM orders')
+        u_with_orders = cur.fetchone()['count']
+        cur.execute('SELECT COUNT(*) as count FROM products')
+        p_count = cur.fetchone()['count']
+        cur.execute('SELECT COUNT(*) as count FROM categories')
+        c_count = cur.fetchone()['count']
+
+        # ── Current period KPIs ──────────────────────────────────────────────
+        cur.execute("""
+            SELECT COUNT(*) as total_orders,
+                   COALESCE(SUM(total), 0) as total_revenue,
+                   COALESCE(AVG(total), 0) as avg_order_value
+            FROM orders
+            WHERE status != 'cancelled' AND created_at >= %s
+        """, (start_date,))
+        kpi = cur.fetchone()
+        total_orders = kpi['total_orders']
+        total_revenue = kpi['total_revenue']
+        avg_order_value = float(kpi['avg_order_value'])
+
+        # ── Previous period KPIs (for comparison) ───────────────────────────
+        cur.execute("""
+            SELECT COUNT(*) as total_orders,
+                   COALESCE(SUM(total), 0) as total_revenue,
+                   COALESCE(AVG(total), 0) as avg_order_value
+            FROM orders
+            WHERE status != 'cancelled' AND created_at >= %s AND created_at < %s
+        """, (prev_start, prev_end))
+        prev_kpi = cur.fetchone()
+
+        def pct_change(curr, prev):
+            if prev == 0:
+                return None
+            return round(((curr - prev) / prev) * 100, 1)
+
+        comparison = {
+            'revenue_pct': pct_change(total_revenue, prev_kpi['total_revenue']),
+            'orders_pct': pct_change(total_orders, prev_kpi['total_orders']),
+            'avg_order_pct': pct_change(avg_order_value, float(prev_kpi['avg_order_value'])),
+        }
+
+        # ── New users in period (vs previous) ───────────────────────────────
+        cur.execute("SELECT COUNT(*) as count FROM users WHERE created_at >= %s", (start_date,))
+        new_users = cur.fetchone()['count']
+        cur.execute("SELECT COUNT(*) as count FROM users WHERE created_at >= %s AND created_at < %s", (prev_start, prev_end))
+        prev_new_users = cur.fetchone()['count']
+        comparison['new_users_pct'] = pct_change(new_users, prev_new_users)
+
+        # ── Cancellation stats ───────────────────────────────────────────────
+        cur.execute("""
+            SELECT COUNT(*) as cancelled_count, COALESCE(SUM(total), 0) as cancelled_revenue
+            FROM orders WHERE status = 'cancelled' AND created_at >= %s
+        """, (start_date,))
+        cancel_row = cur.fetchone()
+        cancelled_count = cancel_row['cancelled_count']
+        cancelled_revenue = cancel_row['cancelled_revenue']
+        total_with_cancelled = total_orders + cancelled_count
+        cancellation_rate = round((cancelled_count / total_with_cancelled * 100), 1) if total_with_cancelled > 0 else 0
+
+        # ── Orders by status ─────────────────────────────────────────────────
+        cur.execute("""
+            SELECT status, COUNT(*) as count FROM orders
+            WHERE created_at >= %s GROUP BY status
+        """, (start_date,))
         obs_rows = cur.fetchall()
         orders_by_status = {row['status']: row['count'] for row in obs_rows}
-        
-        # Recent orders (last 7 days)
-        cur.execute('''
-            SELECT DATE(created_at) as date, COUNT(*) as count, SUM(total) as revenue 
-            FROM orders 
-            WHERE created_at > NOW() - INTERVAL '7 days' 
-            GROUP BY DATE(created_at) 
-            ORDER BY date DESC
-        ''')
-        recent_rows = cur.fetchall()
-        recent_orders = [{'date': str(r['date']), 'count': r['count'], 'revenue': r['revenue']} for r in recent_rows]
 
-        # Top Products
-        cur.execute('''
+        # ── Payment method breakdown ─────────────────────────────────────────
+        cur.execute("""
+            SELECT payment_method,
+                   COUNT(*) as order_count,
+                   COALESCE(SUM(total), 0) as revenue
+            FROM orders
+            WHERE status != 'cancelled' AND created_at >= %s AND payment_method IS NOT NULL
+            GROUP BY payment_method
+            ORDER BY revenue DESC
+        """, (start_date,))
+        payment_rows = cur.fetchall()
+        payment_breakdown = [
+            {'method': r['payment_method'], 'order_count': r['order_count'], 'revenue': r['revenue']}
+            for r in payment_rows
+        ]
+
+        # ── Heatmap: orders by day-of-week × hour ────────────────────────────
+        cur.execute("""
+            SELECT EXTRACT(DOW FROM created_at)::int as dow,
+                   EXTRACT(HOUR FROM created_at)::int as hour,
+                   COUNT(*) as count
+            FROM orders
+            WHERE created_at >= %s
+            GROUP BY dow, hour
+        """, (start_date,))
+        heatmap_rows = cur.fetchall()
+        heatmap = [{'dow': r['dow'], 'hour': r['hour'], 'count': r['count']} for r in heatmap_rows]
+
+        # ── Daily new users (growth chart) ───────────────────────────────────
+        cur.execute("""
+            SELECT DATE(created_at) as date, COUNT(*) as count
+            FROM users WHERE created_at >= %s
+            GROUP BY DATE(created_at) ORDER BY date ASC
+        """, (start_date,))
+        user_growth = [{'date': str(r['date']), 'count': r['count']} for r in cur.fetchall()]
+
+        # ── Daily avg order value (trend) ────────────────────────────────────
+        cur.execute("""
+            SELECT DATE(created_at) as date,
+                   COALESCE(AVG(total), 0) as avg_value,
+                   COUNT(*) as order_count,
+                   COALESCE(SUM(total), 0) as revenue
+            FROM orders
+            WHERE status != 'cancelled' AND created_at >= %s
+            GROUP BY DATE(created_at) ORDER BY date ASC
+        """, (start_date,))
+        daily_rows = cur.fetchall()
+        daily_sales = [
+            {
+                'date': str(r['date']),
+                'order_count': r['order_count'],
+                'revenue': r['revenue'],
+                'avg_value': round(float(r['avg_value']))
+            }
+            for r in daily_rows
+        ]
+
+        # ── Recent orders (7 days for mini-chart) ────────────────────────────
+        cur.execute("""
+            SELECT DATE(created_at) as date, COUNT(*) as count, SUM(total) as revenue
+            FROM orders
+            WHERE created_at > NOW() - INTERVAL '7 days'
+            GROUP BY DATE(created_at) ORDER BY date ASC
+        """)
+        recent_orders = [{'date': str(r['date']), 'count': r['count'], 'revenue': r['revenue']} for r in cur.fetchall()]
+
+        # ── Top Products ─────────────────────────────────────────────────────
+        cur.execute("""
             SELECT p.id, p.name, SUM(oi.quantity) as total_quantity, SUM(oi.quantity * oi.price) as total_revenue
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             JOIN orders o ON oi.order_id = o.id
-            WHERE o.status != 'cancelled'
-            GROUP BY p.id, p.name
-            ORDER BY total_revenue DESC
-            LIMIT 5
-        ''')
-        top_products = cur.fetchall()
+            WHERE o.status != 'cancelled' AND o.created_at >= %s
+            GROUP BY p.id, p.name ORDER BY total_revenue DESC LIMIT 5
+        """, (start_date,))
+        top_products = [dict(r) for r in cur.fetchall()]
 
-        # Top Customers
-        cur.execute('''
-            SELECT u.id, u.email, u.first_name, u.last_name, u.telegram_username, COUNT(o.id) as order_count, SUM(o.total) as total_spent
-            FROM orders o
-            JOIN users u ON o.user_id = u.id
-            WHERE o.status != 'cancelled'
+        # ── Top Customers ────────────────────────────────────────────────────
+        cur.execute("""
+            SELECT u.id, u.email, u.first_name, u.last_name, u.telegram_username,
+                   COUNT(o.id) as order_count, SUM(o.total) as total_spent
+            FROM orders o JOIN users u ON o.user_id = u.id
+            WHERE o.status != 'cancelled' AND o.created_at >= %s
             GROUP BY u.id, u.email, u.first_name, u.last_name, u.telegram_username
-            ORDER BY total_spent DESC
-            LIMIT 5
-        ''')
-        top_customers = cur.fetchall()
+            ORDER BY total_spent DESC LIMIT 5
+        """, (start_date,))
+        top_customers = [dict(r) for r in cur.fetchall()]
 
-        # Revenue by Category
-        cur.execute('''
-            SELECT c.name as category_name, SUM(oi.quantity * oi.price) as revenue
+        # ── Revenue by Category ──────────────────────────────────────────────
+        cur.execute("""
+            SELECT COALESCE(c.name, 'Без категории') as category_name,
+                   SUM(oi.quantity * oi.price) as revenue
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
-            JOIN categories c ON p.category_id = c.id
+            LEFT JOIN categories c ON p.category_id = c.id
             JOIN orders o ON oi.order_id = o.id
-            WHERE o.status != 'cancelled'
-            GROUP BY c.name
-            ORDER BY revenue DESC
-        ''')
-        category_revenue = cur.fetchall()
+            WHERE o.status != 'cancelled' AND o.created_at >= %s
+            GROUP BY c.name ORDER BY revenue DESC
+        """, (start_date,))
+        category_revenue = [dict(r) for r in cur.fetchall()]
 
-        # Monthly Revenue (last 6 months)
-        cur.execute('''
+        # ── Monthly Revenue (last 6 months, always shown) ────────────────────
+        cur.execute("""
             SELECT TO_CHAR(created_at, 'YYYY-MM') as month, SUM(total) as revenue
             FROM orders
             WHERE status != 'cancelled' AND created_at > NOW() - INTERVAL '6 months'
-            GROUP BY month
-            ORDER BY month ASC
-        ''')
-        monthly_revenue = cur.fetchall()
+            GROUP BY month ORDER BY month ASC
+        """)
+        monthly_revenue = [dict(r) for r in cur.fetchall()]
 
-        # Inventory Summary
+        # ── Inventory Summary ────────────────────────────────────────────────
         cur.execute('SELECT COALESCE(SUM(quantity), 0) as total_stock FROM product_inventory')
         total_stock = cur.fetchone()['total_stock']
         cur.execute('SELECT COUNT(*) as low_stock_count FROM product_inventory WHERE quantity <= 5')
         low_stock_count = cur.fetchone()['low_stock_count']
-        
+
         cur.close(); conn.close()
-        
+
         return jsonify({
+            'period': period,
+            # KPIs
             'total_users': u_count,
+            'new_users': new_users,
             'users_with_orders': u_with_orders,
-            'total_orders': o_count,
-            'total_revenue': rev,
-            'orders_by_status': orders_by_status,
+            'total_orders': total_orders,
+            'total_revenue': total_revenue,
+            'avg_order_value': avg_order_value,
             'total_products': p_count,
             'total_categories': c_count,
+            # Comparison
+            'comparison': comparison,
+            # Charts
+            'orders_by_status': orders_by_status,
+            'payment_breakdown': payment_breakdown,
+            'heatmap': heatmap,
+            'user_growth': user_growth,
+            'daily_sales': daily_sales,
             'recent_orders': recent_orders,
             'top_products': top_products,
             'top_customers': top_customers,
             'category_revenue': category_revenue,
             'monthly_revenue': monthly_revenue,
+            # Cancellations
+            'cancelled_count': cancelled_count,
+            'cancelled_revenue': cancelled_revenue,
+            'cancellation_rate': cancellation_rate,
+            # Inventory
             'inventory_summary': {
                 'total_stock': total_stock,
                 'low_stock_count': low_stock_count
