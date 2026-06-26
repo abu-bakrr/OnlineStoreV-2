@@ -216,6 +216,16 @@ def init_db():
         )
     ''')
     
+    cur.execute('''
+        DO $$ 
+        BEGIN 
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                          WHERE table_name='platform_settings' AND column_name='is_secret') THEN
+                ALTER TABLE platform_settings ADD COLUMN is_secret BOOLEAN DEFAULT FALSE;
+            END IF;
+        END $$;
+    ''')
+    
     # Create promo_codes table
     cur.execute('''
         CREATE TABLE IF NOT EXISTS promo_codes (
@@ -304,7 +314,8 @@ def set_platform_setting(key, value, is_secret=False):
         cur.close()
         conn.close()
         return True
-    except Exception:
+    except Exception as e:
+        print(f"❌ Error setting platform setting '{key}': {e}")
         return False
 
 def get_cloudinary_config():
