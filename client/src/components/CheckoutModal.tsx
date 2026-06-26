@@ -413,9 +413,14 @@ export default function CheckoutModal({
 	}
 
 	const handlePayment = async (method: string) => {
-		setIsLoading(true)
 		setSelectedPayment(method)
 
+		if (method === 'card_transfer') {
+			setStep('card_transfer')
+			return
+		}
+
+		setIsLoading(true)
 		try {
 			const paymentUrl = await onPaymentSelect(
 				method,
