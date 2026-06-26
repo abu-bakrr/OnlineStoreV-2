@@ -98,11 +98,11 @@ export default function AdminLayout() {
 				</div>
 			</header>
 
-			<div className='max-w-7xl mx-auto px-2 sm:px-4 py-4 overflow-x-hidden'>
+			<div className='max-w-7xl mx-auto px-3 sm:px-4 py-4'>
 				<Tabs
 					value={activeTab}
 					onValueChange={setActiveTab}
-					className='w-full overflow-hidden'
+					className='w-full'
 				>
 					<div className='overflow-x-auto -mx-2 px-2 mb-6'>
 						<TabsList className='flex w-max min-w-full h-auto p-1 items-stretch justify-start gap-1 [&>*]:flex-1'>

@@ -268,7 +268,7 @@ export default function AdminStatistics() {
 
         {/* Revenue Trend + Category Pie */}
         <div className="grid gap-6 lg:grid-cols-7">
-          <Card className="lg:col-span-4 rounded-3xl border-border/50 shadow-sm overflow-hidden">
+          <Card className="lg:col-span-4 rounded-2xl sm:rounded-2xl sm:rounded-3xl border-border/50 shadow-sm overflow-clip">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary" />Тренд выручки</CardTitle>
               <CardDescription>{period === 'year' || period === 'month' ? 'По месяцам (последние 6 мес.)' : 'По дням за период'}</CardDescription>
@@ -307,7 +307,7 @@ export default function AdminStatistics() {
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-3 rounded-3xl border-border/50 shadow-sm overflow-hidden">
+          <Card className="lg:col-span-3 rounded-2xl sm:rounded-2xl sm:rounded-3xl border-border/50 shadow-sm overflow-clip">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><FolderOpen className="h-5 w-5 text-blue-500" />По категориям</CardTitle>
               <CardDescription>Распределение выручки</CardDescription>
@@ -444,7 +444,7 @@ export default function AdminStatistics() {
 
         {/* Top Products + Top Customers */}
         <div className="grid gap-6 md:grid-cols-2">
-          <Card className="rounded-3xl border-border/50 shadow-sm bg-card overflow-hidden">
+          <Card className="rounded-2xl sm:rounded-3xl border-border/50 shadow-sm bg-card overflow-clip">
             <CardHeader className="bg-muted/30 pb-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -472,7 +472,7 @@ export default function AdminStatistics() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-3xl border-border/50 shadow-sm bg-card overflow-hidden">
+          <Card className="rounded-2xl sm:rounded-3xl border-border/50 shadow-sm bg-card overflow-clip">
             <CardHeader className="bg-muted/30 pb-4">
               <div className="flex items-center justify-between">
                 <div>

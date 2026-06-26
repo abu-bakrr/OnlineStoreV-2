@@ -531,48 +531,53 @@ export default function AdminSettings() {
 				featureName={paywallFeature} 
 			/>
 			
-			<Tabs defaultValue='telegram' className='w-full overflow-hidden'>
-				<div className='overflow-x-auto -mx-2 px-2 flex justify-between items-center'>
-					<TabsList className='flex w-max min-w-full h-auto p-1 items-stretch justify-start gap-1 [&>*]:flex-1'>
-						<TabsTrigger
-							value='telegram'
-							className='whitespace-nowrap px-3 text-xs sm:text-sm'
-						>
-							Telegram
-						</TabsTrigger>
-						<TabsTrigger
-							value='smtp'
-							className='whitespace-nowrap px-3 text-xs sm:text-sm'
-						>
-							SMTP
-						</TabsTrigger>
-						<TabsTrigger
-							value='cloudinary'
-							className='whitespace-nowrap px-3 text-xs sm:text-sm'
-						>
-							Cloudinary
-						</TabsTrigger>
-						<TabsTrigger
-							value='payments'
-							className='whitespace-nowrap px-3 text-xs sm:text-sm'
-						>
-							Платежи
-						</TabsTrigger>
-						<TabsTrigger
-							value='maps'
-							className='whitespace-nowrap px-3 text-xs sm:text-sm'
-						>
-							Карты
-						</TabsTrigger>
-						<TabsTrigger
-							value='delivery'
-							className='whitespace-nowrap px-3 text-xs sm:text-sm'
-						>
-							Доставка
-						</TabsTrigger>
-					</TabsList>
-					<div className='ml-4 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase whitespace-nowrap flex items-center border border-primary/20'>
-						Тариф: {subscriptionTier}
+			<Tabs defaultValue='telegram' className='w-full'>
+				<div className='flex flex-col gap-2 mb-1'>
+					<div className='flex items-center justify-between'>
+						<span className='text-xs text-muted-foreground font-medium'>Настройки</span>
+						<div className='px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase whitespace-nowrap flex items-center border border-primary/20'>
+							Тариф: {subscriptionTier}
+						</div>
+					</div>
+					<div className='overflow-x-auto -mx-1 px-1 pb-1'>
+						<TabsList className='flex w-max h-auto p-1 items-stretch justify-start gap-1'>
+							<TabsTrigger
+								value='telegram'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+							>
+								Telegram
+							</TabsTrigger>
+							<TabsTrigger
+								value='smtp'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+							>
+								SMTP
+							</TabsTrigger>
+							<TabsTrigger
+								value='cloudinary'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+							>
+								Cloudinary
+							</TabsTrigger>
+							<TabsTrigger
+								value='payments'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+							>
+								Платежи
+							</TabsTrigger>
+							<TabsTrigger
+								value='maps'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+							>
+								Карты
+							</TabsTrigger>
+							<TabsTrigger
+								value='delivery'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+							>
+								Доставка
+							</TabsTrigger>
+						</TabsList>
 					</div>
 				</div>
 
