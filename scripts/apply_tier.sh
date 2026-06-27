@@ -44,9 +44,9 @@ elif [ "$TIER" == "pro" ]; then
     sudo systemctl enable ai-bot${INSTANCE_SUFFIX} || true
     sudo systemctl start ai-bot${INSTANCE_SUFFIX} || true
     
-    echo "✅ Starting Telegram Bot (Available on pro tier)"
-    sudo systemctl enable telegram-bot${INSTANCE_SUFFIX} || true
-    sudo systemctl start telegram-bot${INSTANCE_SUFFIX} || true
+    echo "🛑 Telegram Bot is temporarily disabled by admin"
+    sudo systemctl stop telegram-bot${INSTANCE_SUFFIX} || true
+    sudo systemctl disable telegram-bot${INSTANCE_SUFFIX} || true
 else
     echo "⚠️ Unknown tier '$TIER', defaulting to starter"
     sudo systemctl stop ai-bot${INSTANCE_SUFFIX} || true

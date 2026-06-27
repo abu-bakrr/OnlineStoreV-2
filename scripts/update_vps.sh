@@ -160,9 +160,11 @@ else
         print_step "Перезапуск AI бота..."
         systemctl restart ai-bot || true
     fi
+    # Telegram Bot is temporarily disabled
     if systemctl list-unit-files | grep -q telegram-bot.service; then
-        print_step "Перезапуск Shop бота..."
-        systemctl restart telegram-bot || true
+        print_step "Остановка Shop бота (временно отключен)..."
+        systemctl stop telegram-bot || true
+        systemctl disable telegram-bot || true
     fi
 fi
 
