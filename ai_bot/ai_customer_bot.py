@@ -143,6 +143,8 @@ JSON: {
                          (user_id INTEGER PRIMARY KEY, waiting BOOLEAN)''')
             c.execute('''CREATE TABLE IF NOT EXISTS support_messages
                          (message_id INTEGER PRIMARY KEY, user_id INTEGER)''')
+            # Очищаем историю чатов при каждой перезагрузке бота
+            c.execute('DELETE FROM sessions')
             conn.commit()
 
     def _get_session(self, user_id):
@@ -155,7 +157,8 @@ JSON: {
             if row:
                 history = json.loads(row[0])
                 last_active = datetime.fromisoformat(row[1])
-                if (now - last_active).total_seconds() > 3600:
+                # Очищаем чат по истечению 2 часов (7200 секунд)
+                if (now - last_active).total_seconds() > 7200:
                     history = []
                     self.logger.info(f"♻️ Session reset for {user_id}")
             else:
