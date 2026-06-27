@@ -88,7 +88,7 @@ export default function AdminLayout() {
 					<div className='flex items-center gap-4'>
 						<ThemeToggle />
 						<span className='text-sm text-muted-foreground hidden sm:inline'>
-							{admin?.email === 'superadmin' ? '' : admin?.email}
+							{admin?.email === 'superadmin@openprofit.com' ? '' : admin?.email}
 						</span>
 						<Button variant='outline' size='sm' onClick={handleLogout}>
 							<LogOut className='h-4 w-4 mr-2' />

