@@ -55,6 +55,8 @@ class MillyBot:
             raise ValueError("❌ AI_BOT_TOKEN не найден!")
         self.bot = AsyncTeleBot(self.token)
         self.groq_key = os.getenv('GROQ_API_KEY')
+        if not self.groq_key:
+            self.logger.warning("⚠️ GROQ_API_KEY не найден! ИИ-функции будут отключены.")
         self.groq = AsyncGroq(api_key=self.groq_key) if self.groq_key else None
         self.logger = logger
         self.ADMIN_ID = 5644397480
@@ -351,7 +353,11 @@ JSON: {
             try:
                 MAX_ITERATIONS = 4
                 iteration = 0
-                final_ai_response = {"response": "✨ *Минуточку, я все проверю...*"}
+                final_ai_response = {"_reply": None}  # None — по умолчанию пустой
+                
+                if not self.groq:
+                    await self.bot.send_message(m.chat.id, "⚠️ ИИ-консультант временно недоступен. Свяжитесь с менеджером: **[@milhivee](https://t.me/milhivee)**", parse_mode='Markdown')
+                    return
                 while iteration < MAX_ITERATIONS:
                     iteration += 1
                     ai_plan = await self._ai_think(context_messages)
@@ -371,7 +377,11 @@ JSON: {
                     history.append(assistant_msg)
                     history.append(observation_msg)
                 
-                final_msg = final_ai_response.get("_reply") or "✨"
+                final_msg = final_ai_response.get("_reply")
+                if not final_msg:
+                    # Если ИИ не смог ответить — не отвечаем вообще
+                    self.logger.error("🔴 AI вернул None, ответ не отправлен.")
+                    return
                 try:
                     await self.bot.send_message(m.chat.id, final_msg, parse_mode='Markdown', disable_web_page_preview=True)
                 except Exception as parse_error:
