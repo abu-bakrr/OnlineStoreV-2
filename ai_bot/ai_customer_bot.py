@@ -242,6 +242,8 @@ JSON: {
                 )
                 res = json.loads(completion.choices[0].message.content)
                 self.logger.info(f"🧠 [THOUGHT] {res.get('thoughts')}")
+                # Нормализуем ключ ответа: модели называют его по-разному
+                res['_reply'] = self._extract_reply(res)
                 return res
             except Exception as e:
                 err_msg = str(e).lower()
@@ -253,8 +255,24 @@ JSON: {
                     continue 
                 continue
         if last_error == "overloaded":
-            return {"thoughts": "Overload", "action": {"tool": "none"}, "response": f"✨ Мои нейронные цепи перегружены. Пожалуйста, попробуйте через {wait_time}. 🙏"}
+            return {"_reply": f"✨ Мои нейронные цепи перегружены. Пожалуйста, попробуйте через {wait_time}. 🙏", "action": {"tool": "none"}}
         return None
+
+    def _extract_reply(self, res: dict) -> str:
+        """Извлекает текст ответа из JSON модели, независимо от названия ключа."""
+        # Список всех ключей, которые модели используют для текста ответа
+        REPLY_KEYS = ['reply_to_user', 'response', 'message', 'reply', 'answer', 'result', 'text', 'output']
+        for key in REPLY_KEYS:
+            val = res.get(key)
+            if val and isinstance(val, str) and len(val.strip()) > 1:
+                self.logger.info(f"🔑 [REPLY KEY] '{key}'")
+                return val.strip()
+        # Если ничего не нашли — ищем любое строковое значение длиннее 5 символов
+        for key, val in res.items():
+            if key not in ('thoughts', 'action') and isinstance(val, str) and len(val) > 5:
+                self.logger.info(f"🔑 [REPLY KEY FALLBACK] '{key}'")
+                return val.strip()
+        return "✨"
 
     async def _execute_tool(self, action_data):
         tool = action_data.get("tool")
@@ -353,7 +371,7 @@ JSON: {
                     history.append(assistant_msg)
                     history.append(observation_msg)
                 
-                final_msg = final_ai_response.get("reply_to_user") or final_ai_response.get("response") or final_ai_response.get("message") or "✨"
+                final_msg = final_ai_response.get("_reply") or "✨"
                 try:
                     await self.bot.send_message(m.chat.id, final_msg, parse_mode='Markdown', disable_web_page_preview=True)
                 except Exception as parse_error:
