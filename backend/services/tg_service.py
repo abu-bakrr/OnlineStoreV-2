@@ -103,18 +103,7 @@ def send_telegram_notification(order_data, order_items, site_url=None):
             'chat_id': admin_chat_id,
             'text': message,
             'parse_mode': 'HTML',
-            'disable_web_page_preview': True,
-            'reply_markup': {
-                'inline_keyboard': [
-                    [
-                        {'text': '🚚 В пути', 'callback_data': f'order_status_delivering_{order_id}'},
-                        {'text': '✅ Доставлен', 'callback_data': f'order_status_delivered_{order_id}'}
-                    ],
-                    [
-                        {'text': '❌ Отменить', 'callback_data': f'order_status_cancelled_{order_id}'}
-                    ]
-                ]
-            }
+            'disable_web_page_preview': True
         }
         
         response = requests.post(url, json=payload, timeout=10)
