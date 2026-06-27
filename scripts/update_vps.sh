@@ -104,6 +104,13 @@ if [ -d "$APP_DIR/node_modules/.bin" ]; then
     chmod -R +x "$APP_DIR/node_modules/.bin"
 fi
 
+# Исправление прав на dist ДО сборки (чтобы shopapp мог удалить старые файлы)
+print_step "Исправление прав на папку dist перед сборкой..."
+if [ -d "$APP_DIR/dist" ]; then
+    chown -R $APP_USER:$APP_USER "$APP_DIR/dist"
+    chmod -R 755 "$APP_DIR/dist"
+fi
+
 # Сборка фронтенда
 print_step "Сборка фронтенда..."
 sudo -u $APP_USER bash <<EOF
