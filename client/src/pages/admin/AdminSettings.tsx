@@ -16,6 +16,7 @@ import {
 	CreditCard,
 	Eye,
 	EyeOff,
+	Info,
 	Loader2,
 	Mail,
 	MapPin,
@@ -23,11 +24,43 @@ import {
 	Truck,
 	X
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PaywallModal } from '@/components/PaywallModal'
 import { useConfig } from '@/hooks/useConfig'
 
+function InfoTooltip({ text }: { text: string }) {
+	const [open, setOpen] = useState(false)
+	const ref = useRef<HTMLDivElement>(null)
+
+	useEffect(() => {
+		if (!open) return
+		const handle = (e: MouseEvent) => {
+			if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+		}
+		document.addEventListener('mousedown', handle)
+		return () => document.removeEventListener('mousedown', handle)
+	}, [open])
+
+	return (
+		<div ref={ref} className='relative inline-flex items-center'>
+			<button
+				type='button'
+				onClick={(e) => { e.stopPropagation(); setOpen(!open) }}
+				className='inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors ml-1'
+			>
+				<Info className='w-2.5 h-2.5' />
+			</button>
+			{open && (
+				<div className='absolute left-6 top-0 z-50 w-64 p-3 rounded-xl bg-popover border border-border shadow-lg text-xs text-muted-foreground leading-relaxed'>
+					{text}
+				</div>
+			)}
+		</div>
+	)
+}
+
 interface CloudinarySettings {
+
 	cloud_name: string
 	api_key: string
 	has_api_secret: boolean
@@ -550,33 +583,38 @@ export default function AdminSettings() {
 						<TabsList className='flex w-max h-auto p-1 items-stretch justify-start gap-1'>
 							<TabsTrigger
 								value='telegram'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
 							>
 								Telegram
+								<InfoTooltip text='Подключите Telegram-бота для получения мгновенных уведомлений о новых заказах. Нужен токен бота и ваш Chat ID.' />
 							</TabsTrigger>
 							<TabsTrigger
 								value='smtp'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
 							>
 								SMTP
+								<InfoTooltip text='Настройки почтового сервера для отправки клиентам чеков и уведомлений на email. Поддерживается Gmail, Yandex и другие.' />
 							</TabsTrigger>
 							<TabsTrigger
 								value='cloudinary'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
 							>
 								Cloudinary
+								<InfoTooltip text='Облачное хранилище для фотографий товаров. Без этой настройки загрузка изображений работать не будет. Зарегистрируйтесь на cloudinary.com.' />
 							</TabsTrigger>
 							<TabsTrigger
 								value='payments'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
 							>
 								Платежи
+								<InfoTooltip text='Подключите платёжные системы Click, Payme или Uzum Bank чтобы клиенты могли оплачивать онлайн. Реквизиты получаете в личном кабинете платёжной системы.' />
 							</TabsTrigger>
 							<TabsTrigger
 								value='maps'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
 							>
 								Карты
+								<InfoTooltip text='Настройка карт для выбора адреса доставки при оформлении заказа. Поддерживаются Yandex Maps и Google Maps.' />
 							</TabsTrigger>
 							<TabsTrigger
 								value='delivery'
