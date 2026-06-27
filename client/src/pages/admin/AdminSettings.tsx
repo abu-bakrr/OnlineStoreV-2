@@ -534,7 +534,12 @@ export default function AdminSettings() {
 			<Tabs defaultValue='telegram' className='w-full'>
 				<div className='flex flex-col gap-2 mb-1'>
 					<div className='flex items-center justify-between'>
-						<span className='text-xs text-muted-foreground font-medium'>Настройки</span>
+						<div className='flex items-center gap-2'>
+							<span className='text-xs text-muted-foreground font-medium'>Настройки</span>
+							<span className='px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground'>
+								Версия {appVersion}
+							</span>
+						</div>
 						<div className='px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase whitespace-nowrap flex items-center border border-primary/20'>
 							Тариф: {subscriptionTier}
 						</div>
