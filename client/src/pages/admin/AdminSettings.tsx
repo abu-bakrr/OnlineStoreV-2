@@ -964,7 +964,7 @@ export default function AdminSettings() {
 										value={cloudinarySecret}
 										onChange={e => setCloudinarySecret(e.target.value)}
 										placeholder={
-											cloudinary.has_api_secret ? '••••••••••••••••' : (
+											cloudinary.has_api_secret ? (showCloudinarySecret ? '(Скрыто в целях безопасности)' : '••••••••••••••••') : (
 												'API Secret'
 											)
 										}
@@ -1136,7 +1136,7 @@ export default function AdminSettings() {
 										value={clickSecretKey}
 										onChange={e => setClickSecretKey(e.target.value)}
 										placeholder={
-											payments.click.has_secret_key ? '••••••••' : 'Secret Key'
+											payments.click.has_secret_key ? (showClickSecret ? '(Скрыто)' : '••••••••') : 'Secret Key'
 										}
 										className='flex-1'
 									/>
@@ -1225,7 +1225,7 @@ export default function AdminSettings() {
 										value={paymeKey}
 										onChange={e => setPaymeKey(e.target.value)}
 										placeholder={
-											payments.payme.has_key ? '••••••••' : 'Secret Key'
+											payments.payme.has_key ? (showPaymeSecret ? '(Скрыто)' : '••••••••') : 'Secret Key'
 										}
 										className='flex-1'
 									/>
@@ -1331,7 +1331,7 @@ export default function AdminSettings() {
 										value={uzumSecretKey}
 										onChange={e => setUzumSecretKey(e.target.value)}
 										placeholder={
-											payments.uzum.has_secret_key ? '••••••••' : 'Secret Key'
+											payments.uzum.has_secret_key ? (showUzumSecret ? '(Скрыто)' : '••••••••') : 'Secret Key'
 										}
 										className='flex-1'
 									/>
