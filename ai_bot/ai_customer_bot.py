@@ -50,6 +50,7 @@ logger.addHandler(file_handler)
 
 class MillyBot:
     def __init__(self):
+        self.logger = logger  # Обязательно первым! Используется ниже
         self.token = os.getenv('AI_BOT_TOKEN')
         if not self.token:
             raise ValueError("❌ AI_BOT_TOKEN не найден!")
@@ -58,7 +59,6 @@ class MillyBot:
         if not self.groq_key:
             self.logger.warning("⚠️ GROQ_API_KEY не найден! ИИ-функции будут отключены.")
         self.groq = AsyncGroq(api_key=self.groq_key) if self.groq_key else None
-        self.logger = logger
         self.ADMIN_ID = 5644397480
         
         self.db_path = os.path.join(os.path.dirname(__file__), 'bot_state.db')
