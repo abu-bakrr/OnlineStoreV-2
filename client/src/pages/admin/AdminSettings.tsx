@@ -523,6 +523,8 @@ export default function AdminSettings() {
 		)
 	}
 
+	const appVersion = import.meta.env.VITE_APP_VERSION || 'v2.0.0'
+
 	return (
 		<div className='space-y-6 overflow-hidden'>
 			<PaywallModal 
