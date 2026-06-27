@@ -42,16 +42,16 @@ function InfoTooltip({ text }: { text: string }) {
 	}, [open])
 
 	return (
-		<div ref={ref} className='relative inline-flex items-center'>
+		<div ref={ref} className='absolute top-4 right-4 z-10'>
 			<button
 				type='button'
 				onClick={(e) => { e.stopPropagation(); setOpen(!open) }}
-				className='inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors ml-1'
+				className='inline-flex items-center justify-center w-6 h-6 rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all shadow-sm'
 			>
-				<Info className='w-2.5 h-2.5' />
+				<Info className='w-3 h-3' />
 			</button>
 			{open && (
-				<div className='absolute left-6 top-0 z-50 w-64 p-3 rounded-xl bg-popover border border-border shadow-lg text-xs text-muted-foreground leading-relaxed'>
+				<div className='absolute right-0 top-8 z-50 w-72 p-4 rounded-xl bg-popover border border-border shadow-xl text-xs text-muted-foreground leading-relaxed whitespace-pre-line'>
 					{text}
 				</div>
 			)}
@@ -569,7 +569,7 @@ export default function AdminSettings() {
 			<Tabs defaultValue='telegram' className='w-full'>
 				<div className='flex flex-col gap-2 mb-1'>
 					<div className='flex items-center justify-between'>
-						<div className='flex items-center gap-2'>
+<div className='flex items-center gap-2'>
 							<span className='text-xs text-muted-foreground font-medium'>Настройки</span>
 							<span className='px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground'>
 								Версия {appVersion}
@@ -583,35 +583,31 @@ export default function AdminSettings() {
 						<TabsList className='flex w-max h-auto p-1 items-stretch justify-start gap-1'>
 							<TabsTrigger
 								value='telegram'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
 							>
 								Telegram
-								<InfoTooltip text='Подключите Telegram-бота для получения мгновенных уведомлений о новых заказах. Нужен токен бота и ваш Chat ID.' />
 							</TabsTrigger>
 							<TabsTrigger
 								value='smtp'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
 							>
 								SMTP
-								<InfoTooltip text='Настройки почтового сервера для отправки клиентам чеков и уведомлений на email. Поддерживается Gmail, Yandex и другие.' />
 							</TabsTrigger>
 							<TabsTrigger
 								value='cloudinary'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
 							>
 								Cloudinary
-								<InfoTooltip text='Облачное хранилище для фотографий товаров. Без этой настройки загрузка изображений работать не будет. Зарегистрируйтесь на cloudinary.com.' />
 							</TabsTrigger>
 							<TabsTrigger
 								value='payments'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
 							>
 								Платежи
-								<InfoTooltip text='Подключите платёжные системы Click, Payme или Uzum Bank чтобы клиенты могли оплачивать онлайн. Реквизиты получаете в личном кабинете платёжной системы.' />
 							</TabsTrigger>
 							<TabsTrigger
 								value='maps'
-								className='whitespace-nowrap px-3 text-xs sm:text-sm flex items-center gap-1'
+								className='whitespace-nowrap px-3 text-xs sm:text-sm'
 							>
 								Карты
 								<InfoTooltip text='Настройка карт для выбора адреса доставки при оформлении заказа. Поддерживаются Yandex Maps и Google Maps.' />
@@ -635,14 +631,15 @@ export default function AdminSettings() {
 						</div>
 					)}
 					<div className={subscriptionTier === 'starter' ? 'opacity-30 pointer-events-none' : ''}>
-					<Card>
+					<Card className='relative'>
+						<InfoTooltip text={'📬 Telegram уведомления\n\nКогда клиент оформляет заказ, вы получите мгновенное сообщение в Telegram с деталями заказа.\n\n🔧 Как настроить:\n1. Создайте бота через @BotFather — он выдаст вам Bot Token\n2. Напишите вашему боту /start\n3. Узнайте свой Chat ID через @userinfobot\n4. Вставьте оба значения ниже и сохраните'} />
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
 								<Send className='h-5 w-5' />
 								Telegram уведомления
 							</CardTitle>
 							<CardDescription>
-								Настройки бота для отправки уведомлений о новых заказах
+								Настройки бота для получения уведомлений о новых заказах
 							</CardDescription>
 						</CardHeader>
 						<CardContent className='space-y-4'>
@@ -763,7 +760,8 @@ export default function AdminSettings() {
 				</TabsContent>
 
 				<TabsContent value='smtp' className='space-y-4 mt-4'>
-					<Card>
+					<Card className='relative'>
+						<InfoTooltip text={'📧 SMTP — отправка email\n\nБлагодаря SMTP клиент получает письмо-подтверждение после заказа.\n\n🔧 Как настроить (Gmail):\n1. Включите двухэтапную аутентификацию в Google\n2. Создайте «Пароль приложения» в настройках безопасности\n3. Хост: smtp.gmail.com, Порт: 587\n4. Укажите ваш email и пароль приложения\n\n⚠️ Обычный пароль Google не подойдёт!'} />
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
 								<Mail className='h-5 w-5' />
@@ -958,7 +956,8 @@ export default function AdminSettings() {
 				</TabsContent>
 
 				<TabsContent value='cloudinary' className='space-y-4 mt-4'>
-					<Card>
+					<Card className='relative'>
+						<InfoTooltip text={'☁️ Cloudinary — хранение фото\n\nВсе фотографии товаров хранятся на серверах Cloudinary и автоматически оптимизируются для быстрой загрузки.\n\n🔧 Как настроить:\n1. Зарегистрируйтесь на cloudinary.com (есть бесплатный план)\n2. В Dashboard найдите Cloud name, API Key и API Secret\n3. Вставьте данные в поля ниже\n\n⚠️ Без Cloudinary загрузка фото работать не будет!'} />
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
 								<Cloud className='h-5 w-5' />
@@ -1110,7 +1109,8 @@ export default function AdminSettings() {
 						</div>
 					)}
 					<div className={subscriptionTier === 'starter' ? 'opacity-30 pointer-events-none' : ''}>
-					<Card>
+					<Card className='relative'>
+						<InfoTooltip text={'💳 Click — платёжная система\n\nОдна из самых популярных платёжных систем Узбекистана. Клиент нажимает «Оплатить» и переходит на страницу Click.\n\n🔧 Как подключить:\n1. Зарегистрируйтесь на my.click.uz\n2. Создайте сервис в личном кабинете\n3. Получите Merchant ID и Service ID\n4. Вставьте данные ниже и включите'} />
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
 								<CreditCard className='h-5 w-5' />
@@ -1220,7 +1220,8 @@ export default function AdminSettings() {
 						</CardContent>
 					</Card>
 
-					<Card>
+					<Card className='relative'>
+						<InfoTooltip text={'💳 Payme — платёжная система\n\nPay­com — крупнейшая платёжная система Узбекистана. Клиент переходит на checkout.paycom.uz для оплаты.\n\n🔧 Как подключить:\n1. Зарегистрируйтесь на business.payme.uz\n2. Создайте кассу и получите Merchant ID и Secret Key\n3. Введите данные ниже и включите интеграцию'} />
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
 								<CreditCard className='h-5 w-5' />
@@ -1309,7 +1310,8 @@ export default function AdminSettings() {
 						</CardContent>
 					</Card>
 
-					<Card>
+					<Card className='relative'>
+						<InfoTooltip text={'💳 Uzum Bank — платёжная система\n\nUzum (бывший Apelsin) — популярный банк и платёжная система в Узбекистане.\n\n🔧 Как подключить:\n1. Обратитесь в Uzum Bank для подключения торгового эквайринга\n2. Получите Merchant ID и Secret Key\n3. Введите данные ниже и включите интеграцию'} />
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
 								<CreditCard className='h-5 w-5' />
@@ -1415,7 +1417,8 @@ export default function AdminSettings() {
 						</CardContent>
 					</Card>
 
-					<Card>
+					<Card className='relative'>
+						<InfoTooltip text={'💵 Перевод на карту\n\nКлиент переводит деньги на вашу карту вручную и прикрепляет скриншот чека. Вы получаете уведомление и вручную подтверждаете оплату.\n\n✅ Не требует регистрации в платёжных системах\n⚠️ Подтверждение оплаты происходит вручную администратором'} />
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
 								<CreditCard className='h-5 w-5' />
@@ -1518,7 +1521,8 @@ export default function AdminSettings() {
 				</TabsContent>
 
 				<TabsContent value='maps' className='space-y-4 mt-4'>
-					<Card>
+					<Card className='relative'>
+						<InfoTooltip text={'🗺️ Карты для выбора адреса\n\nПозволяет клиентам выбирать адрес доставки на интерактивной карте при оформлении заказа — удобнее ввода вручную.\n\n🔧 Как подключить (Яндекс.Карты):\n1. Перейдите на developer.tech.yandex.ru\n2. Создайте проект и получите API-ключ\n3. Подключите услугу «JavaScript API и HTTP Геокодер»\n4. Вставьте ключ ниже'} />
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
 								<MapPin className='h-5 w-5' />
@@ -1659,7 +1663,8 @@ export default function AdminSettings() {
 				</TabsContent>
 
 				<TabsContent value='delivery' className='space-y-4 mt-4'>
-					<Card>
+					<Card className='relative'>
+						<InfoTooltip text={'🚚 Настройки сроков доставки\n\n«В наличии» — сколько дней доставлять товары, которые есть на складе прямо сейчас.\n\n«Под заказ (backorder)» — сколько дней нужно ждать, если товар заказывается специально (например, под конкретный размер или цвет).\n\nЭти данные клиент видит на странице оформления заказа — «Ожидаемый срок доставки».'} />
 						<CardHeader>
 							<CardTitle className='flex items-center gap-2'>
 								<Truck className='h-5 w-5' />
