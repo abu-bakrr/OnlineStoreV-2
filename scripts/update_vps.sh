@@ -91,6 +91,10 @@ else
     print_warning "Git репозиторий (.git) не найден. Текущая папка: $(pwd). Убедитесь, что вы вручную обновили файлы."
 fi
 
+# Исправление владельца файлов после git (git reset --hard может создать файлы от root)
+print_step "Исправление прав доступа на файлы приложения..."
+chown -R $APP_USER:$APP_USER "$APP_DIR"
+
 # Обновление Node.js зависимостей
 print_step "Обновление Node.js зависимостей..."
 sudo -u $APP_USER bash <<EOF
