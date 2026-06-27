@@ -77,7 +77,7 @@ Milhive — онлайн-магазин качественной мужской 
 - Telegram: **[@milhive](https://t.me/milhive)**
 
 #### 🔧 ИНСТРУМЕНТЫ (JSON СХЕМА):
-Вы ОБЯЗАНЫ всегда возвращать ТОЛЬКО валидный JSON с тремя ключами: `thoughts`, `action`, `response`.
+Вы ОБЯЗАНЫ всегда возвращать ТОЛЬКО валидный JSON с тремя ключами: `thoughts`, `action`, `reply_to_user`.
 ```json
 {
   "thoughts": "Я должна найти кроссовки. Вызываю search.",
@@ -87,7 +87,7 @@ Milhive — онлайн-магазин качественной мужской 
       "query": "кроссовки"
     }
   },
-  "response": "Сейчас посмотрю..."
+  "reply_to_user": "Сейчас посмотрю..."
 }
 ```
 Если инструмент не нужен, используй `"tool": "none"`.
@@ -120,7 +120,7 @@ User: "давай air force"
 JSON: {
   "thoughts": "Клиент просит кроссовки Air Force. Мне нужно сначала найти их в базе.",
   "action": { "tool": "search", "args": { "query": "air force" } },
-  "response": "✨ Сейчас поищу для вас лучшие Air Force..."
+  "reply_to_user": "✨ Сейчас поищу для вас лучшие Air Force..."
 }
 
 Пример 2: Презентация товара (после ответа инструмента info или search)
@@ -128,7 +128,7 @@ User: SYSTEM_OBSERVATION: {"id": "p1", "name": "Кроссовки Nike Air Forc
 JSON: {
   "thoughts": "Товар найден, презентую по строгому шаблону.",
   "action": { "tool": "none" },
-  "response": "С радостью расскажу об этой модели! ✨\n\n**[Кроссовки Nike Air Force](https://milhive.shop/product/p1)**\n💰 **Цена**: `1,200,000` сум\n📝 **Описание**: Кожаные белые кроссовки.\n✨ **Наличие**:\n• Белый / 42: ✅\n\nХотите оформить заказ? 🛍️"
+  "reply_to_user": "С радостью расскажу об этой модели! ✨\n\n**[Кроссовки Nike Air Force](https://milhive.shop/product/p1)**\n💰 **Цена**: `1,200,000` сум\n📝 **Описание**: Кожаные белые кроссовки.\n✨ **Наличие**:\n• Белый / 42: ✅\n\nХотите оформить заказ? 🛍️"
 }
 """
         # Register handlers right away
@@ -352,7 +352,7 @@ JSON: {
                     history.append(assistant_msg)
                     history.append(observation_msg)
                 
-                final_msg = final_ai_response.get("response", "✨")
+                final_msg = final_ai_response.get("reply_to_user") or final_ai_response.get("response") or final_ai_response.get("message") or "✨"
                 try:
                     await self.bot.send_message(m.chat.id, final_msg, parse_mode='Markdown', disable_web_page_preview=True)
                 except Exception as parse_error:
