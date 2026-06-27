@@ -221,7 +221,8 @@ JSON: {
     async def _ai_think(self, messages):
         if not self.groq: return None
         # Optimized list: only valid fast models
-        MODELS = [       
+        MODELS = [    
+            "groq/compound",   
             "meta-llama/llama-4-scout-17b-16e-instruct",
             "llama-3.3-70b-versatile",
             "mixtral-8x7b-32768"
