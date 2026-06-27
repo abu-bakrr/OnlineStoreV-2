@@ -91,7 +91,6 @@ Milhive — онлайн-магазин качественной мужской 
 }
 ```
 Если инструмент не нужен, используй `"tool": "none"`.
-Категорически запрещено использовать ключ "result". Только "response"!
 
 Доступные инструменты:
 - `search`: Поиск товаров. Args: `{"query": "название/категория"}`
@@ -220,8 +219,8 @@ JSON: {
         if not self.groq: return None
         # Optimized list: only valid fast models
         MODELS = [
-            "meta-llama/llama-4-scout-17b-16e-instruct",
             "llama-3.3-70b-versatile",
+            "meta-llama/llama-4-scout-17b-16e-instruct",
             "mixtral-8x7b-32768"
         ]
         
