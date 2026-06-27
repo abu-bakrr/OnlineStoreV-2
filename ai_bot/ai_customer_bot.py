@@ -7,6 +7,15 @@ import sqlite3
 import re
 from datetime import datetime
 from dotenv import load_dotenv
+
+# Форсируем UTF-8 для всего процесса. Фикс для серверов с ASCII locale (Ubuntu).
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+os.environ['PYTHONUTF8'] = '1'
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+
 from telebot.async_telebot import AsyncTeleBot
 from telebot import types
 from groq import AsyncGroq
@@ -223,10 +232,9 @@ JSON: {
     async def _ai_think(self, messages):
         if not self.groq: return None
         # Optimized list: only valid fast models
-        MODELS = [    
-            "groq/compound",   
-            "meta-llama/llama-4-scout-17b-16e-instruct",
+        MODELS = [
             "llama-3.3-70b-versatile",
+            "meta-llama/llama-4-scout-17b-16e-instruct",
             "mixtral-8x7b-32768"
         ]
         
