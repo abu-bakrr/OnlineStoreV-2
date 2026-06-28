@@ -230,7 +230,7 @@ JSON: {
         return markup
 
     async def _ai_think(self, messages):
-        if not self.groq: return None
+        if not self.groq_key: return None
         # Optimized list: only valid fast models
         MODELS = [
             "llama-3.3-70b-versatile",
@@ -238,34 +238,55 @@ JSON: {
             "mixtral-8x7b-32768"
         ]
         
+        import aiohttp
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {self.groq_key}",
+            "Content-Type": "application/json",
+        }
+        full_msgs = [{"role": "system", "content": self.system_prompt}] + messages
+        # Явно кодируем в UTF-8 байты, минуя httpx и системный locale
+        body_bytes = json.dumps({
+            "temperature": 0.1,
+            "response_format": {"type": "json_object"},
+            "messages": full_msgs
+        }, ensure_ascii=False).encode('utf-8')
+
         last_error = ""
         wait_time = "несколько секунд"
         for model_name in MODELS:
             try:
                 self.logger.info(f"🤖 [REQUEST] Model: {model_name}")
-                full_msgs = [{"role": "system", "content": self.system_prompt}] + messages
-                completion = await self.groq.chat.completions.create(
-                    model=model_name,
-                    messages=full_msgs,
-                    temperature=0.1,
-                    response_format={"type": "json_object"}
-                )
-                res = json.loads(completion.choices[0].message.content)
-                self.logger.info(f"🧠 [THOUGHT] {res.get('thoughts')}")
-                # Нормализуем ключ ответа: модели называют его по-разному
-                res['_reply'] = self._extract_reply(res)
-                return res
+                body_bytes_with_model = json.dumps({
+                    "model": model_name,
+                    "temperature": 0.1,
+                    "response_format": {"type": "json_object"},
+                    "messages": full_msgs
+                }, ensure_ascii=False).encode('utf-8')
+
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(url, headers=headers, data=body_bytes_with_model) as resp:
+                        if resp.status == 429:
+                            last_error = "overloaded"
+                            text = await resp.text(encoding='utf-8')
+                            match = re.search(r'in (\d+m?\s?\d*s)', text.lower())
+                            if match: wait_time = match.group(1)
+                            continue
+                        if resp.status != 200:
+                            text = await resp.text(encoding='utf-8')
+                            self.logger.warning(f"⚠️ [FAIL] Model {model_name}: HTTP {resp.status}: {text[:200]}")
+                            continue
+                        data = await resp.json(content_type=None, encoding='utf-8')
+                        content = data["choices"][0]["message"]["content"]
+                        res = json.loads(content)
+                        self.logger.info(f"🧠 [THOUGHT] {res.get('thoughts')}")
+                        res['_reply'] = self._extract_reply(res)
+                        return res
             except Exception as e:
-                err_msg = str(e).lower()
                 self.logger.warning(f"⚠️ [FAIL] Model {model_name}: {e}")
-                if "429" in err_msg or "rate limit" in err_msg:
-                    last_error = "overloaded"
-                    match = re.search(r'in (\d+m?\s?\d*s)', err_msg)
-                    if match: wait_time = match.group(1)
-                    continue 
                 continue
         if last_error == "overloaded":
-            return {"_reply": f"✨ Мои нейронные цепи перегружены. Пожалуйста, попробуйте через {wait_time}. 🙏", "action": {"tool": "none"}}
+            return {"_reply": f"✨ Мои нейронные цепи перегружены. Попробуйте через {wait_time}. 🙏", "action": {"tool": "none"}}
         return None
 
     def _extract_reply(self, res: dict) -> str:
