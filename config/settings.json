@@ -98,7 +98,7 @@
 		"description": { "weight": 400 }
 	},
 	"logoSize": 20,
-	"logoSizeLarge": 80,
+	"logoSizeLarge": 40,
 	"orderStatuses": {
 		"pending": "Ожидает оплаты",
 		"reviewing": "Рассматривается",
