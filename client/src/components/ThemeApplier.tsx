@@ -85,6 +85,11 @@ export default function ThemeApplier() {
 				'--card-foreground',
 				hexToHSL(darkScheme.cardForeground),
 			)
+			root.style.setProperty('--popover', hexToHSL(darkScheme.card))
+			root.style.setProperty(
+				'--popover-foreground',
+				hexToHSL(darkScheme.cardForeground),
+			)
 			root.style.setProperty('--secondary', hexToHSL(darkScheme.secondary))
 			root.style.setProperty(
 				'--secondary-foreground',
@@ -124,6 +129,11 @@ export default function ThemeApplier() {
 			root.style.setProperty('--card', hexToHSL(scheme.card))
 			root.style.setProperty(
 				'--card-foreground',
+				hexToHSL(scheme.cardForeground),
+			)
+			root.style.setProperty('--popover', hexToHSL(scheme.card))
+			root.style.setProperty(
+				'--popover-foreground',
 				hexToHSL(scheme.cardForeground),
 			)
 			root.style.setProperty('--secondary', hexToHSL(scheme.secondary))
