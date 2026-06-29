@@ -23,7 +23,44 @@ print_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-# Параметры (можно изменить)
+# Проверка прав (нужна сразу для поиска по /home)
+if [ "$EUID" -ne 0 ]; then 
+    print_error "Пожалуйста, запустите скрипт с правами root (sudo)"
+    exit 1
+fi
+
+# Автоопределение APP_USER
+if [ -n "$1" ]; then
+    APP_USER=$1
+elif [ -z "$APP_USER" ] || [ "$APP_USER" = "shopuser" ] || [ "$APP_USER" = "shopapp" ]; then
+    AVAILABLE_APPS=()
+    for dir in /home/*; do
+        if [ -d "$dir/app" ]; then
+            AVAILABLE_APPS+=("$(basename "$dir")")
+        fi
+    done
+    
+    if [ ${#AVAILABLE_APPS[@]} -eq 1 ]; then
+        APP_USER=${AVAILABLE_APPS[0]}
+        echo -e "${YELLOW}[INFO]${NC} Автоматически выбран магазин: $APP_USER"
+    elif [ ${#AVAILABLE_APPS[@]} -gt 1 ]; then
+        echo -e "${YELLOW}Найдено несколько магазинов на сервере:${NC}"
+        for i in "${!AVAILABLE_APPS[@]}"; do
+            echo "$((i+1)). ${AVAILABLE_APPS[$i]}"
+        done
+        read -p "Введите номер магазина для обновления: " choice
+        index=$((choice-1))
+        if [ -n "${AVAILABLE_APPS[$index]}" ]; then
+            APP_USER=${AVAILABLE_APPS[$index]}
+        else
+            print_error "Неверный выбор"
+            exit 1
+        fi
+    else
+        APP_USER="shopuser" # Fallback if nothing found
+    fi
+fi
+
 APP_USER=${APP_USER:-shopuser}
 APP_DIR="/home/$APP_USER/app"
 INSTANCE_SUFFIX="-$APP_USER"
@@ -32,11 +69,6 @@ echo "=================================================="
 echo "🔄 Обновление Telegram Shop"
 echo "=================================================="
 
-# Проверка прав
-if [ "$EUID" -ne 0 ]; then 
-    print_error "Пожалуйста, запустите скрипт с правами root (sudo)"
-    exit 1
-fi
 
 # Проверка существования директории
 if [ ! -d "$APP_DIR" ]; then
