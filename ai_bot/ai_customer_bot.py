@@ -60,6 +60,7 @@ logger.addHandler(file_handler)
 class MillyBot:
     def __init__(self):
         self.logger = logger  # Обязательно первым! Используется ниже
+        self.db_path = os.path.join(os.path.dirname(__file__), 'bot_state.db')
         self.token = os.getenv('AI_BOT_TOKEN')
         if not self.token:
             raise ValueError("❌ AI_BOT_TOKEN не найден!")
