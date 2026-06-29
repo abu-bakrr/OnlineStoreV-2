@@ -68,7 +68,7 @@ class MillyBot:
         if not self.groq_key:
             self.logger.warning("⚠️ GROQ_API_KEY не найден! ИИ-функции будут отключены.")
         self.groq = AsyncGroq(api_key=self.groq_key) if self.groq_key else None
-        self.ADMIN_ID = 5644397480
+        self.ADMIN_ID = 7710352080
         
         self.system_prompt = """### 💎 AI ЭКСПЕРТ STYLE ZONE
 
@@ -382,7 +382,7 @@ JSON: {
                 final_ai_response = {"_reply": None}  # None — по умолчанию пустой
                 
                 if not self.groq:
-                    await self.bot.send_message(m.chat.id, "⚠️ ИИ-консультант временно недоступен. Свяжитесь с менеджером: **[@milhivee](https://t.me/milhivee)**", parse_mode='Markdown')
+                    await self.bot.send_message(m.chat.id, "⚠️ ИИ-консультант временно недоступен. Свяжитесь с менеджером: **[@SZadminn](https://t.me/SZadminn)**", parse_mode='Markdown')
                     return
                 while iteration < MAX_ITERATIONS:
                     iteration += 1

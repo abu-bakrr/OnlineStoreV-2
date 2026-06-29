@@ -1,6 +1,6 @@
 {
 	"language": "ru",
-	"authorized_users": [5644397480],
+	"authorized_users": [7710352080],
 	"admin_notes": "Добавьте ваш Telegram ID в массив authorized_users. Пример: [123456789, 987654321]",
 	"categories": [
 		{

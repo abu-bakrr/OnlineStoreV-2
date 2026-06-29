@@ -475,7 +475,7 @@ def get_pretty_product_info(product_id):
     price_text = f"{product['price']} сум"
     description = product.get('description')
     if not description or description == 'NULL_DATA':
-        description = "<i>Описание этой модели сейчас готовится нашей командой Milhive.</i>"
+        description = "<i>Описание этой модели сейчас готовится нашей командой Style Zone.</i>"
     
     res = f"🏷 <b>{product['name']}</b>\n"
     res += f"💰 <b>Цена:</b> {price_text}\n\n"
