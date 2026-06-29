@@ -31,18 +31,18 @@ if [ "$TIER" == "starter" ]; then
     sudo systemctl disable telegram-bot${INSTANCE_SUFFIX} || true
 
 elif [ "$TIER" == "business" ]; then
-    echo "✅ Starting AI Bot (Available on business tier)"
+    echo "✅ Starting/Restarting AI Bot (Available on business tier)"
     sudo systemctl enable ai-bot${INSTANCE_SUFFIX} || true
-    sudo systemctl start ai-bot${INSTANCE_SUFFIX} || true
+    sudo systemctl restart ai-bot${INSTANCE_SUFFIX} || true
     
     echo "🛑 Stopping Telegram Bot (Not available on business tier)"
     sudo systemctl stop telegram-bot${INSTANCE_SUFFIX} || true
     sudo systemctl disable telegram-bot${INSTANCE_SUFFIX} || true
 
 elif [ "$TIER" == "pro" ]; then
-    echo "✅ Starting AI Bot (Available on pro tier)"
+    echo "✅ Starting/Restarting AI Bot (Available on pro tier)"
     sudo systemctl enable ai-bot${INSTANCE_SUFFIX} || true
-    sudo systemctl start ai-bot${INSTANCE_SUFFIX} || true
+    sudo systemctl restart ai-bot${INSTANCE_SUFFIX} || true
     
     echo "🛑 Telegram Bot is temporarily disabled by admin"
     sudo systemctl stop telegram-bot${INSTANCE_SUFFIX} || true
