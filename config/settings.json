@@ -1,15 +1,15 @@
 {
-	"subscriptionTier": "pro",
+	"subscriptionTier": "business",
 	"language": "ru",
-	"shopName": "Milhive",
-	"description": "Будь в стиле. Будь с Milhive",
-	"logo": "/config/logoo.svg",
-	"darkLogo": "/config/logoo.svg",
+	"shopName": "Style Zone",
+	"description": "Зона твоего стиля",
+	"logo": "/config/stylezone.svg",
+	"darkLogo": "/config/stylezone.svg",
 	"seo": {
-		"title": "Milhive — Стильная одежда | Интернет-магазин",
-		"description": "Milhive — интернет-магазин стильной одежды в Узбекистане. Головные уборы, верхняя одежда, обувь и аксессуары. Доставка по всей стране.",
-		"keywords": "одежда, Узбекистан, стиль, мода, головные уборы, верхняя одежда, обувь, аксессуары, milhive, Milhive, мужская",
-		"siteUrl": "https://milhive.shop",
+		"title": "Style Zone — Стильная одежда | Интернет-магазин",
+		"description": "Style Zone — интернет-магазин стильной одежды и аксессуаров в Узбекистане. Доставка по всей стране.",
+		"keywords": "одежда, Узбекистан, стиль, мода, аксессуары, style zone, Style Zone, обувь",
+		"siteUrl": "https://stylezoneuz.shop",
 		"language": "ru"
 	},
 	"currency": {
@@ -17,71 +17,59 @@
 		"code": "UZS",
 		"position": "after"
 	},
-	"managerContact": "@milhiveAi_bot",
-	"telegramBotUrl": "https://t.me/milhiveAi_bot",
+	"managerContact": "@szoneAI_bot",
+	"telegramBotUrl": "https://t.me/szoneAI_bot",
 	"colorScheme": {
 		"background": "#FFFFFF",
-		"foreground": "#111111",
+		"foreground": "#0B1220",
 
 		"card": "#FFFFFF",
-		"cardForeground": "#111111",
+		"cardForeground": "#0B1220",
 
-		"primary": "#f5a40d",
-		"primaryForeground": "#111111",
+		"primary": "#003487",
+		"primaryForeground": "#FFFFFF",
 
-		"secondary": "#ae883f",
+		"secondary": "#2C5AA0",
 		"secondaryForeground": "#FFFFFF",
 
-		"muted": "#F7F7F7",
-		"mutedForeground": "#6B6B6B",
+		"muted": "#F2F4F8",
+		"mutedForeground": "#5C6B82",
 
-		"accent": "#f5a40d",
-		"accentForeground": "#111111",
+		"accent": "#1E5FC4",
+		"accentForeground": "#FFFFFF",
 
-		"border": "#E6E6E6",
-		"input": "#E6E6E6",
-		"ring": "#f5a40d"
+		"border": "#E2E6ED",
+		"input": "#E2E6ED",
+		"ring": "#003487"
 	},
 	"colorSchemeDark": {
-		"background": "#0F0F0F",
-		"foreground": "#F5F5F5",
+		"background": "#0A0E16",
+		"foreground": "#F2F4F8",
 
-		"card": "#161616",
-		"cardForeground": "#F5F5F5",
+		"card": "#11161F",
+		"cardForeground": "#F2F4F8",
 
-		"primary": "#f5a40d",
-		"primaryForeground": "#0F0F0F",
+		"primary": "#3D7BE0",
+		"primaryForeground": "#0A0E16",
 
-		"secondary": "#cca64b",
-		"secondaryForeground": "#0F0F0F",
+		"secondary": "#6E94C9",
+		"secondaryForeground": "#0A0E16",
 
-		"muted": "#1F1F1F",
-		"mutedForeground": "#9A9A9A",
+		"muted": "#1A2030",
+		"mutedForeground": "#94A3B8",
 
-		"accent": "#f5a40d",
-		"accentForeground": "#0F0F0F",
+		"accent": "#4F8FFF",
+		"accentForeground": "#0A0E16",
 
-		"border": "#262626",
-		"input": "#262626",
-		"ring": "#f5a40d"
+		"border": "#232B3D",
+		"input": "#232B3D",
+		"ring": "#3D7BE0"
 	},
 	"sortOptions": [
-		{
-			"id": "old",
-			"label": "Сначала старые"
-		},
-		{
-			"id": "new",
-			"label": "Сначала новые"
-		},
-		{
-			"id": "price-asc",
-			"label": "Сначала дешевые"
-		},
-		{
-			"id": "price-desc",
-			"label": "Сначала дорогие"
-		}
+		{ "id": "old", "label": "Сначала старые" },
+		{ "id": "new", "label": "Сначала новые" },
+		{ "id": "price-asc", "label": "Сначала дешевые" },
+		{ "id": "price-desc", "label": "Сначала дорогие" }
 	],
 	"ui": {
 		"maxWidth": "420px",
@@ -102,18 +90,12 @@
 	"fonts": {
 		"fontFamily": "Inter",
 		"fontFile": null,
-		"shopNameFontFamily": "Montez",
-		"shopNameFontFile": "/config/Montez-Regular.ttf",
+		"shopNameFontFamily": "Montserrat",
+		"shopNameFontFile": null,
 		"shopNameFontSize": 30,
-		"productName": {
-			"weight": 700
-		},
-		"price": {
-			"weight": 600
-		},
-		"description": {
-			"weight": 400
-		}
+		"productName": { "weight": 700 },
+		"price": { "weight": 600 },
+		"description": { "weight": 400 }
 	},
 	"logoSize": 32,
 	"logoSizeLarge": 80,
