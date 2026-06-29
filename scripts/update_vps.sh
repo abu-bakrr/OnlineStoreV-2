@@ -24,8 +24,9 @@ print_warning() {
 }
 
 # Параметры (можно изменить)
-APP_USER=${APP_USER:-shopapp}
+APP_USER=${APP_USER:-shopuser}
 APP_DIR="/home/$APP_USER/app"
+INSTANCE_SUFFIX="-$APP_USER"
 
 echo "=================================================="
 echo "🔄 Обновление Telegram Shop"
@@ -154,23 +155,23 @@ fi
 
 # Перезапуск приложения
 print_step "Перезапуск сервисов..."
-systemctl restart shop-app
+systemctl restart shop-app${INSTANCE_SUFFIX}
 
 # Применение тарифов (включение/отключение ботов)
 print_step "Применение тарифов для ботов..."
 if [ -f "$APP_DIR/scripts/apply_tier.sh" ]; then
-    bash $APP_DIR/scripts/apply_tier.sh ""
+    bash $APP_DIR/scripts/apply_tier.sh "${INSTANCE_SUFFIX}"
 else
     # Fallback to normal restart if script is missing
-    if systemctl list-unit-files | grep -q ai-bot.service; then
+    if systemctl list-unit-files | grep -q "ai-bot${INSTANCE_SUFFIX}.service"; then
         print_step "Перезапуск AI бота..."
-        systemctl restart ai-bot || true
+        systemctl restart ai-bot${INSTANCE_SUFFIX} || true
     fi
     # Telegram Bot is temporarily disabled
-    if systemctl list-unit-files | grep -q telegram-bot.service; then
+    if systemctl list-unit-files | grep -q "telegram-bot${INSTANCE_SUFFIX}.service"; then
         print_step "Остановка Shop бота (временно отключен)..."
-        systemctl stop telegram-bot || true
-        systemctl disable telegram-bot || true
+        systemctl stop telegram-bot${INSTANCE_SUFFIX} || true
+        systemctl disable telegram-bot${INSTANCE_SUFFIX} || true
     fi
 fi
 
@@ -178,15 +179,15 @@ fi
 sleep 3
 
 # Проверка статуса
-if systemctl is-active --quiet shop-app; then
+if systemctl is-active --quiet shop-app${INSTANCE_SUFFIX}; then
     print_step "✅ Приложение успешно обновлено и перезапущено!"
     
     # Показать последние логи
     print_step "Последние логи приложения:"
-    journalctl -u shop-app -n 20 --no-pager
+    journalctl -u shop-app${INSTANCE_SUFFIX} -n 20 --no-pager
 else
     print_error "❌ Ошибка при перезапуске приложения!"
-    print_error "Проверьте логи: journalctl -u shop-app -n 50"
+    print_error "Проверьте логи: journalctl -u shop-app${INSTANCE_SUFFIX} -n 50"
     exit 1
 fi
 
