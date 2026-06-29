@@ -215,18 +215,13 @@ JSON: {
 
     async def _set_bot_commands(self):
         try:
-            web_app = types.WebAppInfo("https://milhive.shop")
-            await self.bot.set_chat_menu_button(menu_button=types.MenuButtonWebApp(type="web_app", text="🛍 Магазин", web_app=web_app))
+            await self.bot.set_chat_menu_button(menu_button=types.MenuButtonDefault())
         except Exception as e:
-            self.logger.warning(f"Could not set Web App menu button: {e}")
+            self.logger.warning(f"Could not reset Web App menu button: {e}")
 
     def _get_main_keyboard(self):
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        markup.add(
-            types.KeyboardButton("🛍 Открыть магазин", web_app=types.WebAppInfo("https://milhive.shop")),
-            types.KeyboardButton("📦 Мои заказы")
-        )
-        markup.add(types.KeyboardButton("📞 Связаться с человеком"))
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
+        markup.add(types.KeyboardButton("📞 Связаться с менеджером"))
         return markup
 
     async def _ai_think(self, messages):
@@ -331,19 +326,24 @@ JSON: {
             self._update_session(user_id, [])
             await self.bot.send_message(
                 m.chat.id, 
-                "✨ *Добро пожаловать в Milhive!*\n\nЯ Milly, ваш персональный AI-консультант. Чем могу помочь сегодня? 👗\n\nВы можете открыть наш магазин прямо здесь, нажав кнопку ниже!", 
+                "✨ *Добро пожаловать!*\n\nЯ ваш персональный AI-консультант. Чем могу помочь сегодня? 👗", 
                 parse_mode='Markdown',
                 reply_markup=self._get_main_keyboard()
             )
 
-        @self.bot.message_handler(func=lambda m: m.text == "📞 Связаться с человеком" or m.text == "/manager")
+        @self.bot.message_handler(func=lambda m: m.text == "📞 Связаться с менеджером" or m.text == "/manager")
         async def manager(m):
-            self._set_waiting_support(m.from_user.id, True)
-            await self.bot.send_message(m.chat.id, "👨‍💼 Пожалуйста, напишите ваше сообщение для менеджера:")
-
-        @self.bot.message_handler(func=lambda m: m.text == "📦 Мои заказы" or m.text == "/myorders")
-        async def my_orders(m):
-            await self.bot.send_message(m.chat.id, "📦 Чтобы посмотреть свои заказы, введите номер заказа или напишите ваш номер телефона, и я их найду!")
+            import json
+            import os
+            settings_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'settings.json')
+            manager_contact = "@admin"
+            try:
+                with open(settings_path, 'r', encoding='utf-8') as f:
+                    settings = json.load(f)
+                manager_contact = settings.get('managerContact', manager_contact)
+            except Exception:
+                pass
+            await self.bot.send_message(m.chat.id, f"👨‍💼 Наш менеджер с радостью вам поможет! Напишите ему напрямую: {manager_contact}")
 
         @self.bot.message_handler(func=lambda m: m.chat.id == self.ADMIN_ID and m.reply_to_message)
         async def admin_reply(m):
