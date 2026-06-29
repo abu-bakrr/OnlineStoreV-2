@@ -36,7 +36,7 @@ export default function SEO({
     : config?.description || config?.shopName || 'Shop';
   
   const pageDescription = description || config?.description || '';
-  const pageImage = image || config?.logo || '/config/logo.svg';
+  const pageImage = image || config?.logo || '/config/stylezone.svg';
   const fullImageUrl = pageImage.startsWith('http') ? pageImage : `${siteUrl}${pageImage}`;
   
   useEffect(() => {
