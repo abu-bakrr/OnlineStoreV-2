@@ -153,7 +153,7 @@ echo "  База данных:  $DB_NAME"
 echo "  Папка:        $APP_DIR"
 echo "  Домен:        ${DOMAIN:-не задан}"
 echo ""
-sleep 2�от скрипт
+sleep 2
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 APP_DIR="/home/$APP_USER/app"
