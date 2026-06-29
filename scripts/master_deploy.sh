@@ -51,7 +51,7 @@ echo "     • Flask Backend + React Frontend"
 echo "     • Gunicorn сервер"
 echo ""
 echo "  🤖 Боты:"
-echo "     • AI Bot 'Mona' (клиентская поддержка)"
+echo "     • AI Customer Bot (клиентская поддержка)"
 echo "     • Telegram Bot (основной бот магазина)"
 echo ""
 echo "  🗄️ База данных:"
@@ -73,7 +73,7 @@ echo -e "${BLUE}================================================================
 echo ""
 
 # 1. Системный пользователь
-read -p "Имя пользователя для этого сайта (например, shopapp2): " APP_USER
+read -p "Имя пользователя для этого сайта (например, shopuser): " APP_USER
 while [ -z "$APP_USER" ]; do
     read -p "Имя пользователя обязательно: " APP_USER
 done
@@ -163,7 +163,7 @@ sleep 2
 
 # Telegram Bot токены
 echo -e "${YELLOW}🤖 ТОКЕНЫ TELEGRAM БОТОВ${NC}"
-read -p "AI Bot Token (Mona): " AI_BOT_TOKEN
+read -p "AI Bot Token : " AI_BOT_TOKEN
 read -p "Main Telegram Bot Token: " TELEGRAM_BOT_TOKEN
 echo ""
 
@@ -398,7 +398,7 @@ print_step "Создание systemd сервисов..."
 # Flask App (Shop)
 cat > /etc/systemd/system/shop-app${INSTANCE_SUFFIX}.service <<EOF
 [Unit]
-Description=Telegram Shop Flask Application ${INSTANCE_SUFFIX}
+Description=Shop Application ${INSTANCE_SUFFIX}
 After=network.target postgresql.service
 
 [Service]
@@ -415,10 +415,10 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
-# AI Bot (Mona)
+# AI Customer Bot
 cat > /etc/systemd/system/ai-bot${INSTANCE_SUFFIX}.service <<EOF
 [Unit]
-Description=AI Customer Support Bot (Mona) ${INSTANCE_SUFFIX}
+Description=AI Customer Support Bot  ${INSTANCE_SUFFIX}
 After=network.target postgresql.service shop-app${INSTANCE_SUFFIX}.service
 
 [Service]
@@ -441,7 +441,7 @@ EOF
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
 cat > /etc/systemd/system/telegram-bot${INSTANCE_SUFFIX}.service <<EOF
 [Unit]
-Description=Main Telegram Shop Bot ${INSTANCE_SUFFIX}
+Description=Main Telegram Bot ${INSTANCE_SUFFIX}
 After=network.target postgresql.service shop-app${INSTANCE_SUFFIX}.service
 
 [Service]
@@ -664,7 +664,7 @@ fi
 echo ""
 
 echo -e "${BLUE}🤖 БОТЫ (Telegram):${NC}"
-echo -e "   ✅ AI Bot (Mona) - запущен"
+echo -e "   ✅ AI Customer Bot - запущен"
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
     echo -e "   ✅ Main Telegram Bot - запущен"
 fi
