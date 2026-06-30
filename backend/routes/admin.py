@@ -47,14 +47,14 @@ def admin_login():
     if not user or not user.get('password_hash') or not check_password_hash(user['password_hash'], password):
         return jsonify({'error': 'Invalid credentials'}), 401
     
-    if not user.get('is_admin'):
+    if not user.get('is_admin') and not user.get('is_superadmin'):
         return jsonify({'error': 'Access denied. Admin privileges required.'}), 403
     
     session.permanent = True
     session['user_id'] = user['id']
     
     return jsonify({
-        'user': {'id': user['id'], 'email': user['email'], 'first_name': user.get('first_name'), 'is_admin': True},
+        'user': {'id': user['id'], 'email': user['email'], 'first_name': user.get('first_name'), 'is_admin': user.get('is_admin'), 'is_superadmin': user.get('is_superadmin')},
         'message': 'Admin login successful'
     })
 

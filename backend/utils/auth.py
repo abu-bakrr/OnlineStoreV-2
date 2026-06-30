@@ -13,12 +13,12 @@ def require_admin():
     
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT is_admin FROM users WHERE id = %s', (user_id,))
+    cur.execute('SELECT is_admin, is_superadmin FROM users WHERE id = %s', (user_id,))
     user = cur.fetchone()
     cur.close()
     conn.close()
     
-    if user and user.get('is_admin'):
+    if user and (user.get('is_admin') or user.get('is_superadmin')):
         return user_id
     return None
 
