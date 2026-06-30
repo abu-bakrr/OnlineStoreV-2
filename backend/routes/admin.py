@@ -600,7 +600,7 @@ def admin_cloudinary_settings():
     if not require_admin(): return admin_required_response()
     if request.method == 'GET':
         config = get_cloudinary_config()
-        return jsonify({'cloud_name': config['cloud_name'], 'api_key': config['api_key'], 'has_api_secret': bool(config['api_secret'])})
+        return jsonify({'cloud_name': config['cloud_name'], 'api_key': config['api_key'], 'api_secret': config['api_secret'], 'has_api_secret': bool(config['api_secret'])})
     
     data = request.json
     set_platform_setting('cloudinary_cloud_name', data.get('cloud_name'), False)
@@ -612,8 +612,30 @@ def admin_cloudinary_settings():
 @admin_bp.route('/settings/cloudinary/test', methods=['POST'])
 def admin_test_cloudinary():
     if not require_admin(): return admin_required_response()
-    ok, res = test_cloud_connection()
-    return jsonify({'success': ok, 'message': 'Cloudinary connected' if ok else res})
+    
+    data = request.json or {}
+    cloud_name = data.get('cloud_name')
+    api_key = data.get('api_key')
+    api_secret = data.get('api_secret')
+    
+    if not api_secret:
+        api_secret = get_platform_setting('cloudinary_api_secret')
+        
+    if not all([cloud_name, api_key, api_secret]):
+        return jsonify({'success': False, 'message': 'Пожалуйста, заполните все поля Cloudinary'})
+        
+    try:
+        import cloudinary
+        import cloudinary.api
+        cloudinary.config(
+            cloud_name=cloud_name,
+            api_key=api_key,
+            api_secret=api_secret
+        )
+        result = cloudinary.api.usage()
+        return jsonify({'success': True, 'message': 'Успешное подключение к Cloudinary!'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Ошибка подключения: {str(e)}'})
 
 @admin_bp.route('/settings/telegram', methods=['GET', 'PUT'])
 def admin_telegram_settings():
