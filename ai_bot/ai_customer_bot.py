@@ -80,11 +80,10 @@ class MillyBot:
 - **Профессиональная**: Ты знаешь всё о товарах, ценах и доставке.
 - **Вдохновляющая и яркая**: Используй много уместных эмодзи, чтобы сделать ответ живым.
 
-#### 🌍 КРИТИЧЕСКИ ВАЖНО — ЯЗЫК ОТВЕТА:
-- В начале каждого сообщения от пользователя будет метка: `[USER_LANG: ru]` или `[USER_LANG: uz]`.
-- Если `[USER_LANG: ru]` — отвечай СТРОГО на РУССКОМ языке.
-- Если `[USER_LANG: uz]` — отвечай СТРОГО на УЗБЕКСКОМ языке.
-- Автоматически определяй язык пользователя и обновляй внутреннее понимание.
+#### 🌍 ВАЖНО — ЯЗЫК ОТВЕТА:
+- **ВСЕГДА отвечай на том же языке, на котором написал пользователь.**
+- Если пишет по-русски — отвечай по-русски.
+- Если пишет на узбекском (латиницей или кириллицей) — отвечай на узбекском.
 - **НИКОГДА не смешивай языки в одном ответе!**
 
 #### 🏢 О МАГАЗИНЕ:
@@ -152,17 +151,11 @@ JSON: {
         with sqlite3.connect(self.db_path) as conn:
             c = conn.cursor()
             c.execute('''CREATE TABLE IF NOT EXISTS sessions
-                         (user_id INTEGER PRIMARY KEY, history TEXT, last_active TIMESTAMP, lang TEXT DEFAULT 'ru')''')
+                         (user_id INTEGER PRIMARY KEY, history TEXT, last_active TIMESTAMP)''')
             c.execute('''CREATE TABLE IF NOT EXISTS support_queue
                          (user_id INTEGER PRIMARY KEY, waiting BOOLEAN)''')
             c.execute('''CREATE TABLE IF NOT EXISTS support_messages
                          (message_id INTEGER PRIMARY KEY, user_id INTEGER)''')
-            # Добавляем колонку lang если ещё нет (для старых БД)
-            try:
-                c.execute('ALTER TABLE sessions ADD COLUMN lang TEXT DEFAULT \'ru\'')
-                conn.commit()
-            except Exception:
-                pass
             # Очищаем историю чатов при каждой перезагрузке бота
             c.execute('DELETE FROM sessions')
             conn.commit()
@@ -170,55 +163,33 @@ JSON: {
     def _get_session(self, user_id):
         with sqlite3.connect(self.db_path) as conn:
             c = conn.cursor()
-            c.execute('SELECT history, last_active, lang FROM sessions WHERE user_id = ?', (user_id,))
+            c.execute('SELECT history, last_active FROM sessions WHERE user_id = ?', (user_id,))
             row = c.fetchone()
             now = datetime.now()
             
             if row:
                 history = json.loads(row[0])
                 last_active = datetime.fromisoformat(row[1])
-                lang = row[2] or 'ru'
                 # Очищаем чат по истечению 2 часов (7200 секунд)
                 if (now - last_active).total_seconds() > 7200:
                     history = []
                     self.logger.info(f"♻️ Session reset for {user_id}")
             else:
                 history = []
-                lang = 'ru'
             
-            c.execute('REPLACE INTO sessions (user_id, history, last_active, lang) VALUES (?, ?, ?, ?)',
-                      (user_id, json.dumps(history, ensure_ascii=False), now.isoformat(), lang))
+            c.execute('REPLACE INTO sessions (user_id, history, last_active) VALUES (?, ?, ?)',
+                      (user_id, json.dumps(history, ensure_ascii=False), now.isoformat()))
             conn.commit()
-            return history, lang
+            return history
 
-    def _update_session(self, user_id, history, lang='ru'):
+    def _update_session(self, user_id, history):
         with sqlite3.connect(self.db_path) as conn:
             c = conn.cursor()
-            c.execute('UPDATE sessions SET history = ?, last_active = ?, lang = ? WHERE user_id = ?',
-                      (json.dumps(history, ensure_ascii=False), datetime.now().isoformat(), lang, user_id))
+            c.execute('UPDATE sessions SET history = ?, last_active = ? WHERE user_id = ?',
+                      (json.dumps(history, ensure_ascii=False), datetime.now().isoformat(), user_id))
             conn.commit()
 
-    def _detect_lang(self, text: str) -> str | None:
-        """Определяет язык по тексту. Возвращает 'ru', 'uz', или None если непонятно."""
-        if not text or text.startswith('SYSTEM_OBSERVATION'):
-            return None
-        # Кириллические символы — скорее всего русский или узбекский на кирилице
-        # Узбекские латинские маркеры
-        uz_latin = ['cha', 'chi', "o'", "g'", 'sh', 'ng', 'bu', 'men', 'siz', 'bor', 'yo', 'lar', 'dan', 'ga', 'ni', 'ham', 'kerak', 'qil', 'top', 'nima', 'qancha', 'narx', 'mahsulot', 'sotib']
-        text_lower = text.lower()
-        uz_score = sum(1 for w in uz_latin if w in text_lower)
-        # Русские маркеры
-        ru_markers = ['это', 'как', 'что', 'где', 'когда', 'есть', 'нет', 'хочу', 'покажи', 'можно', 'цена', 'товар', 'заказ', 'помогите', 'привет', 'добрый', 'спасибо', 'привет', 'давай', 'найди']
-        ru_score = sum(1 for w in ru_markers if w in text_lower)
-        # Русский алфавит
-        ru_chars = sum(1 for c in text if 'а' <= c <= 'я' or 'А' <= c <= 'Я')
-        if ru_chars > 3:
-            ru_score += 2
-        if uz_score > ru_score:
-            return 'uz'
-        if ru_score > uz_score:
-            return 'ru'
-        return None
+
             
     def _set_waiting_support(self, user_id, waiting=True):
         with sqlite3.connect(self.db_path) as conn:
@@ -356,7 +327,7 @@ JSON: {
         @self.bot.message_handler(commands=['start'])
         async def start(m):
             user_id = m.from_user.id
-            self._update_session(user_id, [], 'ru')
+            self._update_session(user_id, [])
             await self.bot.send_message(
                 m.chat.id,
                 "✨ *Добро пожаловать в Style Zone!*\n"
@@ -408,21 +379,13 @@ JSON: {
                 await self.bot.send_message(m.chat.id, "✅ Сообщение передано менеджеру. Он скоро вам ответит!", reply_markup=self._get_main_keyboard())
                 return
 
-            history, lang = self._get_session(user_id)
+            history = self._get_session(user_id)
             user_text = m.text or "[Фото]"
             await self.bot.send_chat_action(m.chat.id, 'typing')
 
-            # Определяем язык из нового сообщения
-            detected = self._detect_lang(user_text)
-            if detected:
-                lang = detected
-
-            # Добавляем метку языка к тексту для ИИ
-            tagged_text = f"[USER_LANG: {lang}] {user_text}"
-
             context_messages = history[-20:]
-            context_messages.append({"role": "user", "content": tagged_text})
-            history.append({"role": "user", "content": tagged_text})
+            context_messages.append({"role": "user", "content": user_text})
+            history.append({"role": "user", "content": user_text})
 
             try:
                 MAX_ITERATIONS = 4
@@ -463,7 +426,7 @@ JSON: {
                     await self.bot.send_message(m.chat.id, final_msg, disable_web_page_preview=True)
 
                 history.append({"role": "assistant", "content": json.dumps(final_ai_response, ensure_ascii=False)})
-                self._update_session(user_id, history[-20:], lang)
+                self._update_session(user_id, history[-20:])
             except Exception as e:
                 self.logger.error(f"Error: {e}")
                 await self.bot.send_message(m.chat.id, "✨ Произошла небольшая техническая заминка.")
