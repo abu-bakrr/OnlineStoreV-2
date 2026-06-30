@@ -645,7 +645,8 @@ def admin_telegram_settings():
         return jsonify({'bot_token': cfg['bot_token'], 'admin_chat_id': cfg['admin_chat_id'], 'notifications_enabled': cfg['notifications_enabled']})
     
     data = request.json
-    set_platform_setting('telegram_bot_token', data.get('bot_token'), True)
+    if data.get('bot_token'):
+        set_platform_setting('telegram_bot_token', data.get('bot_token'), True)
     set_platform_setting('telegram_admin_chat_id', data.get('admin_chat_id'), False)
     set_platform_setting('telegram_notifications_enabled', str(data.get('notifications_enabled')).lower(), False)
     return jsonify({'message': 'Telegram settings saved'})
@@ -697,21 +698,24 @@ def admin_update_payment_settings(provider):
     data = request.json
     
     if provider == 'click':
-        set_platform_setting('click_enabled', str(data.get('enabled')).lower(), False)
         set_platform_setting('click_merchant_id', data.get('merchant_id'), False)
         set_platform_setting('click_service_id', data.get('service_id'), False)
-        if data.get('secret_key'): set_platform_setting('click_secret_key', data.get('secret_key'), True)
+        if data.get('secret_key'):
+            set_platform_setting('click_secret_key', data.get('secret_key'), True)
+        set_platform_setting('click_enabled', str(data.get('enabled')).lower(), False)
     
     elif provider == 'payme':
-        set_platform_setting('payme_enabled', str(data.get('enabled')).lower(), False)
         set_platform_setting('payme_merchant_id', data.get('merchant_id'), False)
-        if data.get('key'): set_platform_setting('payme_key', data.get('key'), True)
+        if data.get('key'):
+            set_platform_setting('payme_key', data.get('key'), True)
+        set_platform_setting('payme_enabled', str(data.get('enabled')).lower(), False)
         
     elif provider == 'uzum':
-        set_platform_setting('uzum_enabled', str(data.get('enabled')).lower(), False)
         set_platform_setting('uzum_merchant_id', data.get('merchant_id'), False)
         set_platform_setting('uzum_service_id', data.get('service_id'), False)
-        if data.get('secret_key'): set_platform_setting('uzum_secret_key', data.get('secret_key'), True)
+        if data.get('secret_key'):
+            set_platform_setting('uzum_secret_key', data.get('secret_key'), True)
+        set_platform_setting('uzum_enabled', str(data.get('enabled')).lower(), False)
         
     elif provider == 'card_transfer':
         set_platform_setting('card_transfer_enabled', str(data.get('enabled')).lower(), False)

@@ -189,6 +189,8 @@ export default function AdminSettings() {
 	const [deliveryDaysBackorder, setDeliveryDaysBackorder] =
 		useState<string>('14')
 
+	const [initialSettings, setInitialSettings] = useState<any>({})
+
 	const [saving, setSaving] = useState<string | null>(null)
 	const [testing, setTesting] = useState<string | null>(null)
 	const [testResult, setTestResult] = useState<{
@@ -223,15 +225,20 @@ export default function AdminSettings() {
 				fetch('/api/admin/settings/delivery'),
 			])
 
+			const newInit: any = {}
 			if (cloudinaryRes.ok) {
 				const data = await cloudinaryRes.json()
 				setCloudinary(data)
 				setCloudinarySecret(data.api_secret || '')
+				newInit.cloudinary = data
+				newInit.cloudinarySecret = data.api_secret || ''
 			}
 			if (telegramRes.ok) {
 				const data = await telegramRes.json()
 				setTelegram(data)
 				setTelegramToken(data.bot_token || '')
+				newInit.telegram = data
+				newInit.telegramToken = data.bot_token || ''
 			}
 			if (paymentsRes.ok) {
 				const data = await paymentsRes.json()
@@ -239,18 +246,33 @@ export default function AdminSettings() {
 				setClickSecretKey(data.click?.secret_key || '')
 				setPaymeKey(data.payme?.key || '')
 				setUzumSecretKey(data.uzum?.secret_key || '')
+				newInit.payments = data
+				newInit.clickSecretKey = data.click?.secret_key || ''
+				newInit.paymeKey = data.payme?.key || ''
+				newInit.uzumSecretKey = data.uzum?.secret_key || ''
 			}
-			if (yandexRes.ok) setYandexMaps(await yandexRes.json())
+			if (yandexRes.ok) {
+				const data = await yandexRes.json()
+				setYandexMaps(data)
+				newInit.yandexMaps = data
+			}
 			if (smtpRes.ok) {
 				const data = await smtpRes.json()
 				setSmtp(data)
 				setSmtpPassword(data.password || '')
+				newInit.smtp = data
+				newInit.smtpPassword = data.password || ''
 			}
 			if (deliveryRes.ok) {
 				const data = await deliveryRes.json()
-				setDeliveryDaysInStock(String(data.delivery_days_in_stock || 3))
-				setDeliveryDaysBackorder(String(data.delivery_days_backorder || 14))
+				setDeliveryDaysInStock(data.delivery_days_in_stock?.toString() || '3')
+				setDeliveryDaysBackorder(
+					data.delivery_days_backorder?.toString() || '14'
+				)
+				newInit.deliveryDaysInStock = data.delivery_days_in_stock?.toString() || '3'
+				newInit.deliveryDaysBackorder = data.delivery_days_backorder?.toString() || '14'
 			}
+			setInitialSettings(newInit)
 		} catch (error) {
 			console.error('Failed to load settings:', error)
 		} finally {
@@ -741,7 +763,7 @@ export default function AdminSettings() {
 							<div className='flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4'>
 								<Button
 									onClick={handleSaveTelegram}
-									disabled={saving === 'telegram'}
+									disabled={saving === 'telegram' || (JSON.stringify(telegram) === JSON.stringify(initialSettings.telegram) && telegramToken === initialSettings.telegramToken)}
 									className='w-full sm:w-auto'
 								>
 									{saving === 'telegram' ?
@@ -913,7 +935,7 @@ export default function AdminSettings() {
 							<div className='flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4'>
 								<Button
 									onClick={handleSaveSmtp}
-									disabled={saving === 'smtp'}
+									disabled={saving === 'smtp' || (JSON.stringify(smtp) === JSON.stringify(initialSettings.smtp) && smtpPassword === initialSettings.smtpPassword)}
 									className='w-full sm:w-auto'
 								>
 									{saving === 'smtp' ?
@@ -1062,7 +1084,7 @@ export default function AdminSettings() {
 							<div className='flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4'>
 								<Button
 									onClick={handleSaveCloudinary}
-									disabled={saving === 'cloudinary'}
+									disabled={saving === 'cloudinary' || (JSON.stringify(cloudinary) === JSON.stringify(initialSettings.cloudinary) && cloudinarySecret === initialSettings.cloudinarySecret)}
 									className='w-full sm:w-auto'
 								>
 									{saving === 'cloudinary' ?
@@ -1230,7 +1252,7 @@ export default function AdminSettings() {
 
 							<Button
 								onClick={() => handleSavePayment('click')}
-								disabled={saving === 'click'}
+								disabled={saving === 'click' || (JSON.stringify(payments.click) === JSON.stringify(initialSettings.payments?.click) && clickSecretKey === initialSettings.clickSecretKey)}
 							>
 								{saving === 'click' ?
 									<>
@@ -1320,7 +1342,7 @@ export default function AdminSettings() {
 
 							<Button
 								onClick={() => handleSavePayment('payme')}
-								disabled={saving === 'payme'}
+								disabled={saving === 'payme' || (JSON.stringify(payments.payme) === JSON.stringify(initialSettings.payments?.payme) && paymeKey === initialSettings.paymeKey)}
 							>
 								{saving === 'payme' ?
 									<>
@@ -1427,7 +1449,7 @@ export default function AdminSettings() {
 
 							<Button
 								onClick={() => handleSavePayment('uzum')}
-								disabled={saving === 'uzum'}
+								disabled={saving === 'uzum' || (JSON.stringify(payments.uzum) === JSON.stringify(initialSettings.payments?.uzum) && uzumSecretKey === initialSettings.uzumSecretKey)}
 							>
 								{saving === 'uzum' ?
 									<>
@@ -1528,7 +1550,7 @@ export default function AdminSettings() {
 
 							<Button
 								onClick={() => handleSavePayment('card_transfer')}
-								disabled={saving === 'card_transfer'}
+								disabled={saving === 'card_transfer' || JSON.stringify(payments.card_transfer) === JSON.stringify(initialSettings.payments?.card_transfer)}
 							>
 								{saving === 'card_transfer' ?
 									<>
@@ -1623,7 +1645,7 @@ export default function AdminSettings() {
 							<div className='flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4'>
 								<Button
 									onClick={handleSaveYandexMaps}
-									disabled={saving === 'yandex'}
+									disabled={saving === 'yandex' || JSON.stringify(yandexMaps) === JSON.stringify(initialSettings.yandexMaps)}
 									className='w-full sm:w-auto'
 								>
 									{saving === 'yandex' ?
@@ -1754,7 +1776,7 @@ export default function AdminSettings() {
 							<div className='flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4'>
 								<Button
 									onClick={handleSaveDelivery}
-									disabled={saving === 'delivery'}
+									disabled={saving === 'delivery' || (deliveryDaysInStock === initialSettings.deliveryDaysInStock && deliveryDaysBackorder === initialSettings.deliveryDaysBackorder)}
 									className='w-full sm:w-auto'
 								>
 									{saving === 'delivery' ?
