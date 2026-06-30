@@ -8,11 +8,10 @@ from datetime import datetime, timedelta
 
 # Encryption for sensitive settings
 def get_encryption_key():
-    key = os.environ.get("SETTINGS_ENCRYPTION_KEY")
+    key = os.getenv('SETTINGS_ENCRYPTION_KEY') or os.getenv('SECRET_KEY')
     if not key:
-        print("⚠️ WARNING: SETTINGS_ENCRYPTION_KEY is not set. Using a randomly generated fallback key. Encrypted settings will be lost on restart!")
-        key = base64.b64encode(os.urandom(32)).decode('utf-8')
-        os.environ["SETTINGS_ENCRYPTION_KEY"] = key # Store it for this session
+        # Fallback to a hardcoded string if neither is set, to prevent data loss across restarts
+        key = 'fallback-encryption-key-please-set-env-var'
     
     key_bytes = hashlib.sha256(key.encode()).digest()
     return base64.urlsafe_b64encode(key_bytes)
@@ -351,27 +350,33 @@ def get_payment_config(provider, include_env=True):
     if provider == 'click':
         db_enabled = get_platform_setting('click_enabled')
         env_enabled = os.getenv('CLICK_MERCHANT_ID') and os.getenv('CLICK_SERVICE_ID') if include_env else False
+        secret_key = get_platform_setting('click_secret_key') or (os.getenv('CLICK_SECRET_KEY') if include_env else '') or ''
         return {
             'merchant_id': get_platform_setting('click_merchant_id') or (os.getenv('CLICK_MERCHANT_ID') if include_env else '') or '',
             'service_id': get_platform_setting('click_service_id') or (os.getenv('CLICK_SERVICE_ID') if include_env else '') or '',
-            'secret_key': get_platform_setting('click_secret_key') or (os.getenv('CLICK_SECRET_KEY') if include_env else '') or '',
+            'secret_key': secret_key,
+            'has_secret_key': bool(secret_key),
             'enabled': db_enabled == 'true' if db_enabled else bool(env_enabled)
         }
     elif provider == 'payme':
         db_enabled = get_platform_setting('payme_enabled')
         env_enabled = os.getenv('PAYME_MERCHANT_ID') if include_env else False
+        key = get_platform_setting('payme_key') or (os.getenv('PAYME_KEY') if include_env else '') or ''
         return {
             'merchant_id': get_platform_setting('payme_merchant_id') or (os.getenv('PAYME_MERCHANT_ID') if include_env else '') or '',
-            'key': get_platform_setting('payme_key') or (os.getenv('PAYME_KEY') if include_env else '') or '',
+            'key': key,
+            'has_key': bool(key),
             'enabled': db_enabled == 'true' if db_enabled else bool(env_enabled)
         }
     elif provider == 'uzum':
         db_enabled = get_platform_setting('uzum_enabled')
         env_enabled = os.getenv('UZUM_MERCHANT_ID') if include_env else False
+        secret_key = get_platform_setting('uzum_secret_key') or (os.getenv('UZUM_SECRET_KEY') if include_env else '') or ''
         return {
             'merchant_id': get_platform_setting('uzum_merchant_id') or (os.getenv('UZUM_MERCHANT_ID') if include_env else '') or '',
             'service_id': get_platform_setting('uzum_service_id') or (os.getenv('UZUM_SERVICE_ID') if include_env else '') or '',
-            'secret_key': get_platform_setting('uzum_secret_key') or (os.getenv('UZUM_SECRET_KEY') if include_env else '') or '',
+            'secret_key': secret_key,
+            'has_secret_key': bool(secret_key),
             'enabled': db_enabled == 'true' if db_enabled else bool(env_enabled)
         }
     elif provider == 'card_transfer':

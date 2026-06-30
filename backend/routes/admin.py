@@ -642,7 +642,7 @@ def admin_telegram_settings():
     if not require_admin(): return admin_required_response()
     if request.method == 'GET':
         cfg = get_telegram_config()
-        return jsonify({'bot_token': cfg['bot_token'], 'admin_chat_id': cfg['admin_chat_id'], 'notifications_enabled': cfg['notifications_enabled']})
+        return jsonify({'bot_token': cfg['bot_token'], 'has_bot_token': bool(cfg['bot_token']), 'admin_chat_id': cfg['admin_chat_id'], 'notifications_enabled': cfg['notifications_enabled']})
     
     data = request.json
     if data.get('bot_token'):
@@ -1144,16 +1144,15 @@ def admin_smtp_settings():
     if not require_admin(): return admin_required_response()
     
     if request.method == 'GET':
-        cfg = get_smtp_config()
-        # Don't return the actual password, just a flag if it exists
+        config = get_smtp_config()
         return jsonify({
-            'host': cfg['host'], 
-            'port': cfg['port'], 
-            'user': cfg['user'], 
-            'has_password': bool(cfg['password']),
-            'from_email': cfg['from_email'],
-            'from_name': cfg['from_name'],
-            'use_tls': cfg['use_tls']
+            'host': config['host'],
+            'port': config['port'],
+            'user': config['user'],
+            'has_password': bool(config['password']),
+            'from_email': config['from_email'],
+            'from_name': config['from_name'],
+            'use_tls': config['use_tls']
         })
     
     data = request.json
