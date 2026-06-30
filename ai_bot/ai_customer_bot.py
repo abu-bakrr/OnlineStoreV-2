@@ -71,17 +71,24 @@ class MillyBot:
         self.groq = AsyncGroq(api_key=self.groq_key) if self.groq_key else None
         self.ADMIN_ID = 7710352080
         
-        self.system_prompt = """### 💎 AI ЭКСПЕРТ STYLE ZONE
+        self.system_prompt = """### 💎 AI АССИСТЕНТ STYLE ZONE
 
 **IMPORTANT: You MUST respond strictly in JSON format.**
 
 #### 👑 ТВОЯ РОЛЬ И ОБРАЗ:
-Ты — Zoe (Зои), твой персональный AI-стилист и консультант в бутике Style Zone. Твоя речь:
-- **Профессиональная**: Ты знаешь всё о тканях, крое и стиле.
+Ты — SZ Assistant, официальный AI-ассистент и консультант интернет-магазина Style Zone. Твоя речь:
+- **Профессиональная**: Ты знаешь всё о товарах, ценах и доставке.
 - **Вдохновляющая и яркая**: Используй много уместных эмодзи, чтобы сделать ответ живым.
 
+#### 🌍 КРИТИЧЕСКИ ВАЖНО — ЯЗЫК ОТВЕТА:
+- В начале каждого сообщения от пользователя будет метка: `[USER_LANG: ru]` или `[USER_LANG: uz]`.
+- Если `[USER_LANG: ru]` — отвечай СТРОГО на РУССКОМ языке.
+- Если `[USER_LANG: uz]` — отвечай СТРОГО на УЗБЕКСКОМ языке.
+- Автоматически определяй язык пользователя и обновляй внутреннее понимание.
+- **НИКОГДА не смешивай языки в одном ответе!**
+
 #### 🏢 О МАГАЗИНЕ:
-Style Zone — зона твоего стиля. Интернет-магазин стильной одежды и аксессуаров. Доставка по всему Узбекистану.
+Style Zone — интернет-магазин стильной одежды и аксессуаров. Доставка по всему Узбекистану.
 - Сайт: **[Style Zone](https://stylezoneuz.shop)**
 - Telegram: **[@szoneAI_bot](https://t.me/szoneAI_bot)**
 
@@ -89,7 +96,7 @@ Style Zone — зона твоего стиля. Интернет-магазин
 Вы ОБЯЗАНЫ всегда возвращать ТОЛЬКО валидный JSON с тремя ключами: `thoughts`, `action`, `reply_to_user`.
 ```json
 {
-  "thoughts": "Я должна найти кроссовки. Вызываю search.",
+  "thoughts": "Я должен найти кроссовки. Вызываю search.",
   "action": {
     "tool": "search",
     "args": {
@@ -108,36 +115,34 @@ Style Zone — зона твоего стиля. Интернет-магазин
 - `order`: Статус заказа. Args: `{"id": "номер заказа"}`
 
 #### 🚫 СТРОГИЕ ЗАПРЕТЫ (КРИТИЧЕСКИ ВАЖНО):
-1. **НЕ ВЫДУМЫВАТЬ ТОВАРЫ!** Если инструмент `search` вернул пустой результат или `Unknown tool` — честно скажи клиенту, что таких товаров сейчас нет.
-2. **НЕ ВЫДУМЫВАТЬ ЦЕНЫ И ДЕТАЛИ!** Бери всю информацию ТОЛЬКО из ответа (SYSTEM_OBSERVATION) инструмента `info` или `search`.
+1. **НЕ ВЫДУМЫВАТЬ ТОВАРЫ!** Если инструмент `search` вернул пустой результат — честно скажи клиенту, что таких товаров сейчас нет.
+2. **НЕ ВЫДУМЫВАТЬ ЦЕНЫ И ДЕТАЛИ!** Бери всю информацию ТОЛЬКО из ответа (SYSTEM_OBSERVATION) инструмента.
 3. **НИКАКИХ HEX-КОДОВ!** Не пиши #000000, используй слова (черный, белый и т.д.).
 
-#### 🎨 ШАБЛОНЫ ОТВЕТОВ (СТРОГО СОБЛЮДАТЬ ФОРМАТИРОВАНИЕ):
-- **ЛЮБЫЕ ССЫЛКИ**: Всегда **жирные**. Формат: **[Текст](ссылка)**. Не используй нижнее подчеркивание (_) вне ссылок.
-- **ВЫВОД ТОВАРА (КОПИРОВАТЬ ЭТОТ ШАБЛОН ТОЧЬ-В-ТОЧЬ)**:
+#### 🎨 ШАБЛОНЫ ОТВЕТОВ:
+- **ЛЮБЫЕ ССЫЛКИ**: Всегда **жирные**. Формат: **[Текст](ссылка)**.
+- **ВЫВОД ТОВАРА**:
 
 **[Название товара](https://stylezoneuz.shop/product/ID)**
 💰 **Цена**: `450,000` сум
 📝 **Описание**: (Текст из info)
 ✨ **Наличие**:
-• Цвет/Размер: ✅ (в наличии) или ❌ (нет в наличии)
+• Цвет/Размер: ✅ или ❌
 
-#### 💎 ПРИМЕРЫ ОТВЕТОВ (Few-Shot) (ОЧЕНЬ ВАЖНО):
+#### 💎 ПРИМЕРЫ ОТВЕТОВ:
 
-Пример 1: Вызов поиска (когда клиент просит товар, сначала ищем)
-User: "давай air force"
+Пример 1 (RU): User: "[USER_LANG: ru] давай air force"
 JSON: {
-  "thoughts": "Клиент просит кроссовки Air Force. Мне нужно сначала найти их в базе.",
+  "thoughts": "Клиент пишет на русском. Ищу Air Force.",
   "action": { "tool": "search", "args": { "query": "air force" } },
-  "reply_to_user": "✨ Сейчас поищу для вас лучшие Air Force..."
+  "reply_to_user": "✨ Сейчас поищу для вас..."
 }
 
-Пример 2: Презентация товара (после ответа инструмента info или search)
-User: SYSTEM_OBSERVATION: {"id": "p1", "name": "Кроссовки Nike Air Force", "price": 1200000, "desc": "Кожаные белые."}
+Пример 2 (UZ): User: "[USER_LANG: uz] krossovka bor mi"
 JSON: {
-  "thoughts": "Товар найден, презентую по строгому шаблону.",
-  "action": { "tool": "none" },
-  "reply_to_user": "С радостью расскажу об этой модели! ✨\n\n**[Кроссовки Nike Air Force](https://stylezoneuz.shop/product/p1)**\n💰 **Цена**: `1,200,000` сум\n📝 **Описание**: Кожаные белые кроссовки.\n✨ **Наличие**:\n• Белый / 42: ✅\n\nХотите оформить заказ? 🛍️"
+  "thoughts": "Foydalanuvchi o'zbek tilida yozmoqda. Krossovka qidiraman.",
+  "action": { "tool": "search", "args": { "query": "krossovka" } },
+  "reply_to_user": "✨ Hozir sizga eng yaxshi krossovkalarni topaman..."
 }
 """
         # Register handlers right away
@@ -147,11 +152,17 @@ JSON: {
         with sqlite3.connect(self.db_path) as conn:
             c = conn.cursor()
             c.execute('''CREATE TABLE IF NOT EXISTS sessions
-                         (user_id INTEGER PRIMARY KEY, history TEXT, last_active TIMESTAMP)''')
+                         (user_id INTEGER PRIMARY KEY, history TEXT, last_active TIMESTAMP, lang TEXT DEFAULT 'ru')''')
             c.execute('''CREATE TABLE IF NOT EXISTS support_queue
                          (user_id INTEGER PRIMARY KEY, waiting BOOLEAN)''')
             c.execute('''CREATE TABLE IF NOT EXISTS support_messages
                          (message_id INTEGER PRIMARY KEY, user_id INTEGER)''')
+            # Добавляем колонку lang если ещё нет (для старых БД)
+            try:
+                c.execute('ALTER TABLE sessions ADD COLUMN lang TEXT DEFAULT \'ru\'')
+                conn.commit()
+            except Exception:
+                pass
             # Очищаем историю чатов при каждой перезагрузке бота
             c.execute('DELETE FROM sessions')
             conn.commit()
@@ -159,31 +170,55 @@ JSON: {
     def _get_session(self, user_id):
         with sqlite3.connect(self.db_path) as conn:
             c = conn.cursor()
-            c.execute('SELECT history, last_active FROM sessions WHERE user_id = ?', (user_id,))
+            c.execute('SELECT history, last_active, lang FROM sessions WHERE user_id = ?', (user_id,))
             row = c.fetchone()
             now = datetime.now()
             
             if row:
                 history = json.loads(row[0])
                 last_active = datetime.fromisoformat(row[1])
+                lang = row[2] or 'ru'
                 # Очищаем чат по истечению 2 часов (7200 секунд)
                 if (now - last_active).total_seconds() > 7200:
                     history = []
                     self.logger.info(f"♻️ Session reset for {user_id}")
             else:
                 history = []
+                lang = 'ru'
             
-            c.execute('REPLACE INTO sessions (user_id, history, last_active) VALUES (?, ?, ?)',
-                      (user_id, json.dumps(history, ensure_ascii=False), now.isoformat()))
+            c.execute('REPLACE INTO sessions (user_id, history, last_active, lang) VALUES (?, ?, ?, ?)',
+                      (user_id, json.dumps(history, ensure_ascii=False), now.isoformat(), lang))
             conn.commit()
-            return history
+            return history, lang
 
-    def _update_session(self, user_id, history):
+    def _update_session(self, user_id, history, lang='ru'):
         with sqlite3.connect(self.db_path) as conn:
             c = conn.cursor()
-            c.execute('UPDATE sessions SET history = ?, last_active = ? WHERE user_id = ?',
-                      (json.dumps(history, ensure_ascii=False), datetime.now().isoformat(), user_id))
+            c.execute('UPDATE sessions SET history = ?, last_active = ?, lang = ? WHERE user_id = ?',
+                      (json.dumps(history, ensure_ascii=False), datetime.now().isoformat(), lang, user_id))
             conn.commit()
+
+    def _detect_lang(self, text: str) -> str | None:
+        """Определяет язык по тексту. Возвращает 'ru', 'uz', или None если непонятно."""
+        if not text or text.startswith('SYSTEM_OBSERVATION'):
+            return None
+        # Кириллические символы — скорее всего русский или узбекский на кирилице
+        # Узбекские латинские маркеры
+        uz_latin = ['cha', 'chi', "o'", "g'", 'sh', 'ng', 'bu', 'men', 'siz', 'bor', 'yo', 'lar', 'dan', 'ga', 'ni', 'ham', 'kerak', 'qil', 'top', 'nima', 'qancha', 'narx', 'mahsulot', 'sotib']
+        text_lower = text.lower()
+        uz_score = sum(1 for w in uz_latin if w in text_lower)
+        # Русские маркеры
+        ru_markers = ['это', 'как', 'что', 'где', 'когда', 'есть', 'нет', 'хочу', 'покажи', 'можно', 'цена', 'товар', 'заказ', 'помогите', 'привет', 'добрый', 'спасибо', 'привет', 'давай', 'найди']
+        ru_score = sum(1 for w in ru_markers if w in text_lower)
+        # Русский алфавит
+        ru_chars = sum(1 for c in text if 'а' <= c <= 'я' or 'А' <= c <= 'Я')
+        if ru_chars > 3:
+            ru_score += 2
+        if uz_score > ru_score:
+            return 'uz'
+        if ru_score > uz_score:
+            return 'ru'
+        return None
             
     def _set_waiting_support(self, user_id, waiting=True):
         with sqlite3.connect(self.db_path) as conn:
@@ -321,10 +356,14 @@ JSON: {
         @self.bot.message_handler(commands=['start'])
         async def start(m):
             user_id = m.from_user.id
-            self._update_session(user_id, [])
+            self._update_session(user_id, [], 'ru')
             await self.bot.send_message(
-                m.chat.id, 
-                "✨ *Добро пожаловать в Style Zone!*\n\nЯ Zoe (Зои), ваш персональный AI-стилист. Чем могу помочь сегодня? 👗", 
+                m.chat.id,
+                "✨ *Добро пожаловать в Style Zone!*\n"
+                "Я *SZ Assistant* — ваш персональный помощник. Чем могу помочь? 🛍️\n\n"
+                "━━━━━━━━━━━━━━━━━━\n"
+                "✨ *Style Zone'ga xush kelibsiz!*\n"
+                "Men *SZ Assistant* — sizning shaxsiy yordamchingizman. Qanday yordam bera olaman? 🛍️",
                 parse_mode='Markdown',
                 reply_markup=self._get_main_keyboard()
             )
@@ -369,13 +408,21 @@ JSON: {
                 await self.bot.send_message(m.chat.id, "✅ Сообщение передано менеджеру. Он скоро вам ответит!", reply_markup=self._get_main_keyboard())
                 return
 
-            history = self._get_session(user_id)
+            history, lang = self._get_session(user_id)
             user_text = m.text or "[Фото]"
             await self.bot.send_chat_action(m.chat.id, 'typing')
-            
+
+            # Определяем язык из нового сообщения
+            detected = self._detect_lang(user_text)
+            if detected:
+                lang = detected
+
+            # Добавляем метку языка к тексту для ИИ
+            tagged_text = f"[USER_LANG: {lang}] {user_text}"
+
             context_messages = history[-20:]
-            context_messages.append({"role": "user", "content": user_text})
-            history.append({"role": "user", "content": user_text})
+            context_messages.append({"role": "user", "content": tagged_text})
+            history.append({"role": "user", "content": tagged_text})
 
             try:
                 MAX_ITERATIONS = 4
@@ -416,14 +463,14 @@ JSON: {
                     await self.bot.send_message(m.chat.id, final_msg, disable_web_page_preview=True)
 
                 history.append({"role": "assistant", "content": json.dumps(final_ai_response, ensure_ascii=False)})
-                self._update_session(user_id, history[-20:])
+                self._update_session(user_id, history[-20:], lang)
             except Exception as e:
                 self.logger.error(f"Error: {e}")
                 await self.bot.send_message(m.chat.id, "✨ Произошла небольшая техническая заминка.")
 
     async def _run(self):
         await self._set_bot_commands()
-        print("🚀 Milly v9.0 Async запущена!", flush=True)
+        print("🚀 SZ Assistant v9.1 Async запущен!", flush=True)
         await self.bot.polling(non_stop=True, request_timeout=90)
 
     def run(self):
