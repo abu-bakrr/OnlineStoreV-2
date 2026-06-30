@@ -144,7 +144,8 @@ JSON: {
   "reply_to_user": "✨ Hozir sizga eng yaxshi krossovkalarni topaman..."
 }
 """
-        # Register handlers right away
+        # Initialize DB and register handlers
+        self._init_db()
         self._register_handlers()
 
     def _init_db(self):
