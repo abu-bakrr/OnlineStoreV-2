@@ -3,12 +3,13 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from ..database import get_smtp_config
 
-def send_email(to_email, subject, html_content, text_content=None):
+def send_email(to_email, subject, html_content, text_content=None, config=None):
     """Send email via SMTP"""
     try:
-        config = get_smtp_config()
+        if config is None:
+            config = get_smtp_config()
         
-        if not config['host'] or not config['user'] or not config['password']:
+        if not config.get('host') or not config.get('user') or not config.get('password'):
             return False, "Missing SMTP configuration (host, user, or password)"
         
         msg = MIMEMultipart('alternative')

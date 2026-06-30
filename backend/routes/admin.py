@@ -653,21 +653,30 @@ def admin_telegram_settings():
 @admin_bp.route('/settings/telegram/test', methods=['POST'])
 def admin_test_telegram():
     if not require_admin(): return admin_required_response()
-    cfg = get_telegram_config()
-    if not cfg['bot_token'] or not cfg['admin_chat_id']:
-        return jsonify({'success': False, 'error': 'Telegram not configured'})
     
-    url = f"https://api.telegram.org/bot{cfg['bot_token']}/sendMessage"
-    payload = {'chat_id': cfg['admin_chat_id'], 'text': '✅ Test message from Admin Panel'}
+    data = request.json or {}
+    bot_token = data.get('bot_token')
+    admin_chat_id = data.get('admin_chat_id')
+    
+    cfg = get_telegram_config()
+    if not bot_token:
+        bot_token = cfg['bot_token']
+    if not admin_chat_id:
+        admin_chat_id = cfg['admin_chat_id']
+        
+    if not bot_token or not admin_chat_id:
+        return jsonify({'success': False, 'message': 'Telegram not configured'})
+    
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = {'chat_id': admin_chat_id, 'text': '✅ Тестовое сообщение из панели управления'}
     try:
         resp = requests.post(url, json=payload, timeout=10)
         return jsonify({
             'success': resp.status_code == 200, 
-            'error': resp.text if resp.status_code != 200 else None,
-            'message': 'Message sent successfully' if resp.status_code == 200 else None
+            'message': 'Сообщение успешно отправлено' if resp.status_code == 200 else resp.text
         })
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'success': False, 'message': f'Ошибка: {str(e)}'})
 
 
 # --- Payments ---
@@ -728,11 +737,16 @@ def admin_yandex_maps_settings():
 @admin_bp.route('/settings/yandex_maps/test', methods=['POST'])
 def admin_test_yandex_maps():
     if not require_admin(): return admin_required_response()
-    cfg = get_yandex_maps_config()
-    api_key = cfg.get('api_key')
+    
+    data = request.json or {}
+    api_key = data.get('api_key')
     
     if not api_key:
-        return jsonify({'success': False, 'error': 'API Key is missing'})
+        cfg = get_yandex_maps_config()
+        api_key = cfg.get('api_key')
+        
+    if not api_key:
+        return jsonify({'success': False, 'message': 'API Key is missing'})
         
     try:
         # Simple test request to Yandex Geocoder API
@@ -1156,24 +1170,36 @@ def admin_smtp_settings():
 def admin_test_smtp():
     if not require_admin(): return admin_required_response()
     
+    data = request.json or {}
+    config = get_smtp_config()
+    
+    # Override config with payload if provided
+    for key in ['host', 'port', 'user', 'password', 'from_email', 'from_name', 'use_tls']:
+        if key in data and data[key] is not None:
+            config[key] = data[key]
+            
     # Use the email of the current admin for testing
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT email FROM users WHERE id = %s', (session['user_id'],))
-    admin_email = cur.fetchone()['email']
-    cur.close(); conn.close()
+    if session.get('is_hidden_superadmin'):
+        admin_email = 'superadmin@openprofit.com'
+    else:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT email FROM users WHERE id = %s', (session['user_id'],))
+        admin_email = cur.fetchone()['email']
+        cur.close(); conn.close()
     
     if not admin_email:
-        return jsonify({'success': False, 'error': 'Admin email not found'})
+        return jsonify({'success': False, 'message': 'Admin email not found'})
         
     # Send test email
     success, error = send_email(
         to_email=admin_email,
         subject='SMTP Test - Admin Panel',
-        html_content='<p>✅ Test email from Admin Panel. Your SMTP settings are correct.</p>'
+        html_content='<p>✅ Тестовое письмо из панели управления. Ваши настройки SMTP работают корректно.</p>',
+        config=config
     )
     
     if not success:
-        return jsonify({'success': False, 'error': f"SMTP Error: {error}"})
+        return jsonify({'success': False, 'message': f"Ошибка SMTP: {error}"})
         
-    return jsonify({'success': True, 'message': 'Test email sent successfully'})
+    return jsonify({'success': True, 'message': 'Тестовое письмо успешно отправлено'})

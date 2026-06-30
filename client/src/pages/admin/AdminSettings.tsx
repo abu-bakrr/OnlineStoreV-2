@@ -296,14 +296,22 @@ export default function AdminSettings() {
 		setTesting('cloudinary')
 		setTestResult(null)
 		try {
+			const payload: any = {
+				cloud_name: cloudinary.cloud_name,
+				api_key: cloudinary.api_key,
+			}
+			if (cloudinarySecret) payload.api_secret = cloudinarySecret
+
 			const response = await fetch('/api/admin/settings/cloudinary/test', {
 				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
 			})
 			const data = await response.json()
 			setTestResult({
 				key: 'cloudinary',
 				success: data.success,
-				message: data.success ? data.message : data.error,
+				message: data.success ? data.message : (data.error || data.message),
 			})
 		} catch (error) {
 			setTestResult({
@@ -349,14 +357,22 @@ export default function AdminSettings() {
 		setTesting('telegram')
 		setTestResult(null)
 		try {
+			const payload: any = {
+				admin_chat_id: telegram.admin_chat_id,
+				notifications_enabled: telegram.notifications_enabled,
+			}
+			if (telegramToken) payload.bot_token = telegramToken
+
 			const response = await fetch('/api/admin/settings/telegram/test', {
 				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
 			})
 			const data = await response.json()
 			setTestResult({
 				key: 'telegram',
 				success: data.success,
-				message: data.success ? data.message : data.error,
+				message: data.success ? data.message : (data.error || data.message),
 			})
 		} catch (error) {
 			setTestResult({
@@ -452,12 +468,14 @@ export default function AdminSettings() {
 		try {
 			const response = await fetch('/api/admin/settings/yandex_maps/test', {
 				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(yandexMaps),
 			})
 			const data = await response.json()
 			setTestResult({
 				key: 'yandex',
 				success: data.success,
-				message: data.success ? data.message : data.error,
+				message: data.success ? data.message : (data.error || data.message),
 			})
 		} catch (error) {
 			setTestResult({
@@ -532,14 +550,26 @@ export default function AdminSettings() {
 		setTesting('smtp')
 		setTestResult(null)
 		try {
+			const payload: any = {
+				host: smtp.host,
+				port: smtp.port,
+				user: smtp.user,
+				from_email: smtp.from_email,
+				from_name: smtp.from_name,
+				use_tls: smtp.use_tls,
+			}
+			if (smtpPassword) payload.password = smtpPassword
+
 			const response = await fetch('/api/admin/settings/smtp/test', {
 				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
 			})
 			const data = await response.json()
 			setTestResult({
 				key: 'smtp',
 				success: data.success,
-				message: data.success ? data.message : data.error,
+				message: data.success ? data.message : (data.error || data.message),
 			})
 		} catch (error) {
 			setTestResult({ key: 'smtp', success: false, message: 'Ошибка проверки' })
