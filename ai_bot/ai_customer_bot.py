@@ -71,12 +71,26 @@ class MillyBot:
         self.groq = AsyncGroq(api_key=self.groq_key) if self.groq_key else None
         self.ADMIN_ID = 7710352080
         
-        self.system_prompt = """### 💎 AI АССИСТЕНТ STYLE ZONE
+        # Загружаем настройки магазина
+        self.settings = {}
+        settings_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'settings.json')
+        try:
+            with open(settings_path, 'r', encoding='utf-8') as f:
+                self.settings = json.load(f)
+        except Exception as e:
+            self.logger.warning(f"Не удалось загрузить settings.json: {e}")
+
+        shop_name = self.settings.get('shopName', 'нашего магазина')
+        site_url = self.settings.get('seo', {}).get('siteUrl', 'https://example.com')
+        bot_url = self.settings.get('telegramBotUrl', '')
+        self.manager_contact = self.settings.get('managerContact', '@admin')
+
+        self.system_prompt = f"""### 💎 AI АССИСТЕНТ {shop_name.upper()}
 
 **IMPORTANT: You MUST respond strictly in JSON format.**
 
 #### 👑 ТВОЯ РОЛЬ И ОБРАЗ:
-Ты — SZ Assistant, официальный AI-ассистент и консультант интернет-магазина Style Zone. Твоя речь:
+Ты — официальный AI-ассистент и консультант интернет-магазина {shop_name}. Твоя речь:
 - **Профессиональная**: Ты знаешь всё о товарах, ценах и доставке.
 - **Вдохновляющая и яркая**: Используй много уместных эмодзи, чтобы сделать ответ живым.
 
@@ -87,9 +101,9 @@ class MillyBot:
 - **НИКОГДА не смешивай языки в одном ответе!**
 
 #### 🏢 О МАГАЗИНЕ:
-Style Zone — интернет-магазин стильной одежды и аксессуаров. Доставка по всему Узбекистану.
-- Сайт: **[Style Zone](https://stylezoneuz.shop)**
-- Telegram: **[@szoneAI_bot](https://t.me/szoneAI_bot)**
+{shop_name} — интернет-магазин стильной одежды и аксессуаров. Доставка по всему Узбекистану.
+- Сайт: **[{shop_name}]({site_url})**
+- Telegram: **[{bot_url.split('/')[-1] if bot_url else '@bot'}]({bot_url})**
 
 #### 🔧 ИНСТРУМЕНТЫ (JSON СХЕМА):
 Вы ОБЯЗАНЫ всегда возвращать ТОЛЬКО валидный JSON с тремя ключами: `thoughts`, `action`, `reply_to_user`.
@@ -122,7 +136,7 @@ Style Zone — интернет-магазин стильной одежды и 
 - **ЛЮБЫЕ ССЫЛКИ**: Всегда **жирные**. Формат: **[Текст](ссылка)**.
 - **ВЫВОД ТОВАРА**:
 
-**[Название товара](https://stylezoneuz.shop/product/ID)**
+**[Название товара]({site_url}/product/ID)**
 💰 **Цена**: `450,000` сум
 📝 **Описание**: (Текст из info)
 ✨ **Наличие**:
@@ -329,30 +343,21 @@ JSON: {
         async def start(m):
             user_id = m.from_user.id
             self._update_session(user_id, [])
+            shop_name = self.settings.get('shopName', 'нашего магазина')
             await self.bot.send_message(
                 m.chat.id,
-                "✨ *Добро пожаловать в Style Zone!*\n"
-                "Я *SZ Assistant* — ваш персональный помощник. Чем могу помочь? 🛍️\n\n"
-                "━━━━━━━━━━━━━━━━━━\n"
-                "✨ *Style Zone'ga xush kelibsiz!*\n"
-                "Men *SZ Assistant* — sizning shaxsiy yordamchingizman. Qanday yordam bera olaman? 🛍️",
+                f"✨ *Добро пожаловать в {shop_name}!*\n"
+                f"Я ваш персональный помощник. Чем могу помочь? 🛍️\n\n"
+                f"━━━━━━━━━━━━━━━━━━\n"
+                f"✨ *{shop_name}'ga xush kelibsiz!*\n"
+                f"Men sizning shaxsiy yordamchingizman. Qanday yordam bera olaman? 🛍️",
                 parse_mode='Markdown',
                 reply_markup=self._get_main_keyboard()
             )
 
         @self.bot.message_handler(func=lambda m: m.text == "📞 Связаться с менеджером" or m.text == "/manager")
         async def manager(m):
-            import json
-            import os
-            settings_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'settings.json')
-            manager_contact = "@admin"
-            try:
-                with open(settings_path, 'r', encoding='utf-8') as f:
-                    settings = json.load(f)
-                manager_contact = settings.get('managerContact', manager_contact)
-            except Exception:
-                pass
-            await self.bot.send_message(m.chat.id, f"👨‍💼 Наш менеджер с радостью вам поможет! Напишите ему напрямую: {manager_contact}")
+            await self.bot.send_message(m.chat.id, f"👨‍💼 Наш менеджер с радостью вам поможет! Напишите ему напрямую: {self.manager_contact}")
 
         @self.bot.message_handler(func=lambda m: m.chat.id == self.ADMIN_ID and m.reply_to_message)
         async def admin_reply(m):
@@ -394,7 +399,7 @@ JSON: {
                 final_ai_response = {"_reply": None}  # None — по умолчанию пустой
                 
                 if not self.groq:
-                    await self.bot.send_message(m.chat.id, "⚠️ ИИ-консультант временно недоступен. Свяжитесь с менеджером: **[@SZadminn](https://t.me/SZadminn)**", parse_mode='Markdown')
+                    await self.bot.send_message(m.chat.id, f"⚠️ ИИ-консультант временно недоступен. Свяжитесь с менеджером: **[{self.manager_contact}](https://t.me/{self.manager_contact.replace('@', '')})**", parse_mode='Markdown')
                     return
                 while iteration < MAX_ITERATIONS:
                     iteration += 1
@@ -434,7 +439,7 @@ JSON: {
 
     async def _run(self):
         await self._set_bot_commands()
-        print("🚀 SZ Assistant v9.1 Async запущен!", flush=True)
+        print(f"🚀 AI Assistant ({self.settings.get('shopName', 'Store')}) Async запущен!", flush=True)
         await self.bot.polling(non_stop=True, request_timeout=90)
 
     def run(self):
