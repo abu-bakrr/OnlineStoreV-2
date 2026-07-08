@@ -1,15 +1,14 @@
 {
-	"subscriptionTier": "business",
 	"language": "ru",
-	"shopName": "Style Zone",
-	"description": "Зона твоего стиля",
-	"logo": "/config/stylezone.svg",
-	"darkLogo": "/config/stylezone.svg",
+	"shopName": "My Shop",
+	"description": "Добро пожаловать в наш магазин",
+	"logo": "/config/logo.svg",
+	"darkLogo": "/config/logo.svg",
 	"seo": {
-		"title": "Style Zone — Стильная одежда | Интернет-магазин",
-		"description": "Style Zone — интернет-магазин стильной одежды и аксессуаров в Узбекистане. Доставка по всей стране.",
-		"keywords": "одежда, Узбекистан, стиль, мода, аксессуары, style zone, Style Zone, обувь",
-		"siteUrl": "https://stylezoneuz.shop",
+		"title": "My Shop — Интернет-магазин",
+		"description": "Интернет-магазин стильных товаров. Доставка по всей стране.",
+		"keywords": "интернет-магазин, одежда, аксессуары, доставка",
+		"siteUrl": "https://example.com",
 		"language": "ru"
 	},
 	"currency": {
@@ -17,66 +16,78 @@
 		"code": "UZS",
 		"position": "after"
 	},
-	"managerContact": "@SZadminn",
-	"telegramBotUrl": "https://t.me/szoneAI_bot",
+	"managerContact": "@manager",
+	"telegramBotUrl": "https://t.me/your_bot",
 	"colorScheme": {
 		"background": "#FFFFFF",
-		"foreground": "#0B1220",
+		"foreground": "#111111",
 
 		"card": "#FFFFFF",
-		"cardForeground": "#0B1220",
+		"cardForeground": "#111111",
 
-		"primary": "#003487",
+		"primary": "#000000",
 		"primaryForeground": "#FFFFFF",
 
-		"secondary": "#2C5AA0",
+		"secondary": "#555555",
 		"secondaryForeground": "#FFFFFF",
 
-		"muted": "#F2F4F8",
-		"mutedForeground": "#5C6B82",
+		"muted": "#F7F7F7",
+		"mutedForeground": "#6B6B6B",
 
-		"accent": "#1E5FC4",
+		"accent": "#000000",
 		"accentForeground": "#FFFFFF",
 
-		"border": "#E2E6ED",
-		"input": "#E2E6ED",
-		"ring": "#003487"
+		"border": "#E6E6E6",
+		"input": "#E6E6E6",
+		"ring": "#000000"
 	},
 	"colorSchemeDark": {
-		"background": "#0A0E16",
-		"foreground": "#F2F4F8",
+		"background": "#0F0F0F",
+		"foreground": "#F5F5F5",
 
-		"card": "#11161F",
-		"cardForeground": "#F2F4F8",
+		"card": "#161616",
+		"cardForeground": "#F5F5F5",
 
-		"primary": "#3D7BE0",
-		"primaryForeground": "#0A0E16",
+		"primary": "#FFFFFF",
+		"primaryForeground": "#0F0F0F",
 
-		"secondary": "#6E94C9",
-		"secondaryForeground": "#0A0E16",
+		"secondary": "#888888",
+		"secondaryForeground": "#0F0F0F",
 
-		"muted": "#1A2030",
-		"mutedForeground": "#94A3B8",
+		"muted": "#1F1F1F",
+		"mutedForeground": "#9A9A9A",
 
-		"accent": "#4F8FFF",
-		"accentForeground": "#0A0E16",
+		"accent": "#FFFFFF",
+		"accentForeground": "#0F0F0F",
 
-		"border": "#232B3D",
-		"input": "#232B3D",
-		"ring": "#3D7BE0"
+		"border": "#262626",
+		"input": "#262626",
+		"ring": "#FFFFFF"
 	},
 	"sortOptions": [
-		{ "id": "old", "label": "Сначала старые" },
-		{ "id": "new", "label": "Сначала новые" },
-		{ "id": "price-asc", "label": "Сначала дешевые" },
-		{ "id": "price-desc", "label": "Сначала дорогие" }
+		{
+			"id": "old",
+			"label": "Сначала старые"
+		},
+		{
+			"id": "new",
+			"label": "Сначала новые"
+		},
+		{
+			"id": "price-asc",
+			"label": "Сначала дешевые"
+		},
+		{
+			"id": "price-desc",
+			"label": "Сначала дорогие"
+		}
 	],
 	"ui": {
 		"maxWidth": "420px",
 		"productsPerPage": 12,
 		"showCategoryIcons": true,
 		"showPriceFilter": true,
-		"showShopName": false
+		"showShopName": true
 	},
 	"texts": {
 		"addToCart": "Добавить в корзину",
@@ -90,15 +101,21 @@
 	"fonts": {
 		"fontFamily": "Inter",
 		"fontFile": null,
-		"shopNameFontFamily": "Montserrat",
+		"shopNameFontFamily": "Inter",
 		"shopNameFontFile": null,
-		"shopNameFontSize": 30,
-		"productName": { "weight": 700 },
-		"price": { "weight": 600 },
-		"description": { "weight": 400 }
+		"shopNameFontSize": 24,
+		"productName": {
+			"weight": 700
+		},
+		"price": {
+			"weight": 600
+		},
+		"description": {
+			"weight": 400
+		}
 	},
-	"logoSize": 20,
-	"logoSizeLarge": 40,
+	"logoSize": 32,
+	"logoSizeLarge": 80,
 	"orderStatuses": {
 		"pending": "Ожидает оплаты",
 		"reviewing": "Рассматривается",
