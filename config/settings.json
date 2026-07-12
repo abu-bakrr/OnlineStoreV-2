@@ -1,14 +1,14 @@
 {
 	"language": "ru",
-	"shopName": "My Shop",
-	"description": "Добро пожаловать в наш магазин",
-	"logo": "/config/logo.svg",
-	"darkLogo": "/config/logo.svg",
+	"shopName": "HEAVEN FEEL",
+	"description": "HEAVEN FEEL — Ощути стиль",
+	"logo": null,
+	"darkLogo": null,
 	"seo": {
-		"title": "My Shop — Интернет-магазин",
-		"description": "Интернет-магазин стильных товаров. Доставка по всей стране.",
-		"keywords": "интернет-магазин, одежда, аксессуары, доставка",
-		"siteUrl": "https://example.com",
+		"title": "HEAVEN FEEL",
+		"description": "HEAVEN FEEL — стильная одежда. Ощути стиль.",
+		"keywords": "одежда, HEAVEN FEEL, стиль, мода",
+		"siteUrl": "https://heavenfeel.shop",
 		"language": "ru"
 	},
 	"currency": {
@@ -19,50 +19,50 @@
 	"managerContact": "@manager",
 	"telegramBotUrl": "https://t.me/your_bot",
 	"colorScheme": {
-		"background": "#FFFFFF",
-		"foreground": "#111111",
+		"background": "#F5F5F5",
+		"foreground": "#050505",
 
 		"card": "#FFFFFF",
-		"cardForeground": "#111111",
+		"cardForeground": "#050505",
 
-		"primary": "#000000",
+		"primary": "#050505",
 		"primaryForeground": "#FFFFFF",
 
-		"secondary": "#555555",
+		"secondary": "#737373",
 		"secondaryForeground": "#FFFFFF",
 
-		"muted": "#F7F7F7",
-		"mutedForeground": "#6B6B6B",
+		"muted": "#E5E5E5",
+		"mutedForeground": "#737373",
 
-		"accent": "#000000",
+		"accent": "#050505",
 		"accentForeground": "#FFFFFF",
 
-		"border": "#E6E6E6",
-		"input": "#E6E6E6",
-		"ring": "#000000"
+		"border": "#E5E5E5",
+		"input": "#E5E5E5",
+		"ring": "#050505"
 	},
 	"colorSchemeDark": {
-		"background": "#0F0F0F",
-		"foreground": "#F5F5F5",
+		"background": "#050505",
+		"foreground": "#FAFAFA",
 
-		"card": "#161616",
-		"cardForeground": "#F5F5F5",
+		"card": "#0A0A0A",
+		"cardForeground": "#FAFAFA",
 
-		"primary": "#FFFFFF",
-		"primaryForeground": "#0F0F0F",
+		"primary": "#FAFAFA",
+		"primaryForeground": "#050505",
 
-		"secondary": "#888888",
-		"secondaryForeground": "#0F0F0F",
+		"secondary": "#A3A3A3",
+		"secondaryForeground": "#050505",
 
-		"muted": "#1F1F1F",
-		"mutedForeground": "#9A9A9A",
+		"muted": "#171717",
+		"mutedForeground": "#A3A3A3",
 
-		"accent": "#FFFFFF",
-		"accentForeground": "#0F0F0F",
+		"accent": "#FAFAFA",
+		"accentForeground": "#050505",
 
 		"border": "#262626",
 		"input": "#262626",
-		"ring": "#FFFFFF"
+		"ring": "#FAFAFA"
 	},
 	"sortOptions": [
 		{
@@ -101,9 +101,9 @@
 	"fonts": {
 		"fontFamily": "Inter",
 		"fontFile": null,
-		"shopNameFontFamily": "Inter",
-		"shopNameFontFile": null,
-		"shopNameFontSize": 24,
+		"shopNameFontFamily": "Synthemesc",
+		"shopNameFontFile": "/config/Synthemesc W00 Regular.ttf",
+		"shopNameFontSize": 42,
 		"productName": {
 			"weight": 700
 		},
