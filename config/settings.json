@@ -91,7 +91,7 @@
 		"fontFile": null,
 		"shopNameFontFamily": "Synthemesc",
 		"shopNameFontFile": "/config/Synthemesc W00 Regular.ttf",
-		"shopNameFontSize": 42,
+		"shopNameFontSize": 34,
 		"productName": { "weight": 700 },
 		"price": { "weight": 600 },
 		"description": { "weight": 400 }
