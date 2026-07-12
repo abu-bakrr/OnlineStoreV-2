@@ -211,8 +211,7 @@ apt install -y \
     git \
     curl \
     ufw \
-    certbot \
-    python3-certbot-nginx \
+    snapd \
     build-essential
 
 # Node.js
@@ -619,7 +618,20 @@ print_step "Firewall настроен"
 # ============================================================================
 if [ ! -z "$DOMAIN" ] && [ ! -z "$SSL_EMAIL" ]; then
     echo ""
-    print_step "Установка SSL сертификата..."
+    print_step "Установка certbot через snap (надёжный метод)..."
+
+    # Удаляем старый сломанный certbot через apt если есть
+    apt-get remove -y certbot python3-certbot-nginx python3-josepy python3-acme 2>/dev/null || true
+
+    # Устанавливаем через snap
+    snap install core 2>/dev/null || true
+    snap refresh core 2>/dev/null || true
+    snap install --classic certbot
+    ln -sf /snap/bin/certbot /usr/bin/certbot
+    snap set certbot trust-plugin-with-root=ok
+    snap install certbot-dns-cloudflare 2>/dev/null || true  # optional
+
+    print_step "certbot установлен: $(certbot --version 2>&1 | head -1)"
     
     # Проверка DNS
     print_info "Проверка DNS для $DOMAIN..."
