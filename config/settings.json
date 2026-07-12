@@ -11,6 +11,7 @@
 		"siteUrl": "https://monvoir.shop",
 		"language": "ru"
 	},
+	"subscriptionTier": "pro",
 	"currency": {
 		"symbol": "UZS",
 		"code": "UZS",
