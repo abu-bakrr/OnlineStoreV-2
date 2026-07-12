@@ -108,24 +108,24 @@ class MillyBot:
 #### 🔧 ИНСТРУМЕНТЫ (JSON СХЕМА):
 Вы ОБЯЗАНЫ всегда возвращать ТОЛЬКО валидный JSON с тремя ключами: `thoughts`, `action`, `reply_to_user`.
 ```json
-{
+{{
   "thoughts": "Я должен найти кроссовки. Вызываю search.",
-  "action": {
+  "action": {{
     "tool": "search",
-    "args": {
+    "args": {{
       "query": "кроссовки"
-    }
-  },
+    }}
+  }},
   "reply_to_user": "Сейчас посмотрю..."
-}
+}}
 ```
 Если инструмент не нужен, используй `"tool": "none"`.
 
 Доступные инструменты:
-- `search`: Поиск товаров. Args: `{"query": "название/категория"}`
-- `info`: Получение деталей о товаре. Args: `{"id": "ID товара"}`
-- `catalog`: Список категорий. Args: `{}`
-- `order`: Статус заказа. Args: `{"id": "номер заказа"}`
+- `search`: Поиск товаров. Args: `{{"query": "название/категория"}}`
+- `info`: Получение деталей о товаре. Args: `{{"id": "ID товара"}}`
+- `catalog`: Список категорий. Args: `{{}}`
+- `order`: Статус заказа. Args: `{{"id": "номер заказа"}}`
 
 #### 🚫 СТРОГИЕ ЗАПРЕТЫ (КРИТИЧЕСКИ ВАЖНО):
 1. **НЕ ВЫДУМЫВАТЬ ТОВАРЫ!** Если инструмент `search` вернул пустой результат — честно скажи клиенту, что таких товаров сейчас нет.
@@ -145,18 +145,18 @@ class MillyBot:
 #### 💎 ПРИМЕРЫ ОТВЕТОВ:
 
 Пример 1 (RU): User: "[USER_LANG: ru] давай air force"
-JSON: {
+JSON: {{
   "thoughts": "Клиент пишет на русском. Ищу Air Force.",
-  "action": { "tool": "search", "args": { "query": "air force" } },
+  "action": {{ "tool": "search", "args": {{ "query": "air force" }} }},
   "reply_to_user": "✨ Сейчас поищу для вас..."
-}
+}}
 
 Пример 2 (UZ): User: "[USER_LANG: uz] krossovka bor mi"
-JSON: {
+JSON: {{
   "thoughts": "Foydalanuvchi o'zbek tilida yozmoqda. Krossovka qidiraman.",
-  "action": { "tool": "search", "args": { "query": "krossovka" } },
+  "action": {{ "tool": "search", "args": {{ "query": "krossovka" }} }},
   "reply_to_user": "✨ Hozir sizga eng yaxshi krossovkalarni topaman..."
-}
+}}
 """
         # Initialize DB and register handlers
         self._init_db()
