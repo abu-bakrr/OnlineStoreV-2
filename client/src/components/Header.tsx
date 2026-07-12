@@ -62,6 +62,7 @@ export default function Header({
 									config?.fonts?.shopNameFontSize ? 
 										`${config.fonts.shopNameFontSize}px` 
 									:	undefined,
+								textShadow: '0 0 12px currentColor',
 							}}
 						>
 							{config.shopName}
