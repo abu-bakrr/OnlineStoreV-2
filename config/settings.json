@@ -5,10 +5,10 @@
 	"logo": null,
 	"darkLogo": null,
 	"seo": {
-		"title": "HEAVEN FEEL",
+		"title": "HEAVEN FEEL — Интернет-магазин",
 		"description": "HEAVEN FEEL — стильная одежда. Ощути стиль.",
 		"keywords": "одежда, HEAVEN FEEL, стиль, мода",
-		"siteUrl": "https://heavenfeel.shop",
+		"siteUrl": "https://monvoir.shop",
 		"language": "ru"
 	},
 	"currency": {
@@ -65,22 +65,10 @@
 		"ring": "#FAFAFA"
 	},
 	"sortOptions": [
-		{
-			"id": "old",
-			"label": "Сначала старые"
-		},
-		{
-			"id": "new",
-			"label": "Сначала новые"
-		},
-		{
-			"id": "price-asc",
-			"label": "Сначала дешевые"
-		},
-		{
-			"id": "price-desc",
-			"label": "Сначала дорогие"
-		}
+		{ "id": "old", "label": "Сначала старые" },
+		{ "id": "new", "label": "Сначала новые" },
+		{ "id": "price-asc", "label": "Сначала дешевые" },
+		{ "id": "price-desc", "label": "Сначала дорогие" }
 	],
 	"ui": {
 		"maxWidth": "420px",
@@ -104,15 +92,9 @@
 		"shopNameFontFamily": "Synthemesc",
 		"shopNameFontFile": "/config/Synthemesc W00 Regular.ttf",
 		"shopNameFontSize": 42,
-		"productName": {
-			"weight": 700
-		},
-		"price": {
-			"weight": 600
-		},
-		"description": {
-			"weight": 400
-		}
+		"productName": { "weight": 700 },
+		"price": { "weight": 600 },
+		"description": { "weight": 400 }
 	},
 	"logoSize": 32,
 	"logoSizeLarge": 80,
