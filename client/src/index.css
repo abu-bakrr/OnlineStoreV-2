@@ -111,6 +111,7 @@
 	--chart-5: 0 0% 50%;
 
 	--font-sans: Inter, Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
+	--font-heading: 'Space Grotesk', 'Syncopate', sans-serif;
 	--font-serif: Georgia, serif;
 	--font-mono: Menlo, monospace;
 	--radius: 0.75rem;
@@ -444,5 +445,93 @@
 
 	.animate-shimmer {
 		animation: shimmer 2s infinite;
+	}
+
+	/* Y2K Streetwear Styles */
+	h1, h2, h3, h4, h5, h6, .font-heading {
+		font-family: var(--font-heading, 'Space Grotesk', sans-serif) !important;
+		text-transform: uppercase;
+		letter-spacing: -0.02em;
+	}
+
+	button {
+		@apply rounded-full shadow-y2k transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none !important;
+	}
+
+	.chrome-text {
+		background: linear-gradient(180deg, #ffffff 0%, #888888 40%, #222222 50%, #aaaaaa 60%, #ffffff 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.8));
+	}
+
+	.chrome-border {
+		border: 2px solid;
+		border-image: linear-gradient(180deg, #ffffff 0%, #888888 40%, #222222 50%, #aaaaaa 60%, #ffffff 100%) 1;
+	}
+
+	/* Marquee animation */
+	@keyframes marquee {
+		0% { transform: translateX(0); }
+		100% { transform: translateX(-33.333%); }
+	}
+
+	.marquee-wrapper:hover .marquee-track {
+		animation-play-state: paused;
+	}
+
+	.marquee-track {
+		animation: marquee 18s linear infinite;
+		will-change: transform;
+	}
+
+	/* Easter Egg: triple click on logo */
+	@keyframes glitch {
+		0%   { filter: invert(1) hue-rotate(0deg); clip-path: inset(0 0 98% 0); transform: translate(-4px, 0); }
+		10%  { clip-path: inset(30% 0 50% 0); transform: translate(4px, 0); }
+		20%  { clip-path: inset(70% 0 10% 0); transform: translate(-3px, 0); }
+		30%  { clip-path: inset(10% 0 80% 0); transform: translate(3px, 0); }
+		40%  { filter: invert(1) hue-rotate(90deg); clip-path: inset(50% 0 30% 0); transform: translate(-2px, 0); }
+		50%  { clip-path: inset(20% 0 60% 0); transform: translate(2px, 0); }
+		60%  { filter: invert(1) hue-rotate(180deg); clip-path: inset(80% 0 5% 0); transform: translate(-4px, 0); }
+		70%  { clip-path: inset(0 0 90% 0); transform: translate(4px, 0); }
+		80%  { filter: invert(1) hue-rotate(270deg); clip-path: inset(40% 0 40% 0); transform: translate(-1px, 0); }
+		100% { filter: invert(1) hue-rotate(360deg); clip-path: inset(0); transform: translate(0); }
+	}
+
+	/* Easter Egg: triple click on logo */
+	@keyframes glitch-flicker {
+		0%   { filter: invert(0) hue-rotate(0deg); transform: translate(0); }
+		10%  { filter: invert(1) hue-rotate(180deg) brightness(2) contrast(3); transform: translate(-10px, 5px) skewX(10deg) scale(1.02); }
+		20%  { filter: invert(0) hue-rotate(0deg); transform: translate(15px, -5px) skewX(-15deg); }
+		30%  { filter: invert(1) hue-rotate(90deg) sepia(1); transform: translate(-20px, 0) scale(1.05); }
+		40%  { filter: invert(1) hue-rotate(270deg) blur(4px); transform: translate(20px, 10px) skewY(5deg); }
+		50%  { filter: invert(0) hue-rotate(0deg); transform: translate(0, 0); }
+		60%  { filter: invert(1) hue-rotate(180deg) contrast(4); transform: translate(10px, -15px) skewX(20deg); }
+		70%  { filter: invert(0); transform: translate(-15px, 5px) scale(0.95); }
+		80%  { filter: invert(1) hue-rotate(360deg); transform: translate(-5px, -10px) skewY(-10deg); }
+		90%  { filter: invert(0); }
+		100% { filter: invert(1) hue-rotate(180deg); transform: translate(0); }
+	}
+
+	.easter-egg-active {
+		animation: glitch-flicker 0.15s infinite;
+		overflow: hidden;
+	}
+
+	/* Fly-to-cart animation */
+	@keyframes fly-to-cart {
+		0%   { opacity: 1; transform: scale(1) translate(0, 0); }
+		60%  { opacity: 0.9; transform: scale(0.5) translate(var(--fly-x), var(--fly-y)); }
+		100% { opacity: 0; transform: scale(0.1) translate(var(--fly-x), var(--fly-y)); }
+	}
+
+	.fly-clone {
+		position: fixed;
+		border-radius: 12px;
+		pointer-events: none;
+		z-index: 99995;
+		object-fit: cover;
+		animation: fly-to-cart 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 	}
 }

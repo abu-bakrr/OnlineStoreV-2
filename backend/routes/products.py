@@ -1,7 +1,22 @@
 from flask import Blueprint, request, jsonify
-from ..database import get_db_connection
+from ..database import get_db_connection, DEMO_MODE
+import json as _json
 
 products_bp = Blueprint('products', __name__)
+
+def _normalize(product):
+    """Parse JSON string fields for SQLite compatibility."""
+    if not DEMO_MODE:
+        return dict(product)
+    d = dict(product)
+    for field in ('images', 'colors', 'attributes'):
+        if isinstance(d.get(field), str):
+            try:
+                d[field] = _json.loads(d[field])
+            except Exception:
+                pass
+    return d
+
 
 @products_bp.route('/products', methods=['GET'])
 def get_products():
@@ -10,10 +25,10 @@ def get_products():
         conn = get_db_connection()
         cur = conn.cursor()
         if category and category != 'all':
-            cur.execute('SELECT * FROM products WHERE category_id = %s ORDER BY created_at DESC', (category,))
+            cur.execute('SELECT p.* FROM products p WHERE p.category_id = %s AND EXISTS (SELECT 1 FROM product_inventory pi WHERE pi.product_id = p.id AND pi.quantity > 0) ORDER BY p.created_at DESC', (category,))
         else:
-            cur.execute('SELECT * FROM products ORDER BY created_at DESC')
-        products = cur.fetchall()
+            cur.execute('SELECT p.* FROM products p WHERE EXISTS (SELECT 1 FROM product_inventory pi WHERE pi.product_id = p.id AND pi.quantity > 0) ORDER BY p.created_at DESC')
+        products = [_normalize(p) for p in cur.fetchall()]
         cur.close()
         conn.close()
         return jsonify(products)
@@ -37,8 +52,8 @@ def get_product(product_id):
         cur.close()
         conn.close()
         
-        product_data = dict(product)
-        product_data['inventory'] = inventory
+        product_data = _normalize(product)
+        product_data['inventory'] = [dict(i) for i in inventory]
         return jsonify(product_data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -150,7 +165,7 @@ def get_favorites(user_id):
             JOIN products p ON f.product_id = p.id
             WHERE f.user_id = %s
         ''', (user_id,))
-        favorites = cur.fetchall()
+        favorites = [_normalize(p) for p in cur.fetchall()]
         cur.close()
         conn.close()
         return jsonify(favorites)
@@ -169,10 +184,16 @@ def add_to_favorites():
             
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute(
-            'INSERT INTO favorites (user_id, product_id) VALUES (%s, %s) ON CONFLICT DO NOTHING',
-            (user_id, product_id)
-        )
+        if DEMO_MODE:
+            cur.execute(
+                'INSERT OR IGNORE INTO favorites (id, user_id, product_id) VALUES (?,?,?)',
+                (str(__import__('uuid').uuid4()), user_id, product_id)
+            )
+        else:
+            cur.execute(
+                'INSERT INTO favorites (user_id, product_id) VALUES (%s, %s) ON CONFLICT DO NOTHING',
+                (user_id, product_id)
+            )
         conn.commit()
         cur.close()
         conn.close()

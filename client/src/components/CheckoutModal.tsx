@@ -639,19 +639,10 @@ export default function CheckoutModal({
 									<div className='mt-3 pt-3 border-t border-border'>
 										<div className='flex items-center gap-2'>
 											<Clock className='w-4 h-4 text-muted-foreground' />
-											<span className='text-sm'>
-												{deliveryEstimate.has_backorder ? (
-													<span className='text-amber-600'>
-														<strong>Под заказ:</strong> ~
-														{deliveryEstimate.max_backorder_days} дн.
-													</span>
-												) : (
-													<span className='text-green-600'>
-														<strong>В наличии:</strong> ~
-														{deliveryEstimate.default_delivery_days} дн.
-													</span>
-												)}
-											</span>
+												<span className='text-green-600'>
+													<strong>В наличии:</strong> ~
+													{deliveryEstimate.default_delivery_days} дн.
+												</span>
 										</div>
 									</div>
 								)}

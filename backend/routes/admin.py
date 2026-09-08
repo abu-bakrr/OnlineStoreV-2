@@ -781,7 +781,6 @@ def admin_delivery_settings():
     if request.method == 'GET':
         return jsonify({
             'delivery_days_in_stock': get_platform_setting('delivery_days_in_stock') or get_platform_setting('default_delivery_days') or 3,
-            'delivery_days_backorder': get_platform_setting('delivery_days_backorder') or 14,
             'enabled': get_platform_setting('delivery_enabled') == 'true'
         })
     
@@ -791,9 +790,6 @@ def admin_delivery_settings():
         # Keep default_delivery_days for backward compatibility if needed
         set_platform_setting('default_delivery_days', str(data.get('delivery_days_in_stock')), False)
     
-    if 'delivery_days_backorder' in data:
-        set_platform_setting('delivery_days_backorder', str(data.get('delivery_days_backorder')), False)
-        
     if 'enabled' in data:
         set_platform_setting('delivery_enabled', str(data.get('enabled')).lower(), False)
         

@@ -1,4 +1,6 @@
 import ImpersonationBanner from '@/components/ImpersonationBanner'
+import MarqueeBanner from '@/components/Marquee'
+import FilmGrain from '@/components/FilmGrain'
 import FontLoader from '@/components/FontLoader'
 import { OrganizationSchema } from '@/components/SEO'
 import ThemeApplier from '@/components/ThemeApplier'
@@ -209,6 +211,7 @@ function AppContent() {
 	return (
 		<div className='w-full mx-auto bg-background min-h-screen'>
 			<ImpersonationBanner />
+			<MarqueeBanner />
 			<div className='w-full'>
 				<Switch>
 					<Route path='/admin/login'>
@@ -388,6 +391,7 @@ function App() {
 					</AuthProvider>
 				</TooltipProvider>
 			</QueryClientProvider>
+			<FilmGrain />
 		</ThemeProvider>
 	)
 }

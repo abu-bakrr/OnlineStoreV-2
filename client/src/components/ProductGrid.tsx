@@ -82,7 +82,7 @@ export default function ProductGrid({
 	return (
 		<>
 			<div
-				className='grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5 px-3 py-4 md:p-6 max-w-7xl mx-auto'
+				className='grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 px-4 py-6 md:p-8 max-w-[1600px] mx-auto'
 				data-testid='grid-products'
 			>
 				{products.map((product, index) => (

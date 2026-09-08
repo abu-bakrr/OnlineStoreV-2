@@ -118,7 +118,6 @@ DB_PASSWORD=${DB_PASSWORD:-$(openssl rand -hex 8)}
 # 5. Токены ботов
 echo ""
 echo -e "${YELLOW}🤖 ТОКЕНЫ TELEGRAM БОТОВ${NC}"
-read -p "AI Bot Token: " AI_BOT_TOKEN
 read -p "Main Telegram Bot Token (оставьте пустым если нет): " TELEGRAM_BOT_TOKEN
 echo ""
 
@@ -169,7 +168,6 @@ sleep 2
 
 # Telegram Bot токены
 echo -e "${YELLOW}🤖 ТОКЕНЫ TELEGRAM БОТОВ${NC}"
-read -p "AI Bot Token : " AI_BOT_TOKEN
 read -p "Main Telegram Bot Token: " TELEGRAM_BOT_TOKEN
 echo ""
 
@@ -298,8 +296,7 @@ PORT=$APP_PORT
 FLASK_ENV=production
 SESSION_SECRET=$SESSION_SECRET
 
-# AI Bot
-AI_BOT_TOKEN=$AI_BOT_TOKEN
+# AI Bot (disabled)
 GROQ_API_KEY=$GROQ_API_KEY
 GEMINI_API_KEY=$GEMINI_API_KEY
 
@@ -420,27 +417,7 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
-# AI Customer Bot
-cat > /etc/systemd/system/ai-bot${INSTANCE_SUFFIX}.service <<EOF
-[Unit]
-Description=AI Customer Support Bot  ${INSTANCE_SUFFIX}
-After=network.target postgresql.service shop-app${INSTANCE_SUFFIX}.service
-
-[Service]
-Type=simple
-User=$APP_USER
-WorkingDirectory=$APP_DIR
-Environment="PATH=$APP_DIR/venv/bin"
-EnvironmentFile=$APP_DIR/.env
-ExecStart=$APP_DIR/venv/bin/python3 ai_bot/ai_customer_bot.py
-Restart=always
-RestartSec=10
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
-EOF
+# AI Customer Bot (DISABLED)
 
 # Main Telegram Bot
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
@@ -475,8 +452,8 @@ systemctl daemon-reload
 systemctl enable shop-app${INSTANCE_SUFFIX}
 systemctl start shop-app${INSTANCE_SUFFIX}
 
-systemctl enable ai-bot${INSTANCE_SUFFIX}
-systemctl start ai-bot${INSTANCE_SUFFIX}
+# systemctl enable ai-bot${INSTANCE_SUFFIX}
+# systemctl start ai-bot${INSTANCE_SUFFIX}
 
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
     systemctl enable telegram-bot${INSTANCE_SUFFIX}
@@ -501,11 +478,7 @@ else
     print_error "❌ Shop App ${INSTANCE_SUFFIX} не запустился"
 fi
 
-if systemctl is-active --quiet ai-bot${INSTANCE_SUFFIX}; then
-    print_step "✅ AI Bot ${INSTANCE_SUFFIX} запущен"
-else
-    print_error "❌ AI Bot ${INSTANCE_SUFFIX} не запустился"
-fi
+# AI Bot status check removed
 
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
     if systemctl is-active --quiet telegram-bot${INSTANCE_SUFFIX}; then
@@ -682,7 +655,7 @@ fi
 echo ""
 
 echo -e "${BLUE}🤖 БОТЫ (Telegram):${NC}"
-echo -e "   ✅ AI Customer Bot - запущен"
+echo -e "   # ✅ AI Customer Bot - отключен"
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
     echo -e "   ✅ Main Telegram Bot - запущен"
 fi
@@ -690,7 +663,7 @@ echo ""
 
 echo -e "${BLUE}📊 УПРАВЛЕНИЕ СЕРВИСАМИ:${NC}"
 echo -e "   Shop App:      sudo systemctl {start|stop|restart|status} shop-app${INSTANCE_SUFFIX}"
-echo -e "   AI Bot:        sudo systemctl {start|stop|restart|status} ai-bot${INSTANCE_SUFFIX}"
+echo -e "   # AI Bot:        sudo systemctl {start|stop|restart|status} ai-bot${INSTANCE_SUFFIX}"
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
     echo -e "   Telegram Bot:  sudo systemctl {start|stop|restart|status} telegram-bot${INSTANCE_SUFFIX}"
 fi
@@ -698,7 +671,7 @@ echo ""
 
 echo -e "${BLUE}📜 ПРОСМОТР ЛОГОВ:${NC}"
 echo -e "   Shop App:      sudo journalctl -u shop-app${INSTANCE_SUFFIX} -f"
-echo -e "   AI Bot:        sudo journalctl -u ai-bot${INSTANCE_SUFFIX} -f"
+echo -e "   # AI Bot:        sudo journalctl -u ai-bot${INSTANCE_SUFFIX} -f"
 if [ ! -z "$TELEGRAM_BOT_TOKEN" ]; then
     echo -e "   Telegram Bot:  sudo journalctl -u telegram-bot${INSTANCE_SUFFIX} -f"
 fi
@@ -706,7 +679,7 @@ echo ""
 
 echo -e "${BLUE}🔄 ОБНОВЛЕНИЕ:${NC}"
 echo -e "   cd $APP_DIR && git pull"
-echo -e "   sudo systemctl restart shop-app${INSTANCE_SUFFIX} ai-bot${INSTANCE_SUFFIX} telegram-bot${INSTANCE_SUFFIX}"
+echo -e "   sudo systemctl restart shop-app${INSTANCE_SUFFIX} telegram-bot${INSTANCE_SUFFIX}"
 echo ""
 
 echo -e "${YELLOW}📝 СЛЕДУЮЩИЕ ШАГИ:${NC}"

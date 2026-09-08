@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import SearchWithSuggestions from "./SearchWithSuggestions";
+import { useEffect, useState } from "react";
 
 interface Product {
   id: string;
@@ -61,22 +62,46 @@ export default function FilterBar({
 
   const hasActiveFilters = selectedCategory !== "all" || priceFrom !== "" || priceTo !== "" || selectedSort !== "new" || searchQuery !== "";
 
-  return (
-    <div className="sticky top-[61px] md:top-[69px] z-40 bg-background border-b border-border py-3 md:py-4" data-testid="filter-bar">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-        {/* Search Bar with Suggestions */}
-        <div className="mb-3">
-          <SearchWithSuggestions
-            products={products}
-            searchQuery={searchQuery}
-            onSearchChange={(query) => onSearchChange?.(query)}
-            onProductClick={(id) => onProductClick?.(id)}
-            isLoading={isLoadingProducts}
-          />
-        </div>
+  const [headerBottom, setHeaderBottom] = useState(0);
 
-        {/* Filters */}
-        <div className="overflow-x-auto scrollbar-hide">
+  useEffect(() => {
+    const measure = () => {
+      const header = document.querySelector('[data-testid="header-main"]') as HTMLElement | null;
+      if (header) {
+        // offsetTop + offsetHeight gives the bottom edge relative to the document
+        // For a sticky header at top:0, offsetTop is 0, so bottom = offsetHeight
+        setHeaderBottom(header.offsetHeight);
+      }
+    };
+    measure();
+    // Re-measure on resize
+    const ro = new ResizeObserver(measure);
+    const header = document.querySelector('[data-testid="header-main"]');
+    if (header) ro.observe(header);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <>
+      <div className="relative z-30 bg-background pt-3 md:pt-4 pb-2 px-4 md:px-8 max-w-[1600px] mx-auto" data-testid="search-bar">
+        {/* Search Bar with Suggestions */}
+        <SearchWithSuggestions
+          products={products}
+          searchQuery={searchQuery}
+          onSearchChange={(query) => onSearchChange?.(query)}
+          onProductClick={(id) => onProductClick?.(id)}
+          isLoading={isLoadingProducts}
+        />
+      </div>
+
+      <div
+        className="sticky z-40 bg-background/70 backdrop-blur-xl border-b border-border/40 py-2 md:py-3"
+        style={{ top: `${headerBottom}px` }}
+        data-testid="filter-bar"
+      >
+        <div className="max-w-[1600px] mx-auto px-4 md:px-8">
+          {/* Filters */}
+          <div className="overflow-x-auto scrollbar-hide">
           <div className="flex gap-2 pb-1 min-w-max items-center">
             {/* Categories */}
             <Button
@@ -119,7 +144,7 @@ export default function FilterBar({
                     e.preventDefault();
                   }
                 }}
-                className="w-20 h-8 px-2 text-sm border border-border rounded-md bg-background focus:outline-none"
+                className="w-20 h-8 px-2 text-sm border border-border rounded-md bg-background focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 data-testid="input-price-from"
               />
               <span className="text-muted-foreground">-</span>
@@ -138,7 +163,7 @@ export default function FilterBar({
                     e.preventDefault();
                   }
                 }}
-                className="w-20 h-8 px-2 text-sm border border-border rounded-md bg-background focus:outline-none"
+                className="w-20 h-8 px-2 text-sm border border-border rounded-md bg-background focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 data-testid="input-price-to"
               />
             </div>
@@ -146,7 +171,7 @@ export default function FilterBar({
             {/* Sort with Shadcn Select */}
             <Select value={selectedSort} onValueChange={onSortChange}>
                 <SelectTrigger 
-                className="w-[150px] h-8 rounded-full text-sm ml-2 focus:outline-none focus:!ring-0 focus:!ring-offset-0 transition-all duration-200 hover:bg-accent" 
+                className="w-[150px] h-8 rounded-full text-sm ml-2 focus:outline-none focus:!ring-0 focus:!ring-offset-0 transition-all duration-200 hover:bg-accent hover:text-accent-foreground" 
                 data-testid="filter-sort"
               >
                 <SelectValue />
@@ -173,6 +198,7 @@ export default function FilterBar({
                 Сбросить
               </Button>
             )}
+            </div>
           </div>
         </div>
       </div>
@@ -185,6 +211,6 @@ export default function FilterBar({
           scrollbar-width: none;
         }
       `}</style>
-    </div>
+    </>
   );
 }

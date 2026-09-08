@@ -16,8 +16,7 @@ echo "Этот скрипт установит:"
 echo "  1. Python, PostgreSQL, Nginx, Node.js"
 echo "  2. Flask Web App (Интернет-магазин)"
 echo "  3. Telegram Shop Bot (Основной бот магазина)"
-echo "  4. AI Bot 'Mona' (Поддержка клиентов)"
-echo "  5. Настроит базы данных и systemd сервисы"
+echo "  4. Настроит базы данных и systemd сервисы"
 echo ""
 read -p "❓ Вы хотите продолжить установку? (y/n): " CONFIRM_INSTALL
 if [[ "$CONFIRM_INSTALL" != "y" && "$CONFIRM_INSTALL" != "Y" ]]; then
@@ -100,7 +99,6 @@ echo ""
 echo "🤖 НАСТРОЙКА AI БОТА (MONA)"
 echo ""
 read -p "Введите Telegram TOKEN для Основного Shop Бота: " TELEGRAM_BOT_TOKEN
-read -p "Введите Telegram TOKEN для AI Бота (Mona): " AI_BOT_TOKEN
 read -p "Введите GROQ API KEY (для Llama): " GROQ_API_KEY
 read -p "Введите GEMINI API KEY (резерв/опция): " GEMINI_API_KEY
 echo ""
@@ -208,7 +206,7 @@ SESSION_SECRET=$SESSION_SECRET
 
 # Bot Configurations
 TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
-AI_BOT_TOKEN=$AI_BOT_TOKEN
+# AI_BOT_TOKEN=$AI_BOT_TOKEN
 GROQ_API_KEY=$GROQ_API_KEY
 GEMINI_API_KEY=$GEMINI_API_KEY
 EOF
@@ -308,11 +306,11 @@ print_step "Запуск сервисов..."
 systemctl daemon-reload
 
 systemctl enable shop-app
-systemctl enable ai-bot
+# systemctl enable ai-bot
 systemctl enable telegram-bot
 
 systemctl restart shop-app
-systemctl restart ai-bot
+# systemctl restart ai-bot
 systemctl restart telegram-bot
 
 # Проверка статуса
@@ -323,11 +321,7 @@ else
     print_error "❌ Ошибка запуска Магазина! Проверьте логи: journalctl -u shop-app"
 fi
 
-if systemctl is-active --quiet ai-bot; then
-    print_step "✅ AI Бот (Mona) запущен!"
-else
-    print_error "❌ Ошибка запуска AI Бота! Проверьте логи: journalctl -u ai-bot"
-fi
+# AI Bot check removed
 
 if systemctl is-active --quiet telegram-bot; then
     print_step "✅ Основной Shop Бот запущен!"
@@ -383,10 +377,10 @@ echo "=================================================="
 echo "✅ УСТАНОВКА ЗАВЕРШЕНА!"
 echo "=================================================="
 echo "1. Сайт и Магазин: http://$(hostname -I | awk '{print $1}')"
-echo "2. AI Бот: Запущен в Telegram"
+# AI Бот: отключен
 echo ""
 echo "📜 ЛОГИ:"
 echo "   - Магазин: sudo journalctl -u shop-app -f"
-echo "   - AI Бот:  sudo journalctl -u ai-bot -f"
+#   - AI Бот: отключен
 echo "   - Shop Бот: sudo journalctl -u telegram-bot -f"
 echo ""

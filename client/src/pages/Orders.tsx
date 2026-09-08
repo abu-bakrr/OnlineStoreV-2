@@ -623,15 +623,9 @@ export default function Orders() {
 															Новый
 														</Badge>
 													)}
-													{order.has_backorder ? (
-														<Badge className='bg-orange-100 text-orange-800 text-[10px] px-1.5 py-0 dark:bg-orange-900/40 dark:text-orange-300 flex-shrink-0'>
-															Под заказ
-														</Badge>
-													) : (
-														<Badge className='bg-green-100 text-green-800 text-[10px] px-1.5 py-0 dark:bg-green-900/40 dark:text-green-300 flex-shrink-0'>
-															В наличии
-														</Badge>
-													)}
+													<Badge className='bg-green-100 text-green-800 text-[10px] px-1.5 py-0 dark:bg-green-900/40 dark:text-green-300 flex-shrink-0'>
+														В наличии
+													</Badge>
 												</div>
 												<p className='text-[10px] text-muted-foreground mt-1 flex items-center gap-1'>
 													<Clock className='h-2.5 w-2.5 flex-shrink-0' />
@@ -645,20 +639,8 @@ export default function Orders() {
 													(order.estimated_delivery_days ||
 														order.backorder_delivery_date) && (
 														<div className='flex items-center gap-1 mt-1'>
-															<Timer
-																className={`h-2.5 w-2.5 flex-shrink-0 ${
-																	order.has_backorder
-																		? 'text-amber-500'
-																		: 'text-green-500'
-																}`}
-															/>
-															<span
-																className={`text-[10px] font-medium ${
-																	order.has_backorder
-																		? 'text-amber-600 dark:text-amber-400'
-																		: 'text-green-600 dark:text-green-400'
-																}`}
-															>
+															<Timer className='h-2.5 w-2.5 flex-shrink-0 text-green-500' />
+															<span className='text-[10px] font-medium text-green-600 dark:text-green-400'>
 																{getDeliveryLabel(order).text}
 															</span>
 														</div>

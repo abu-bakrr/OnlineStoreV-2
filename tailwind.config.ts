@@ -86,6 +86,11 @@ export default {
         sans: ["var(--font-sans)"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
+        heading: ["var(--font-heading)"],
+      },
+      boxShadow: {
+        y2k: "4px 4px 0px 0px hsl(var(--foreground))",
+        "y2k-sm": "2px 2px 0px 0px hsl(var(--foreground))",
       },
       keyframes: {
         "accordion-down": {

@@ -206,7 +206,7 @@ export default function ProductDetail({
 					{/* Image Gallery Column */}
 					<div className='space-y-4'>
 						<div
-							className='relative aspect-square bg-muted rounded-2xl md:rounded-3xl overflow-hidden shadow-sm group'
+							className='relative aspect-square bg-muted overflow-hidden shadow-sm group'
 							onTouchStart={handleTouchStart}
 							onTouchMove={handleTouchMove}
 							onTouchEnd={handleTouchEnd}
@@ -221,7 +221,7 @@ export default function ProductDetail({
 											{/* Skeleton */}
 											{isLoading && (
 												<div
-													className={`absolute inset-0 w-full h-full rounded-2xl transition-opacity duration-300 ${
+													className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${
 														isVisible ? 'opacity-100' : 'opacity-0'
 													}`}
 												>
@@ -288,7 +288,7 @@ export default function ProductDetail({
 							{/* Favorite Button */}
 							<button
 								onClick={handleFavorite}
-								className='absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 rounded-full bg-background/80 flex items-center justify-center z-10 transition-transform active:scale-95 shadow-sm'
+								className='absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 rounded-full bg-background/80 flex items-center justify-center z-10 transition-transform active:scale-95 shadow-sm focus:outline-none focus-visible:ring-0'
 								data-testid='button-toggle-favorite'
 							>
 								<Heart
@@ -445,10 +445,10 @@ export default function ProductDetail({
 											<button
 												key={idx}
 												onClick={() => handleColorSelect(color)}
-												className={`w-8 h-8 md:w-12 md:h-12 rounded-full border-2 md:border-4 transition-all relative ${
+												className={`w-8 h-8 md:w-12 md:h-12 rounded-full border-2 md:border-4 transition-all relative focus:outline-none focus-visible:ring-0 ${
 													selectedColor === color
 														? 'border-primary ring-2 md:ring-4 ring-primary/10 shadow-md'
-														: 'border-white dark:border-zinc-800 shadow-sm'
+														: 'border-transparent shadow-sm'
 												}`}
 												style={{ backgroundColor: color }}
 												title={color}

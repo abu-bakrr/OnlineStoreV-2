@@ -1,14 +1,14 @@
 {
 	"language": "ru",
-	"shopName": "HEAVEN FEEL",
-	"description": "HEAVEN FEEL — Ощути стиль",
-	"logo": null,
-	"darkLogo": null,
+	"shopName": "DRIP UZ",
+	"description": "DRIP UZ — STREETWEAR STORE",
+	"logo": "/logowhite.svg",
+	"darkLogo": "/logodark.svg",
 	"seo": {
-		"title": "HEAVEN FEEL — Интернет-магазин",
-		"description": "HEAVEN FEEL — стильная одежда. Ощути стиль.",
-		"keywords": "одежда, HEAVEN FEEL, стиль, мода",
-		"siteUrl": "https://monvoir.shop",
+		"title": "DRIP UZ — Уличная одежда",
+		"description": "Официальный магазин DRIP UZ. Streetwear Store.",
+		"keywords": "одежда, drip uz, стиль, мода, streetwear",
+		"siteUrl": "https://drip.uz",
 		"language": "ru"
 	},
 	"subscriptionTier": "pro",
@@ -20,50 +20,38 @@
 	"managerContact": "@manager",
 	"telegramBotUrl": "https://t.me/your_bot",
 	"colorScheme": {
-		"background": "#F5F5F5",
-		"foreground": "#050505",
-
-		"card": "#FFFFFF",
-		"cardForeground": "#050505",
-
-		"primary": "#050505",
+		"background": "#FFFFFF",
+		"foreground": "#000000",
+		"card": "#F8F8F8",
+		"cardForeground": "#000000",
+		"primary": "#000000",
 		"primaryForeground": "#FFFFFF",
-
-		"secondary": "#737373",
-		"secondaryForeground": "#FFFFFF",
-
-		"muted": "#E5E5E5",
-		"mutedForeground": "#737373",
-
-		"accent": "#050505",
+		"secondary": "#E5E5E5",
+		"secondaryForeground": "#000000",
+		"muted": "#F3F3F3",
+		"mutedForeground": "#666666",
+		"accent": "#000000",
 		"accentForeground": "#FFFFFF",
-
 		"border": "#E5E5E5",
 		"input": "#E5E5E5",
-		"ring": "#050505"
+		"ring": "#000000"
 	},
 	"colorSchemeDark": {
-		"background": "#050505",
-		"foreground": "#FAFAFA",
-
+		"background": "#000000",
+		"foreground": "#FFFFFF",
 		"card": "#0A0A0A",
-		"cardForeground": "#FAFAFA",
-
-		"primary": "#FAFAFA",
-		"primaryForeground": "#050505",
-
-		"secondary": "#A3A3A3",
-		"secondaryForeground": "#050505",
-
-		"muted": "#171717",
+		"cardForeground": "#FFFFFF",
+		"primary": "#FFFFFF",
+		"primaryForeground": "#000000",
+		"secondary": "#262626",
+		"secondaryForeground": "#FFFFFF",
+		"muted": "#1A1A1A",
 		"mutedForeground": "#A3A3A3",
-
-		"accent": "#FAFAFA",
-		"accentForeground": "#050505",
-
+		"accent": "#FFFFFF",
+		"accentForeground": "#000000",
 		"border": "#262626",
 		"input": "#262626",
-		"ring": "#FAFAFA"
+		"ring": "#FFFFFF"
 	},
 	"sortOptions": [
 		{ "id": "old", "label": "Сначала старые" },
@@ -76,7 +64,7 @@
 		"productsPerPage": 12,
 		"showCategoryIcons": true,
 		"showPriceFilter": true,
-		"showShopName": true
+		"showShopName": false
 	},
 	"texts": {
 		"addToCart": "Добавить в корзину",
@@ -90,15 +78,15 @@
 	"fonts": {
 		"fontFamily": "Inter",
 		"fontFile": null,
-		"shopNameFontFamily": "Synthemesc",
-		"shopNameFontFile": "/config/Synthemesc W00 Regular.ttf",
-		"shopNameFontSize": 34,
+		"shopNameFontFamily": "Syncopate",
+		"shopNameFontFile": null,
+		"shopNameFontSize": 28,
 		"productName": { "weight": 700 },
-		"price": { "weight": 600 },
-		"description": { "weight": 400 }
+		"price": { "weight": 900 },
+		"description": { "weight": 500 }
 	},
-	"logoSize": 32,
-	"logoSizeLarge": 80,
+	"logoSize": 80,
+	"logoSizeLarge": 120,
 	"orderStatuses": {
 		"pending": "Ожидает оплаты",
 		"reviewing": "Рассматривается",

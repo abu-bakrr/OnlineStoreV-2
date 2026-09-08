@@ -39,7 +39,6 @@ read -p "Введите порт для приложения [5001]: " APP_PORT
 APP_PORT=${APP_PORT:-5001}
 
 read -p "Введите основной токен бота: " TELEGRAM_BOT_TOKEN
-read -p "Введите токен AI бота: " AI_BOT_TOKEN
 read -p "Введите GROQ API Key: " GROQ_API_KEY
 
 # Системные имена
@@ -114,7 +113,7 @@ PORT=$APP_PORT
 FLASK_ENV=production
 SESSION_SECRET=$SESSION_SECRET
 TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
-AI_BOT_TOKEN=$AI_BOT_TOKEN
+# AI_BOT_TOKEN=$AI_BOT_TOKEN
 GROQ_API_KEY=$GROQ_API_KEY
 EOF
 chown $APP_USER:$APP_USER $APP_DIR/.env
@@ -166,22 +165,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
-cat > /etc/systemd/system/ai-$INSTANCE_ID.service <<EOF
-[Unit]
-Description=AI Bot ($INSTANCE_ID)
-After=network.target shop-$INSTANCE_ID.service
-
-[Service]
-User=$APP_USER
-WorkingDirectory=$APP_DIR
-Environment="PATH=$APP_DIR/venv/bin"
-EnvironmentFile=$APP_DIR/.env
-ExecStart=$APP_DIR/venv/bin/python3 ai_bot/ai_customer_bot.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
+# AI Service block removed
 
 # 8. Nginx
 cat > /etc/nginx/sites-available/$INSTANCE_ID <<EOF
@@ -203,8 +187,8 @@ EOF
 
 ln -sf /etc/nginx/sites-available/$INSTANCE_ID /etc/nginx/sites-enabled/
 systemctl daemon-reload
-systemctl enable shop-$INSTANCE_ID bot-$INSTANCE_ID ai-$INSTANCE_ID
-systemctl restart shop-$INSTANCE_ID bot-$INSTANCE_ID ai-$INSTANCE_ID
+systemctl enable shop-$INSTANCE_ID bot-$INSTANCE_ID
+systemctl restart shop-$INSTANCE_ID bot-$INSTANCE_ID
 systemctl reload nginx
 
 # 9. SSL
