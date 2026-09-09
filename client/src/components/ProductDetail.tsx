@@ -491,12 +491,10 @@ export default function ProductDetail({
 									<div className='space-y-3 md:space-y-4 pt-4 border-t'>
 										<div className='flex items-center justify-between px-1'>
 											{canAddToCart ? (
-												currentInventory && currentInventory.quantity > 0 ? (
-													<span className='inline-flex items-center gap-1.5 text-[10px] md:text-xs font-black uppercase tracking-tight text-emerald-600 bg-emerald-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg dark:bg-emerald-900/30 dark:text-emerald-400'>
-														<Package className='w-3 h-3 md:w-3.5 md:h-3.5' />
-														<span>В наличии</span>
-													</span>
-												) : null
+												<span className='inline-flex items-center gap-1.5 text-[10px] md:text-xs font-black uppercase tracking-tight text-emerald-600 bg-emerald-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg dark:bg-emerald-900/30 dark:text-emerald-400'>
+													<Package className='w-3 h-3 md:w-3.5 md:h-3.5' />
+													<span>В наличии</span>
+												</span>
 											) : (
 												<span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">
 													Выберите опции

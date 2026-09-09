@@ -371,11 +371,7 @@ export default function Orders() {
 	}
 
 	const openTelegram = () => {
-		const manager = config?.managerContact
-		if (manager) {
-			const username = manager.startsWith('@') ? manager.slice(1) : manager
-			window.open(`https://t.me/${username}`, '_blank')
-		}
+		window.open('https://t.me/said_luv', '_blank')
 	}
 
 	const repeatOrder = async (order: Order) => {
@@ -971,19 +967,17 @@ export default function Orders() {
 														{isRepeating ? 'Добавляем...' : 'Повторить заказ'}
 													</Button>
 
-													{config?.managerContact && (
-														<Button
-															variant='outline'
-															className='flex-1'
-															onClick={e => {
-																e.stopPropagation()
-																openTelegram()
-															}}
-														>
-															<MessageCircle className='h-4 w-4 mr-2' />
-															Связаться
-														</Button>
-													)}
+													<Button
+														variant='outline'
+														className='flex-1'
+														onClick={e => {
+															e.stopPropagation()
+															openTelegram()
+														}}
+													>
+														<MessageCircle className='h-4 w-4 mr-2' />
+														Связаться
+													</Button>
 												</div>
 											</CardContent>
 										</div>
