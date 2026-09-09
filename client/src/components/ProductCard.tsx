@@ -250,7 +250,7 @@ export default function ProductCard({
 					onClick={handleFavoriteClick}
 					onTouchStart={handleFavoriteTouchStart}
 					onTouchEnd={handleFavoriteTouchEnd}
-					className='absolute top-2 right-2 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center z-10 active:scale-90 transition-transform focus:outline-none focus-visible:ring-0 no-y2k'
+					className='absolute top-2 right-2 w-8 h-8 flex items-center justify-center z-10 active:scale-90 transition-transform focus:outline-none focus-visible:ring-0 no-y2k'
 					data-testid={`button-favorite-${id}`}
 				>
 					<Heart

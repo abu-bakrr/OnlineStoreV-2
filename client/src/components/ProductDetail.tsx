@@ -194,7 +194,7 @@ export default function ProductDetail({
 						size='icon'
 						variant='ghost'
 						onClick={onBack}
-						className="rounded-full bg-muted/30 hover:bg-muted w-9 h-9 md:w-10 md:h-10 no-y2k"
+						className="w-9 h-9 md:w-10 md:h-10 no-y2k"
 						data-testid='button-back'
 					>
 						<ArrowLeft className='w-4 h-4 md:w-5 md:h-5' />
@@ -288,7 +288,7 @@ export default function ProductDetail({
 							{/* Favorite Button */}
 							<button
 								onClick={handleFavorite}
-								className='absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 rounded-full bg-background/80 flex items-center justify-center z-10 transition-transform active:scale-95 shadow-sm focus:outline-none focus-visible:ring-0 no-y2k'
+								className='absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center z-10 transition-transform active:scale-95 focus:outline-none focus-visible:ring-0 no-y2k'
 								data-testid='button-toggle-favorite'
 							>
 								<Heart

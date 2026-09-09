@@ -134,6 +134,9 @@ export default function Header({
 						/>
 					)}
 					{config?.darkLogo && (
+						<img src={config.darkLogo} aria-hidden='true' alt='' style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }} draggable={false} />
+					)}
+					{config?.darkLogo && (
 						<img
 							src={config.darkLogo}
 							alt='Logo'
