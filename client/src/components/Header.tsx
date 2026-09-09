@@ -33,7 +33,6 @@ export default function Header({
 	const showShopName = config?.ui?.showShopName !== false
 	const logoSize =
 		showShopName ? config?.logoSize || 32 : config?.logoSizeLarge || 44
-	const logoSrc = isDark && config?.darkLogo ? config.darkLogo : config?.logo
 
 	// Easter Egg: triple click on logo
 	const clickCountRef = useRef(0)
@@ -123,12 +122,23 @@ export default function Header({
 		>
 			<div className='max-w-[1600px] mx-auto flex items-center justify-between'>
 				<div className='flex items-center gap-3'>
-					{logoSrc && (
+					{config?.logo && (
 						<img
-							src={logoSrc}
+							src={config.logo}
 							alt='Logo'
 							style={{ width: `${logoSize}px`, height: 'auto' }}
-							className='object-contain transition-opacity duration-200 cursor-pointer select-none'
+							className={`object-contain cursor-pointer select-none ${config.darkLogo ? 'block dark:hidden' : ''}`}
+							onClick={handleLogoClick}
+							draggable={false}
+							title='DRIP UZ'
+						/>
+					)}
+					{config?.darkLogo && (
+						<img
+							src={config.darkLogo}
+							alt='Logo'
+							style={{ width: `${logoSize}px`, height: 'auto' }}
+							className='object-contain cursor-pointer select-none hidden dark:block'
 							onClick={handleLogoClick}
 							draggable={false}
 							title='DRIP UZ'
@@ -174,7 +184,7 @@ export default function Header({
 						size='icon'
 						variant='ghost'
 						onClick={() => setTheme(isDark ? 'light' : 'dark')}
-						className='relative'
+						className='relative no-y2k'
 						data-testid='button-theme-toggle'
 						title='Сменить тему'
 					>
@@ -185,7 +195,7 @@ export default function Header({
 						size='icon'
 						variant='ghost'
 						onClick={onFavoritesClick}
-						className='relative'
+						className='relative no-y2k'
 						data-testid='button-favorites'
 					>
 						<Heart className='w-5 h-5' />
@@ -203,7 +213,7 @@ export default function Header({
 						size='icon'
 						variant='ghost'
 						onClick={onCartClick}
-						className='relative'
+						className='relative no-y2k'
 						data-testid='button-cart'
 					>
 						<ShoppingCart className='w-5 h-5' />

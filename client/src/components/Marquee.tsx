@@ -1,5 +1,5 @@
 export default function Marquee() {
-	const text = '✦ DRIP UZ ✦ NEW COLLECTION ✦ ONLY IN STOCK ✦ STREETWEAR ✦ TASHKENT ✦ DRIP UZ ✦ НОВАЯ КОЛЛЕКЦИЯ ✦ ТОЛЬКО В НАЛИЧИИ ✦'
+	const text = '✦ DRIP UZ ✦ ТОЛЬКО В НАЛИЧИИ ✦ DRIP UZ ✦ ТОЛЬКО В НАЛИЧИИ ✦'
 
 	return (
 		<div className='marquee-wrapper w-full overflow-hidden bg-foreground text-background py-1.5 select-none'>

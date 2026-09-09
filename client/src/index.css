@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+a {
+	text-decoration: none !important;
+}
+
 /* ВАЖНО: Сначала отключаем transitions для Radix UI элементов */
 /* Это должно быть ПЕРЕД глобальным правилом, чтобы иметь приоритет */
 [data-radix-dropdown-menu-content],
@@ -454,7 +458,7 @@
 		letter-spacing: -0.02em;
 	}
 
-	button {
+	button:not(.no-y2k) {
 		@apply rounded-full shadow-y2k transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none !important;
 	}
 

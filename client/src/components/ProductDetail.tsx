@@ -194,7 +194,7 @@ export default function ProductDetail({
 						size='icon'
 						variant='ghost'
 						onClick={onBack}
-						className="rounded-full bg-muted/30 hover:bg-muted w-9 h-9 md:w-10 md:h-10"
+						className="rounded-full bg-muted/30 hover:bg-muted w-9 h-9 md:w-10 md:h-10 no-y2k"
 						data-testid='button-back'
 					>
 						<ArrowLeft className='w-4 h-4 md:w-5 md:h-5' />
@@ -288,7 +288,7 @@ export default function ProductDetail({
 							{/* Favorite Button */}
 							<button
 								onClick={handleFavorite}
-								className='absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 rounded-full bg-background/80 flex items-center justify-center z-10 transition-transform active:scale-95 shadow-sm focus:outline-none focus-visible:ring-0'
+								className='absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 rounded-full bg-background/80 flex items-center justify-center z-10 transition-transform active:scale-95 shadow-sm focus:outline-none focus-visible:ring-0 no-y2k'
 								data-testid='button-toggle-favorite'
 							>
 								<Heart
@@ -445,10 +445,10 @@ export default function ProductDetail({
 											<button
 												key={idx}
 												onClick={() => handleColorSelect(color)}
-												className={`w-8 h-8 md:w-12 md:h-12 rounded-full border-2 md:border-4 transition-all relative focus:outline-none focus-visible:ring-0 ${
+												className={`w-8 h-8 md:w-12 md:h-12 rounded-full border-2 md:border-4 transition-all relative focus:outline-none focus-visible:ring-0 no-y2k ${
 													selectedColor === color
-														? 'border-primary ring-2 md:ring-4 ring-primary/10 shadow-md'
-														: 'border-transparent shadow-sm'
+														? 'border-primary ring-2 md:ring-4 ring-primary/10'
+														: 'border-transparent'
 												}`}
 												style={{ backgroundColor: color }}
 												title={color}
