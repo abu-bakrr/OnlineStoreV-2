@@ -65,7 +65,13 @@ def add_to_cart():
         ''', (product_id, selected_color, selected_color, attr1_val, attr1_val, attr2_val, attr2_val))
         inv = cur.fetchone()
         
-        if not inv or inv['quantity'] < quantity:
+        # Fallback: if no exact variant match, check if any inventory exists for this product
+        if not inv:
+            cur.execute('SELECT quantity FROM product_inventory WHERE product_id = %s ORDER BY quantity DESC LIMIT 1', (product_id,))
+            inv = cur.fetchone()
+        
+        # Only block if inventory records exist but all quantities are 0
+        if inv is not None and inv['quantity'] < quantity:
             cur.close()
             conn.close()
             return jsonify({'error': 'Товара нет в наличии или недостаточно на складе'}), 400

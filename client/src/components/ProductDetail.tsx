@@ -496,12 +496,7 @@ export default function ProductDetail({
 														<Package className='w-3 h-3 md:w-3.5 md:h-3.5' />
 														<span>В наличии</span>
 													</span>
-												) : (
-													<span className='inline-flex items-center gap-1.5 text-[10px] md:text-xs font-black uppercase tracking-tight text-amber-600 bg-amber-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg dark:bg-amber-900/30 dark:text-amber-400'>
-														<Clock className='w-3 h-3 md:w-3.5 md:h-3.5' />
-														<span>Под заказ</span>
-													</span>
-												)
+												) : null
 											) : (
 												<span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">
 													Выберите опции

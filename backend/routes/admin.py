@@ -274,6 +274,33 @@ def admin_get_product(product_id):
     if not product: return jsonify({'error': 'Product not found'}), 404
     return jsonify(product)
 
+def _sync_inventory(cur, product_id, colors, attributes):
+    """Create inventory rows for every color × attribute combination.
+    Only inserts rows that don't exist yet (existing quantities are preserved).
+    If no colors and no attributes – creates a single 'base' row.
+    """
+    import itertools
+
+    # Build attribute value combinations
+    # attributes is a list of {name: str, values: [str]}
+    attr_value_lists = [a['values'] for a in (attributes or []) if a.get('values')]
+    # All combinations of attribute values (Cartesian product)
+    attr_combos = list(itertools.product(*attr_value_lists)) if attr_value_lists else [()]
+
+    color_list = colors if colors else [None]
+
+    for color in color_list:
+        for combo in attr_combos:
+            attr1 = combo[0] if len(combo) > 0 else None
+            attr2 = combo[1] if len(combo) > 1 else None
+            cur.execute('''
+                INSERT INTO product_inventory (product_id, color, attribute1_value, attribute2_value, quantity)
+                VALUES (%s, %s, %s, %s, 1)
+                ON CONFLICT (product_id, color, attribute1_value, attribute2_value)
+                DO NOTHING
+            ''', (product_id, color, attr1, attr2))
+
+
 @admin_bp.route('/products', methods=['POST'])
 def admin_create_product():
     if not require_admin(): return admin_required_response()
@@ -297,6 +324,8 @@ def admin_create_product():
             json.dumps(data.get('attributes', []))
         ))
         pid = cur.fetchone()['id']
+        # Auto-create inventory for all variant combinations
+        _sync_inventory(cur, pid, data.get('colors', []), data.get('attributes', []))
         conn.commit()
         return jsonify({'message': 'Product created', 'id': pid}), 201
     except Exception as e:
@@ -329,6 +358,9 @@ def admin_update_product(product_id):
             product_id
         ))
         conn.commit()
+        # Auto-sync inventory for new variant combinations (preserves existing quantities)
+        _sync_inventory(cur, product_id, data.get('colors', []), data.get('attributes', []))
+        conn.commit()
         return jsonify({'message': 'Product updated'})
     except Exception as e:
         conn.rollback()
@@ -354,6 +386,30 @@ def admin_delete_product(product_id):
         cur.close(); conn.close()
 
 # --- Inventory ---
+
+@admin_bp.route('/inventory/sync-all', methods=['POST'])
+def admin_sync_all_inventory():
+    """Sync inventory for ALL existing products (retroactive fix)."""
+    if not require_admin(): return admin_required_response()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute('SELECT id, colors, attributes FROM products')
+        products = cur.fetchall()
+        synced = 0
+        for p in products:
+            import json as _j
+            colors = p['colors'] if isinstance(p['colors'], list) else (_j.loads(p['colors']) if p['colors'] else [])
+            attrs_raw = p['attributes'] if isinstance(p['attributes'], list) else (_j.loads(p['attributes']) if p['attributes'] else [])
+            _sync_inventory(cur, p['id'], colors, attrs_raw)
+            synced += 1
+        conn.commit()
+        return jsonify({'message': f'Synced inventory for {synced} products'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close(); conn.close()
 
 @admin_bp.route('/inventory', methods=['GET'])
 def admin_get_inventory():

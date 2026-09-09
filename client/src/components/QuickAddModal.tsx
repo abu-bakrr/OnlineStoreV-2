@@ -300,19 +300,7 @@ export default function QuickAddModal({
 											</span>
 										)
 									} else {
-										return (
-											<span className='inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 bg-amber-100 px-3 py-1 rounded-full'>
-												<Clock className='w-4 h-4' />
-												<span>
-													Под заказ
-													{currentInventory?.backorder_lead_time_days && (
-														<span className='ml-1'>
-															({currentInventory.backorder_lead_time_days} дн.)
-														</span>
-													)}
-												</span>
-											</span>
-										)
+										return null
 									}
 								}
 								return null
