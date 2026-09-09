@@ -294,13 +294,28 @@ def _sync_inventory(cur, product_id, colors, attributes):
             attr1 = combo[0] if len(combo) > 0 else None
             attr2 = combo[1] if len(combo) > 1 else None
             # Check if exists (handling NULLs correctly for both PG and SQLite)
-            cur.execute('''
-                SELECT id FROM product_inventory 
-                WHERE product_id = %s 
-                  AND (color = %s OR (color IS NULL AND %s IS NULL))
-                  AND (attribute1_value = %s OR (attribute1_value IS NULL AND %s IS NULL))
-                  AND (attribute2_value = %s OR (attribute2_value IS NULL AND %s IS NULL))
-            ''', (product_id, color, color, attr1, attr1, attr2, attr2))
+            query = "SELECT id FROM product_inventory WHERE product_id = %s"
+            params = [product_id]
+            
+            if color:
+                query += " AND color = %s"
+                params.append(color)
+            else:
+                query += " AND color IS NULL"
+                
+            if attr1:
+                query += " AND attribute1_value = %s"
+                params.append(attr1)
+            else:
+                query += " AND attribute1_value IS NULL"
+                
+            if attr2:
+                query += " AND attribute2_value = %s"
+                params.append(attr2)
+            else:
+                query += " AND attribute2_value IS NULL"
+                
+            cur.execute(query, tuple(params))
             
             if not cur.fetchone():
                 cur.execute('''
