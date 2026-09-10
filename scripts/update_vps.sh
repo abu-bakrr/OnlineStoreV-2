@@ -121,7 +121,7 @@ if [ "$GIT_FOUND" = true ]; then
     print_step "Текущая ветка: $CURRENT_BRANCH"
     sudo -u $APP_USER git reset --hard origin/$CURRENT_BRANCH
 else
-    print_warning "Git репозиторий (.git) не найден. Текущая папка: $(pwd). Убедитесь, что вы вручную обновили файлы."
+    print_warning "Git репозиторий (.git) не найден. Текущая папка: $(pwd). Убедитесь, что вы вручную оновили файлы."
 fi
 
 # Исправление владельца файлов после git (git reset --hard может создать файлы от root)
