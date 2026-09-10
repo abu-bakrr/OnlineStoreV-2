@@ -617,7 +617,7 @@ export default function AdminSettings() {
 <div className='flex items-center gap-2'>
 							<span className='text-xs text-muted-foreground font-medium'>Настройки</span>
 							<span className='px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground'>
-								Версия {appVersion}
+								Верся {appVersion}
 							</span>
 						</div>
 						<div className='px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase whitespace-nowrap flex items-center border border-primary/20'>
