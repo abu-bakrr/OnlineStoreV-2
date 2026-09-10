@@ -263,6 +263,19 @@ export default function AdminProducts() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation: must have at least one color
+    if (formData.colors.length === 0) {
+      toast({ title: 'Ошибка', description: 'Добавьте хотя бы один цвет товара', variant: 'destructive' });
+      return;
+    }
+
+    // Validation: must have at least one attribute with at least one value
+    const validAttributes = formData.attributes.filter((attr: Attribute) => attr.values.length > 0);
+    if (validAttributes.length === 0) {
+      toast({ title: 'Ошибка', description: 'Добавьте хотя бы одну характеристику (например: Размер → S, M, L)', variant: 'destructive' });
+      return;
+    }
+
     try {
       const payload = {
         name: formData.name,
@@ -271,7 +284,7 @@ export default function AdminProducts() {
         images: formData.images.length > 0 ? formData.images : ['https://via.placeholder.com/400x400?text=No+Image'],
         category_id: formData.category_id || null as any,
         colors: formData.colors,
-        attributes: formData.attributes.filter((attr: Attribute) => attr.values.length > 0),
+        attributes: validAttributes,
         old_price: formData.old_price ? parseInt(formData.old_price) : null,
       };
 
@@ -608,11 +621,27 @@ export default function AdminProducts() {
                 </div>
               </div>
 
+              {/* Validation hints */}
+              {(formData.colors.length === 0 || formData.attributes.filter((a: Attribute) => a.values.length > 0).length === 0) && (
+                <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-xl px-4 py-2.5 space-y-1">
+                  {formData.colors.length === 0 && (
+                    <p>⚠️ Необходимо добавить хотя бы один <strong>цвет</strong></p>
+                  )}
+                  {formData.attributes.filter((a: Attribute) => a.values.length > 0).length === 0 && (
+                    <p>⚠️ Необходимо добавить хотя бы одну <strong>характеристику</strong> со значениями (напр. Размер → S, M, L)</p>
+                  )}
+                </div>
+              )}
+
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="px-6 rounded-xl">
                   Отмена
                 </Button>
-                <Button type="submit" className="px-8 rounded-xl shadow-md">
+                <Button
+                  type="submit"
+                  className="px-8 rounded-xl shadow-md"
+                  disabled={formData.colors.length === 0 || formData.attributes.filter((a: Attribute) => a.values.length > 0).length === 0}
+                >
                   {editingProduct ? 'Сохранить изменения' : 'Добавить товар'}
                 </Button>
               </div>
