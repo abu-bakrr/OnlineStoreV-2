@@ -259,10 +259,22 @@ export default function AdminInventory() {
 
   const currentInventoryItem = inventory.find(item => 
     item.product_id === formData.product_id && 
-    item.color === formData.color && 
-    item.attribute1_value === formData.attribute1_value && 
-    item.attribute2_value === formData.attribute2_value
+    item.color === (formData.color || null) && 
+    item.attribute1_value === (formData.attribute1_value || null) && 
+    item.attribute2_value === (formData.attribute2_value || null)
   );
+
+  // Check all required characteristics are selected
+  const isAllSelected = (() => {
+    if (!selectedProduct) return false;
+    const needsColor = selectedProduct.colors && selectedProduct.colors.length > 0;
+    const needsAttr1 = selectedProduct.attributes && selectedProduct.attributes[0] && selectedProduct.attributes[0].values.length > 0;
+    const needsAttr2 = selectedProduct.attributes && selectedProduct.attributes[1] && selectedProduct.attributes[1].values.length > 0;
+    if (needsColor && !formData.color) return false;
+    if (needsAttr1 && !formData.attribute1_value) return false;
+    if (needsAttr2 && !formData.attribute2_value) return false;
+    return true;
+  })();
 
   const handleUpdateStock = async () => {
     if (!formData.product_id) return;
@@ -521,16 +533,23 @@ export default function AdminInventory() {
                             className="h-12 w-32 text-center text-xl font-bold border-2 bg-background focus:border-primary"
                             value={formData.quantity === 0 ? "" : formData.quantity}
                             onChange={(e) => setFormData(f => ({ ...f, quantity: parseInt(e.target.value) || 0 }))}
+                            disabled={!isAllSelected}
                           />
                           <Button 
                             onClick={handleUpdateStock} 
                             className="h-12 px-8 shadow-lg shadow-primary/25 font-black uppercase tracking-wider text-xs"
-                            disabled={formData.quantity <= 0}
+                            disabled={formData.quantity <= 0 || !isAllSelected}
                           >
                             <Save className="h-4 w-4 mr-2" />
                             Обновить
                           </Button>
                         </div>
+                        {!isAllSelected && (
+                          <p className="text-xs text-amber-500 flex items-center gap-1 mt-2">
+                            <AlertCircle className="w-3 h-3" />
+                            Выберите все характеристики выше
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
