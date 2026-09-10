@@ -728,11 +728,11 @@ export default function CheckoutModal({
 								</div>
 
 								<div>
-									<Label htmlFor='address'>Адрес доставки *</Label>
+									<Label htmlFor='address'>Адрес пункта выдачи БТС почты и ориентир *</Label>
 									<div className='flex gap-2'>
 										<Input
 											id='address'
-											placeholder='Введите адрес'
+											placeholder='Например: Ташкент, ул. Навои 1, возле супермаркета'
 											value={deliveryInfo.address}
 											onChange={e =>
 												setDeliveryInfo(prev => ({
@@ -744,91 +744,88 @@ export default function CheckoutModal({
 												e.key === 'Enter' && handleAddressSearch()
 											}
 										/>
-										<Button variant='outline' onClick={handleAddressSearch}>
+										/>
+										{/* <Button variant='outline' onClick={handleAddressSearch}>
 											<MapPin className='w-4 h-4' />
-										</Button>
+										</Button> */}
 									</div>
 								</div>
 
-								<div className='relative rounded-xl overflow-hidden border-2 border-primary/20 shadow-lg bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-slate-900/50 dark:to-slate-800/50'>
-									<div className='absolute top-3 left-3 z-10 bg-background/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-md border border-border'>
-										<div className='flex items-center gap-2 text-sm font-medium'>
-											<MapPin className='w-4 h-4 text-primary' />
-											<span>Укажите точку доставки</span>
-										</div>
-									</div>
+								{false && (
+									<>
+										<div className='relative rounded-xl overflow-hidden border-2 border-primary/20 shadow-lg bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-slate-900/50 dark:to-slate-800/50'>
+											<div className='absolute top-3 left-3 z-10 bg-background/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-md border border-border'>
+												<div className='flex items-center gap-2 text-sm font-medium'>
+													<MapPin className='w-4 h-4 text-primary' />
+													<span>Укажите точку доставки</span>
+												</div>
+											</div>
 
-									{isOpen && !mapError && (
-										<Button
-											variant='secondary'
-											size='icon'
-											style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1000 }}
-											className='shadow-xl border border-primary/20 bg-background/95 hover:bg-background'
-											onClick={handleLocateMe}
-											type='button'
-										>
-											<MapPin className='w-6 h-6 text-primary' />
-										</Button>
-									)}
+											{isOpen && !mapError && (
+												<Button
+													variant='secondary'
+													size='icon'
+													style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1000 }}
+													className='shadow-xl border border-primary/20 bg-background/95 hover:bg-background'
+													onClick={handleLocateMe}
+													type='button'
+												>
+													<MapPin className='w-6 h-6 text-primary' />
+												</Button>
+											)}
 
-									{mapError ? (
-										<div className='h-[200px] flex flex-col items-center justify-center bg-muted/50 text-muted-foreground px-4'>
-											<MapPin className='w-10 h-10 mb-3 opacity-40' />
-											<p className='text-sm font-medium text-center'>
-												{mapError}
-											</p>
-											<p className='text-xs mt-2 text-center opacity-70'>
-												Вы можете указать адрес в поле выше
-											</p>
-										</div>
-									) : (
-										<div className='relative'>
-											<div
-												ref={mapContainerRef}
-												className='h-[300px] w-full max-w-full overflow-hidden rounded-xl'
-												style={{ minHeight: '300px', width: '100%' }}
-											/>
-											{!mapLoaded && (
-												<div className='absolute inset-0 h-[300px] flex flex-col items-center justify-center bg-muted/80 z-20'>
-													<Loader2 className='w-8 h-8 animate-spin text-primary mb-3' />
-													<p className='text-sm text-muted-foreground'>
-														Загрузка карты...
+											{mapError ? (
+												<div className='h-[200px] flex flex-col items-center justify-center bg-muted/50 text-muted-foreground px-4'>
+													<MapPin className='w-10 h-10 mb-3 opacity-40' />
+													<p className='text-sm font-medium text-center'>
+														{mapError}
+													</p>
+													<p className='text-xs mt-2 text-center opacity-70'>
+														Вы можете указать адрес в поле выше
 													</p>
 												</div>
-											)}
-											{!mapLoaded && (
-												<div className='absolute inset-0 h-[300px] flex flex-col items-center justify-center bg-muted/80 z-20'>
-													<Loader2 className='w-8 h-8 animate-spin text-primary mb-3' />
-													<p className='text-sm text-muted-foreground'>
-														Загрузка карты...
-													</p>
+											) : (
+												<div className='relative'>
+													<div
+														ref={mapContainerRef}
+														className='h-[300px] w-full max-w-full overflow-hidden rounded-xl'
+														style={{ minHeight: '300px', width: '100%' }}
+													/>
+													{!mapLoaded && (
+														<div className='absolute inset-0 h-[300px] flex flex-col items-center justify-center bg-muted/80 z-20'>
+															<Loader2 className='w-8 h-8 animate-spin text-primary mb-3' />
+															<p className='text-sm text-muted-foreground'>
+																Загрузка карты...
+															</p>
+														</div>
+													)}
 												</div>
 											)}
-										</div>
-									)}
 
-									<div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent p-3 pointer-events-none'>
-										<p className='text-xs text-muted-foreground text-center'>
-											Нажмите на карту или перетащите маркер для выбора адреса
-										</p>
-									</div>
-								</div>
+											<div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent p-3 pointer-events-none'>
+												<p className='text-xs text-muted-foreground text-center'>
+													Нажмите на карту или перетащите маркер для выбора адреса
+												</p>
+											</div>
+										</div>
 
-								{deliveryInfo.lat && deliveryInfo.lng && (
-									<div className='flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800'>
-										<div className='flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center'>
-											<MapPin className='w-4 h-4 text-white' />
-										</div>
-										<div className='flex-1 min-w-0'>
-											<p className='text-sm font-medium text-green-800 dark:text-green-200 truncate'>
-												Адрес выбран
-											</p>
-											<p className='text-xs text-green-600 dark:text-green-400'>
-												{deliveryInfo.lat.toFixed(6)},{' '}
-												{deliveryInfo.lng.toFixed(6)}
-											</p>
-										</div>
-									</div>
+										{deliveryInfo.lat && deliveryInfo.lng && (
+											<div className='flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800'>
+												<div className='flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center'>
+													<MapPin className='w-4 h-4 text-white' />
+												</div>
+												<div className='flex-1 min-w-0'>
+													<p className='text-sm font-medium text-green-800 dark:text-green-200 truncate'>
+														Адрес выбран
+													</p>
+													<p className='text-xs text-green-600 dark:text-green-400'>
+														{deliveryInfo.lat.toFixed(6)},{' '}
+														{deliveryInfo.lng.toFixed(6)}
+													</p>
+												</div>
+											</div>
+										)}
+									</>
 								)}
 							</div>
 
