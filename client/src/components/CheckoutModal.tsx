@@ -744,7 +744,6 @@ export default function CheckoutModal({
 												e.key === 'Enter' && handleAddressSearch()
 											}
 										/>
-										/>
 										{/* <Button variant='outline' onClick={handleAddressSearch}>
 											<MapPin className='w-4 h-4' />
 										</Button> */}

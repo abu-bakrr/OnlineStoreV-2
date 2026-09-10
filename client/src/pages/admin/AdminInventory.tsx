@@ -114,16 +114,17 @@ export default function AdminInventory() {
           attribute2_value: data.attribute2_value || null,
         }),
       });
-      if (!res.ok) throw new Error("Failed to add inventory");
-      return res.json();
+      const dataRes = await res.json();
+      if (!res.ok) throw new Error(dataRes.error || "Failed to add inventory");
+      return dataRes;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/inventory"] });
       resetForm();
       toast({ title: "Остаток добавлен" });
     },
-    onError: () => {
-      toast({ title: "Ошибка", description: "Не удалось добавить остаток", variant: "destructive" });
+    onError: (err: any) => {
+      toast({ title: "Ошибка", description: err.message || "Не удалось добавить остаток", variant: "destructive" });
     },
   });
 
@@ -277,7 +278,7 @@ export default function AdminInventory() {
   })();
 
   const handleUpdateStock = async () => {
-    if (!formData.product_id) return;
+    if (!formData.product_id || !isAllSelected || formData.quantity <= 0) return;
     
     if (currentInventoryItem) {
       updateMutation.mutate({ 
@@ -289,7 +290,6 @@ export default function AdminInventory() {
     }
     
     setFormData(prev => ({ ...prev, quantity: 0 }));
-    toast({ title: "Остатки обновлены" });
   };
 
   const filteredInventory = inventory.filter((item: any) => 

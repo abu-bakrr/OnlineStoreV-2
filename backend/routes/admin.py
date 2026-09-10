@@ -320,7 +320,7 @@ def _sync_inventory(cur, product_id, colors, attributes):
             if not cur.fetchone():
                 cur.execute('''
                     INSERT INTO product_inventory (product_id, color, attribute1_value, attribute2_value, quantity)
-                    VALUES (%s, %s, %s, %s, 1)
+                    VALUES (%s, %s, %s, %s, 0)
                 ''', (product_id, color, attr1, attr2))
 
 
@@ -347,8 +347,6 @@ def admin_create_product():
             json.dumps(data.get('attributes', []))
         ))
         pid = cur.fetchone()['id']
-        # Auto-create inventory for all variant combinations
-        _sync_inventory(cur, pid, data.get('colors', []), data.get('attributes', []))
         conn.commit()
         return jsonify({'message': 'Product created', 'id': pid}), 201
     except Exception as e:
@@ -380,9 +378,6 @@ def admin_update_product(product_id):
             json.dumps(data.get('attributes', [])),
             product_id
         ))
-        conn.commit()
-        # Auto-sync inventory for new variant combinations (preserves existing quantities)
-        _sync_inventory(cur, product_id, data.get('colors', []), data.get('attributes', []))
         conn.commit()
         return jsonify({'message': 'Product updated'})
     except Exception as e:
@@ -470,10 +465,39 @@ def admin_get_inventory():
 def admin_add_inventory():
     if not require_admin(): return admin_required_response()
     data = request.json
+    product_id = data.get('product_id')
+    color = data.get('color')
+    attr1 = data.get('attribute1_value')
+    attr2 = data.get('attribute2_value')
+    
+    if not product_id:
+        return jsonify({'error': 'Не указан ID товара'}), 400
     
     conn = get_db_connection()
     cur = conn.cursor()
     try:
+        cur.execute('SELECT colors, attributes FROM products WHERE id = %s', (product_id,))
+        p = cur.fetchone()
+        if not p:
+            return jsonify({'error': 'Товар не найден'}), 404
+            
+        import json as _j
+        colors = p['colors'] if isinstance(p['colors'], list) else (_j.loads(p['colors']) if p['colors'] else [])
+        attrs_raw = p['attributes'] if isinstance(p['attributes'], list) else (_j.loads(p['attributes']) if p['attributes'] else [])
+        if isinstance(attrs_raw, str):
+            attrs_raw = _j.loads(attrs_raw)
+            
+        if colors and len(colors) > 0 and not color:
+            return jsonify({'error': 'Выберите цвет товара'}), 400
+            
+        if len(attrs_raw) > 0 and attrs_raw[0].get('values') and len(attrs_raw[0]['values']) > 0 and not attr1:
+            attr_name = attrs_raw[0].get('name', 'характеристику')
+            return jsonify({'error': f'Выберите {attr_name}'}), 400
+            
+        if len(attrs_raw) > 1 and attrs_raw[1].get('values') and len(attrs_raw[1]['values']) > 0 and not attr2:
+            attr_name = attrs_raw[1].get('name', 'характеристику')
+            return jsonify({'error': f'Выберите {attr_name}'}), 400
+
         cur.execute('''
             INSERT INTO product_inventory (product_id, color, attribute1_value, attribute2_value, quantity, backorder_lead_time_days)
             VALUES (%s, %s, %s, %s, %s, %s)
@@ -481,10 +505,10 @@ def admin_add_inventory():
             DO UPDATE SET quantity = product_inventory.quantity + EXCLUDED.quantity
             RETURNING id
         ''', (
-            data.get('product_id'),
-            data.get('color'),
-            data.get('attribute1_value'),
-            data.get('attribute2_value'),
+            product_id,
+            color if color else None,
+            attr1 if attr1 else None,
+            attr2 if attr2 else None,
             data.get('quantity', 0),
             data.get('backorder_lead_time_days')
         ))
