@@ -1,4 +1,3 @@
-import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -203,7 +202,6 @@ export default function ProfileDropdown() {
 								{user.email}
 							</p>
 						</div>
-						<ThemeToggle />
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />

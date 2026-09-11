@@ -186,8 +186,6 @@ export default function AdminSettings() {
 	const [showSmtpPassword, setShowSmtpPassword] = useState(false)
 
 	const [deliveryDaysInStock, setDeliveryDaysInStock] = useState<string>('3')
-	const [deliveryDaysBackorder, setDeliveryDaysBackorder] =
-		useState<string>('14')
 
 	const [initialSettings, setInitialSettings] = useState<any>({})
 
@@ -266,11 +264,7 @@ export default function AdminSettings() {
 			if (deliveryRes.ok) {
 				const data = await deliveryRes.json()
 				setDeliveryDaysInStock(data.delivery_days_in_stock?.toString() || '3')
-				setDeliveryDaysBackorder(
-					data.delivery_days_backorder?.toString() || '14'
-				)
 				newInit.deliveryDaysInStock = data.delivery_days_in_stock?.toString() || '3'
-				newInit.deliveryDaysBackorder = data.delivery_days_backorder?.toString() || '14'
 			}
 			setInitialSettings(newInit)
 		} catch (error) {
@@ -551,7 +545,6 @@ export default function AdminSettings() {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					delivery_days_in_stock: parseInt(deliveryDaysInStock) || 3,
-					delivery_days_backorder: parseInt(deliveryDaysBackorder) || 14,
 				}),
 			})
 
@@ -624,7 +617,7 @@ export default function AdminSettings() {
 <div className='flex items-center gap-2'>
 							<span className='text-xs text-muted-foreground font-medium'>Настройки</span>
 							<span className='px-1.5 py-0.5 rounded text-[10px] font-medium bg-muted text-muted-foreground'>
-								Версия {appVersion}
+								Верся {appVersion}
 							</span>
 						</div>
 						<div className='px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase whitespace-nowrap flex items-center border border-primary/20'>
@@ -1749,34 +1742,12 @@ export default function AdminSettings() {
 										Для товаров, которые есть на складе
 									</p>
 								</div>
-
-								<div className='space-y-2'>
-									<Label htmlFor='delivery_days_backorder'>
-										Срок доставки (товары под заказ)
-									</Label>
-									<Input
-										id='delivery_days_backorder'
-										type='text'
-										inputMode='numeric'
-										value={deliveryDaysBackorder}
-										onChange={e =>
-											setDeliveryDaysBackorder(
-												e.target.value.replace(/[^0-9]/g, ''),
-											)
-										}
-										placeholder='14'
-										className='w-full'
-									/>
-									<p className='text-xs text-muted-foreground'>
-										Для товаров под заказ (нет на складе)
-									</p>
-								</div>
 							</div>
 
 							<div className='flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4'>
 								<Button
 									onClick={handleSaveDelivery}
-									disabled={saving === 'delivery' || (deliveryDaysInStock === initialSettings.deliveryDaysInStock && deliveryDaysBackorder === initialSettings.deliveryDaysBackorder)}
+									disabled={saving === 'delivery' || (deliveryDaysInStock === initialSettings.deliveryDaysInStock)}
 									className='w-full sm:w-auto'
 								>
 									{saving === 'delivery' ?

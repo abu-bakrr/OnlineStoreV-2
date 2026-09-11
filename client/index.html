@@ -25,9 +25,7 @@
 		<meta name="twitter:image" content="{{SEO_SITE_URL}}/config/stylezone.svg" />
 
 		<!-- Favicons -->
-		<link rel="icon" type="image/svg+xml" href="/config/stylezone.svg" />
-		<link rel="icon" type="image/x-icon" href="/config/stylezone.svg" />
-		<link rel="apple-touch-icon" href="/config/stylezone.svg" />
+		<!-- Removed by request -->
 
 		<!-- Google Search specific -->
 		<meta name="google" content="notranslate" />
@@ -43,14 +41,14 @@
 
 		<!-- Загружаем шрифты асинхронно с font-display: swap для мгновенной отрисовки текста -->
 		<link
-			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Syncopate:wght@400;700&display=swap"
 			rel="stylesheet"
 			media="print"
 			onload="this.media='all'"
 		/>
 		<noscript>
 			<link
-				href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+				href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Syncopate:wght@400;700&display=swap"
 				rel="stylesheet"
 			/>
 		</noscript>
@@ -242,7 +240,7 @@
 			// Apply theme and accent color immediately to prevent FOUC
 			;(function () {
 				const storageKey = 'vite-ui-theme'
-				const theme = localStorage.getItem(storageKey) || 'light'
+				const theme = localStorage.getItem(storageKey) || 'dark'
 				const root = document.documentElement
 
 				// Apply theme class
