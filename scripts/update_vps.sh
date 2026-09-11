@@ -151,7 +151,7 @@ fi
 # Установка версии приложения
 print_step "Обновление версии приложения..."
 COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "100")
-echo "VITE_APP_VERSION=v2.0.$COMMIT_COUNT" > "$APP_DIR/client/.env.local"
+echo "VITE_APP_VERSION=v3.0.$COMMIT_COUNT" > "$APP_DIR/client/.env.local"
 chown $APP_USER:$APP_USER "$APP_DIR/client/.env.local"
 
 # Сборка фронтенда
