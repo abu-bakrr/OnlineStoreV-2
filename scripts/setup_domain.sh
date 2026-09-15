@@ -34,6 +34,34 @@ server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
 
+    # Ограничения соединений и частоты запросов
+    limit_conn conn_limit_per_ip 20;
+    limit_req zone=req_limit_per_ip burst=30 nodelay;
+
+    # Защитные HTTP заголовки
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Блокировка известных хакерских сканеров и утилит
+    if (\$http_user_agent ~* (nikto|sqlmap|nmap|masscan|hydra|metasploit|slowloris|bsqlbf|harvest|netsparker|zmeu|dirbuster|pangolin)) {
+        return 403;
+    }
+
+    # Запрет доступа к скрытым файлам (.env, .git и т.д.)
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Запрет доступа к конфигурациям и скриптам
+    location ~ \.(env|git|sqlite3|sh|bak|config)$ {
+        deny all;
+        return 404;
+    }
+
     # Логи
     access_log /var/log/nginx/shop_access.log;
     error_log /var/log/nginx/shop_error.log;

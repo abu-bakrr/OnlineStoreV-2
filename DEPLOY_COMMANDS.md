@@ -26,9 +26,9 @@ cd /path/to/MiniTaskerBot3
 # Скачиваем обновления
 git pull
 
-# Перезапускаем бота (команды зависят от вашего способа запуска)
-# Например:
-# systemctl restart ai_bot
-# или
-# docker-compose restart
+# Запуск обновления приложения
+sudo ./scripts/update_vps.sh
+
+# ЗАЩИТА СЕРВЕРА ОТ ХАКЕРОВ, SLOWLORIS И DDoS:
+sudo ./scripts/security_vps.sh
 ```
