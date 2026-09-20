@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://stylezoneuz.shop/sitemap.xml
+Sitemap: https://dripuzz.shop/sitemap.xml
