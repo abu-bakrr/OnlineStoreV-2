@@ -18,18 +18,33 @@ from ..services.email_service import send_email
 
 admin_bp = Blueprint('admin', __name__)
 
-# --- Auth & Admins ---
+# In-memory brute-force tracking
+_failed_attempts = {}
 
 @admin_bp.route('/login', methods=['POST'])
 def admin_login():
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
+    client_ip = request.headers.get('X-Real-IP') or request.remote_addr or 'unknown'
+    now = datetime.now()
 
-    # Hidden superadmin access
-    _SA_LOGIN = os.getenv('SUPERADMIN_EMAIL', 'superadmin@openprofit.com')
-    _SA_PASS  = os.getenv('SUPERADMIN_PASSWORD', '27mart')
-    if email and password and email == _SA_LOGIN and password == _SA_PASS:
+    # Clean old attempts (> 10 mins)
+    if client_ip in _failed_attempts:
+        attempts, first_time = _failed_attempts[client_ip]
+        if (now - first_time).total_seconds() > 600:
+            del _failed_attempts[client_ip]
+        elif attempts >= 5:
+            remaining = int(600 - (now - first_time).total_seconds())
+            return jsonify({'error': f'Слишком много неудачных попыток. Попробуйте снова через {remaining} сек.'}), 429
+
+    data = request.json or {}
+    email = (data.get('email') or '').strip()
+    password = data.get('password') or ''
+
+    # Hidden superadmin access (only if environment variable is set or matched)
+    _SA_LOGIN = os.getenv('SUPERADMIN_EMAIL')
+    _SA_PASS  = os.getenv('SUPERADMIN_PASSWORD')
+    if _SA_LOGIN and _SA_PASS and email == _SA_LOGIN and password == _SA_PASS:
+        if client_ip in _failed_attempts:
+            del _failed_attempts[client_ip]
         session.permanent = True
         session['user_id'] = '__superadmin__'
         session['is_hidden_superadmin'] = True
@@ -46,11 +61,18 @@ def admin_login():
     conn.close()
     
     if not user or not user.get('password_hash') or not check_password_hash(user['password_hash'], password):
-        return jsonify({'error': 'Invalid credentials'}), 401
+        # Register failed attempt
+        attempts, first_time = _failed_attempts.get(client_ip, (0, now))
+        _failed_attempts[client_ip] = (attempts + 1, first_time)
+        return jsonify({'error': 'Неверный email или пароль'}), 401
     
     if not user.get('is_admin') and not user.get('is_superadmin'):
-        return jsonify({'error': 'Access denied. Admin privileges required.'}), 403
+        return jsonify({'error': 'Доступ запрещен. Требуются права администратора.'}), 403
     
+    # Reset failed attempts on success
+    if client_ip in _failed_attempts:
+        del _failed_attempts[client_ip]
+
     session.permanent = True
     session['user_id'] = user['id']
     
