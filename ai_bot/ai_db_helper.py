@@ -286,7 +286,7 @@ def get_catalog_titles():
         return []
 
 
-def search_products(query, include_out_of_stock=False):
+def search_products(query):
     """Поиск товаров по ключевым словам (Clean Logic)"""
     try:
         norm_query = query.lower().strip()
@@ -305,7 +305,7 @@ def search_products(query, include_out_of_stock=False):
         
         if not words: words = [norm_query]
 
-        inventory_clause = "EXISTS (SELECT 1 FROM product_inventory pi WHERE pi.product_id = p.id AND pi.quantity > 0)" if not include_out_of_stock else "1=1"
+        inventory_clause = "EXISTS (SELECT 1 FROM product_inventory pi WHERE pi.product_id = p.id AND pi.quantity > 0)"
         
         conditions = []
         params = []
@@ -512,7 +512,7 @@ def get_pretty_product_info(product_id):
 
 def search(keywords):
     """Поиск всех подходящих товаров (включая те, что не в наличии). Возвращает JSON."""
-    results = search_products(keywords, include_out_of_stock=True)
+    results = search_products(keywords)
     clean_res = []
     for p in results:
         inv_data = []

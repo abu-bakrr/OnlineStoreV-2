@@ -10,6 +10,8 @@ from ..database import get_db_connection, get_payment_config
 payments_bp = Blueprint('payments', __name__)
 
 def verify_click_signature(data, secret_key):
+    if not secret_key:
+        return False
     click_trans_id = str(data.get('click_trans_id', ''))
     service_id = str(data.get('service_id', ''))
     merchant_trans_id = str(data.get('merchant_trans_id', ''))
@@ -26,8 +28,13 @@ def click_prepare():
     try:
         data = request.json or request.form.to_dict()
         cfg = get_payment_config('click')
-        if cfg.get('secret_key') and not verify_click_signature(data, cfg['secret_key']):
-            return jsonify({'error': -1, 'error_note': 'Invalid signature'})
+        secret_key = cfg.get('secret_key') or os.getenv('CLICK_SECRET_KEY')
+        
+        if not cfg.get('enabled') and not secret_key:
+            return jsonify({'error': -1, 'error_note': 'Click payment is not configured'}), 403
+            
+        if not verify_click_signature(data, secret_key):
+            return jsonify({'error': -1, 'error_note': 'Invalid signature'}), 401
         
         order_id = data.get('merchant_trans_id')
         amount = data.get('amount')
@@ -70,8 +77,13 @@ def click_complete():
     try:
         data = request.json or request.form.to_dict()
         cfg = get_payment_config('click')
-        if cfg.get('secret_key') and not verify_click_signature(data, cfg['secret_key']):
-             return jsonify({'error': -1, 'error_note': 'Invalid signature'})
+        secret_key = cfg.get('secret_key') or os.getenv('CLICK_SECRET_KEY')
+        
+        if not cfg.get('enabled') and not secret_key:
+            return jsonify({'error': -1, 'error_note': 'Click payment is not configured'}), 403
+            
+        if not verify_click_signature(data, secret_key):
+            return jsonify({'error': -1, 'error_note': 'Invalid signature'}), 401
         
         order_id = data.get('merchant_trans_id')
         error = data.get('error')
@@ -103,20 +115,24 @@ def click_complete():
 
 def verify_payme_auth():
     auth = request.headers.get('Authorization', '')
-    if not auth.startswith('Basic '): return False
-    key = os.getenv('PAYME_KEY')
-    if not key: return True
+    if not auth.startswith('Basic '):
+        return False
+    cfg = get_payment_config('payme')
+    key = cfg.get('key') or os.getenv('PAYME_KEY')
+    if not key:
+        return False
     try:
         decoded = base64.b64decode(auth[6:]).decode('utf-8')
         return decoded.split(':')[1] == key if ':' in decoded else False
-    except: return False
+    except Exception:
+        return False
 
 @payments_bp.route('/webhooks/payme', methods=['POST'])
 def payme_webhook():
-    if os.getenv('PAYME_KEY') and not verify_payme_auth():
+    if not verify_payme_auth():
         return jsonify({'error': {'code': -32504, 'message': 'Invalid auth'}}), 401
     
-    data = request.json
+    data = request.json or {}
     method = data.get('method')
     params = data.get('params', {})
     conn = get_db_connection()
@@ -162,18 +178,20 @@ def payme_webhook():
     return jsonify({'error': {'code': -32601, 'message': 'Not found'}})
 
 def verify_uzum_signature():
-    secret = os.getenv('UZUM_SECRET_KEY')
-    if not secret: return True
+    cfg = get_payment_config('uzum')
+    secret = cfg.get('secret_key') or os.getenv('UZUM_SECRET_KEY')
+    if not secret:
+        return False
     received = request.headers.get('X-Signature', '')
     expected = hmac.new(secret.encode(), request.get_data(), hashlib.sha256).hexdigest()
     return hmac.compare_digest(expected, received)
 
 @payments_bp.route('/webhooks/uzum/confirm', methods=['POST'])
 def uzum_confirm():
-    if os.getenv('UZUM_SECRET_KEY') and not verify_uzum_signature():
+    if not verify_uzum_signature():
         return jsonify({'status': 'ERROR', 'message': 'Invalid auth'}), 401
     
-    tx_id = request.json.get('transactionId')
+    tx_id = (request.json or {}).get('transactionId')
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("UPDATE orders SET payment_status = 'paid', status = 'paid' WHERE payment_id = %s", (tx_id,))

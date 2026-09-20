@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import secrets
+import os
 
 from ..database import get_db_connection
 from ..utils.validation import validate_email, validate_phone
@@ -133,7 +134,23 @@ def forgot_password():
         cur.close()
         conn.close()
         
-        site_url = request.headers.get('Origin') or request.host_url.rstrip('/')
+        # Secure site_url from settings to prevent password reset poisoning
+        from ..database import get_platform_setting
+        site_url = get_platform_setting('site_url')
+        if not site_url:
+            import json
+            current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            config_path = os.path.join(current_dir, 'config', 'settings.json')
+            if os.path.exists(config_path):
+                try:
+                    with open(config_path, 'r', encoding='utf-8') as f:
+                        cfg = json.load(f)
+                        site_url = cfg.get('seo', {}).get('siteUrl')
+                except Exception:
+                    pass
+        if not site_url:
+            site_url = request.host_url.rstrip('/')
+
         if send_password_reset_email(email, token, site_url):
             return jsonify({'message': 'Ссылка для сброса пароля отправлена на email'}), 200
         return jsonify({'error': 'Не удалось отправить email'}), 500

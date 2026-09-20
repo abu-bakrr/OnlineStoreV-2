@@ -50,6 +50,7 @@ export default function ProductCard({
 	const touchEndX = useRef(0)
 	const isSwiping = useRef(false)
 	const touchStartY = useRef(0)
+	const imageRef = useRef<HTMLImageElement>(null)
 
 	const handleFavoriteClick = (e: React.MouseEvent | React.TouchEvent) => {
 		e.stopPropagation()
@@ -61,6 +62,26 @@ export default function ProductCard({
 		if (isInCart) {
 			onCartClick?.()
 		} else {
+			// Fly-to-cart animation
+			const imgEl = imageRef.current
+			const cartBtn = document.querySelector('[data-testid="button-cart"]')
+			if (imgEl && cartBtn) {
+				const srcRect = imgEl.getBoundingClientRect()
+				const destRect = cartBtn.getBoundingClientRect()
+				const clone = document.createElement('img')
+				clone.src = imgEl.src
+				clone.className = 'fly-clone'
+				const size = Math.min(srcRect.width, srcRect.height, 80)
+				clone.style.cssText = `
+					width: ${size}px; height: ${size}px;
+					left: ${srcRect.left + srcRect.width / 2 - size / 2}px;
+					top: ${srcRect.top + srcRect.height / 2 - size / 2}px;
+					--fly-x: ${destRect.left - srcRect.left - srcRect.width / 2 + destRect.width / 2}px;
+					--fly-y: ${destRect.top - srcRect.top - srcRect.height / 2 + destRect.height / 2}px;
+				`
+				document.body.appendChild(clone)
+				clone.addEventListener('animationend', () => clone.remove())
+			}
 			onAddToCart?.(id)
 		}
 	}
@@ -126,11 +147,11 @@ export default function ProductCard({
 	return (
 		<div
 			onClick={handleCardClick}
-			className='bg-transparent cursor-pointer rounded-2xl p-1.5 -m-1.5 hover:bg-muted/60 active:bg-muted/80'
+			className='group bg-transparent cursor-pointer rounded-2xl p-1.5 -m-1.5 hover:bg-muted/30 active:bg-muted/50 border border-transparent hover:border-border/30 transition-all duration-500'
 			data-testid={`card-product-${id}`}
 		>
 			<div
-				className='relative aspect-square bg-muted/50 rounded-2xl overflow-hidden'
+				className='relative aspect-square bg-muted/50 overflow-hidden'
 				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
@@ -146,11 +167,11 @@ export default function ProductCard({
 								{/* Skeleton заставка */}
 								{isLoading && (
 									<div
-										className={`absolute inset-0 w-full h-full rounded-2xl transition-opacity duration-300 ${
+										className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${
 											isVisible ? 'opacity-100' : 'opacity-0'
 										}`}
 									>
-										<div className='absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted rounded-2xl animate-pulse'>
+										<div className='absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted animate-pulse'>
 											<div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer' />
 										</div>
 									</div>
@@ -177,13 +198,14 @@ export default function ProductCard({
 										)}
 
 										<img
+											ref={idx === 0 ? imageRef : undefined}
 											src={
 												priority && idx === 0
 													? optimizeProductHero(img)
 													: optimizeProductThumbnail(img)
 											}
 											alt={name}
-											className={`absolute inset-0 w-full h-full object-cover rounded-2xl transition-opacity duration-300 ${
+											className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 ${
 												isVisible ? 'opacity-100' : 'opacity-0'
 											}`}
 											loading={priority ? 'eager' : 'lazy'}
@@ -228,7 +250,7 @@ export default function ProductCard({
 					onClick={handleFavoriteClick}
 					onTouchStart={handleFavoriteTouchStart}
 					onTouchEnd={handleFavoriteTouchEnd}
-					className='absolute top-2 right-2 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center z-10 active:scale-90 transition-transform'
+					className='absolute top-2 right-2 w-8 h-8 flex items-center justify-center z-10 active:scale-90 transition-transform focus:outline-none focus-visible:ring-0 no-y2k'
 					data-testid={`button-favorite-${id}`}
 				>
 					<Heart

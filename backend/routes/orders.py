@@ -12,7 +12,9 @@ orders_bp = Blueprint('orders', __name__)
 def create_order():
     try:
         data = request.json
-        user_id = data.get('user_id')
+        user_id = session.get('user_id') or data.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
         cart_items = data.get('items', [])
         total = data.get('total', 0)
         
@@ -112,8 +114,6 @@ def checkout_order():
             else:
                 promo_code = None
 
-        has_backorder = False
-        max_backorder_days = 0
         order_items_with_status = []
         
         for item in cart_items:
@@ -127,7 +127,7 @@ def checkout_order():
             selected_color = item.get('selected_color')
             
             cur.execute('''
-                SELECT id, quantity, backorder_lead_time_days FROM product_inventory
+                SELECT id, quantity FROM product_inventory
                 WHERE product_id = %s AND (color = %s OR (color IS NULL AND %s IS NULL))
                 AND (attribute1_value = %s OR (attribute1_value IS NULL AND %s IS NULL))
                 AND (attribute2_value = %s OR (attribute2_value IS NULL AND %s IS NULL))
@@ -135,23 +135,16 @@ def checkout_order():
             ''', (item['product_id'], selected_color, selected_color, attr1_val, attr1_val, attr2_val, attr2_val))
             
             inventory = cur.fetchone()
-            status = 'in_stock'
-            lead_time = None
             
-            if inventory:
-                if inventory['quantity'] >= item['quantity']:
-                    cur.execute('UPDATE product_inventory SET quantity = quantity - %s WHERE id = %s', (item['quantity'], inventory['id']))
-                else:
-                    status = 'backorder'
-                    lead_time = inventory.get('backorder_lead_time_days')
-                    has_backorder = True
-                    max_backorder_days = max(max_backorder_days, lead_time or 0)
-                    cur.execute('UPDATE product_inventory SET quantity = 0 WHERE id = %s', (inventory['id'],))
+            if inventory and inventory['quantity'] >= item['quantity']:
+                cur.execute('UPDATE product_inventory SET quantity = quantity - %s WHERE id = %s', (item['quantity'], inventory['id']))
             else:
-                status = 'backorder'
-                has_backorder = True
+                conn.rollback()
+                cur.close()
+                conn.close()
+                return jsonify({'error': f"Товар {item['name']} закончился на складе."}), 400
             
-            order_items_with_status.append({**dict(item), 'availability_status': status, 'backorder_lead_time_days': lead_time})
+            order_items_with_status.append({**dict(item), 'availability_status': 'in_stock', 'backorder_lead_time_days': None})
         
         def safe_int(val, default):
             try:
@@ -163,28 +156,14 @@ def checkout_order():
 
         # Get delivery settings
         default_in_stock_days = safe_int(get_platform_setting('delivery_days_in_stock'), 3)
-        # Check backward compatibility for the setting name
         if not get_platform_setting('delivery_days_in_stock'):
             alt_in_stock = get_platform_setting('default_delivery_days')
             if alt_in_stock:
                 default_in_stock_days = safe_int(alt_in_stock, 3)
                 
-        default_backorder_days = safe_int(get_platform_setting('delivery_days_backorder'), 14)
-        
-        # Calculate maximum delivery days across all items
-        max_days = 0
-        for item in order_items_with_status:
-            if item['availability_status'] == 'backorder':
-                # For backordered items, take the max of the default backorder days 
-                # and the specific lead time set for this product variant
-                lead_time = item.get('backorder_lead_time_days') or 0
-                max_days = max(max_days, default_backorder_days, lead_time)
-            else:
-                # For in-stock items, use the default in-stock delivery days
-                max_days = max(max_days, default_in_stock_days)
-        
-        estimated_days = max_days
-        backorder_date = datetime.now() + timedelta(days=estimated_days) if has_backorder else None
+        estimated_days = default_in_stock_days
+        has_backorder = False
+        backorder_date = None
         
         initial_status = 'reviewing'
         initial_pay_status = 'awaiting_verification' if payment_method == 'card_transfer' and payment_receipt_url else 'pending'

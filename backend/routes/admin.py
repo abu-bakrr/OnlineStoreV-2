@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session, Response
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 import json
 import io
 import csv
@@ -17,23 +18,38 @@ from ..services.email_service import send_email
 
 admin_bp = Blueprint('admin', __name__)
 
-# --- Auth & Admins ---
+# In-memory brute-force tracking
+_failed_attempts = {}
 
 @admin_bp.route('/login', methods=['POST'])
 def admin_login():
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
+    client_ip = request.headers.get('X-Real-IP') or request.remote_addr or 'unknown'
+    now = datetime.now()
 
-    # Hidden superadmin access — not stored in DB, not visible anywhere
-    _SA_LOGIN = 'superadmin@openprofit.com'
-    _SA_PASS  = '27mart'
-    if email == _SA_LOGIN and password == _SA_PASS:
+    # Clean old attempts (> 10 mins)
+    if client_ip in _failed_attempts:
+        attempts, first_time = _failed_attempts[client_ip]
+        if (now - first_time).total_seconds() > 600:
+            del _failed_attempts[client_ip]
+        elif attempts >= 5:
+            remaining = int(600 - (now - first_time).total_seconds())
+            return jsonify({'error': f'Слишком много неудачных попыток. Попробуйте снова через {remaining} сек.'}), 429
+
+    data = request.json or {}
+    email = (data.get('email') or '').strip()
+    password = data.get('password') or ''
+
+    # Hidden superadmin access (only if environment variable is set or matched)
+    _SA_LOGIN = os.getenv('SUPERADMIN_EMAIL')
+    _SA_PASS  = os.getenv('SUPERADMIN_PASSWORD')
+    if _SA_LOGIN and _SA_PASS and email == _SA_LOGIN and password == _SA_PASS:
+        if client_ip in _failed_attempts:
+            del _failed_attempts[client_ip]
         session.permanent = True
         session['user_id'] = '__superadmin__'
         session['is_hidden_superadmin'] = True
         return jsonify({
-            'user': {'id': '__superadmin__', 'email': 'superadmin@openprofit.com', 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True},
+            'user': {'id': '__superadmin__', 'email': _SA_LOGIN, 'first_name': 'Super', 'is_admin': True, 'is_superadmin': True},
             'message': 'Admin login successful'
         })
     
@@ -45,11 +61,18 @@ def admin_login():
     conn.close()
     
     if not user or not user.get('password_hash') or not check_password_hash(user['password_hash'], password):
-        return jsonify({'error': 'Invalid credentials'}), 401
+        # Register failed attempt
+        attempts, first_time = _failed_attempts.get(client_ip, (0, now))
+        _failed_attempts[client_ip] = (attempts + 1, first_time)
+        return jsonify({'error': 'Неверный email или пароль'}), 401
     
     if not user.get('is_admin') and not user.get('is_superadmin'):
-        return jsonify({'error': 'Access denied. Admin privileges required.'}), 403
+        return jsonify({'error': 'Доступ запрещен. Требуются права администратора.'}), 403
     
+    # Reset failed attempts on success
+    if client_ip in _failed_attempts:
+        del _failed_attempts[client_ip]
+
     session.permanent = True
     session['user_id'] = user['id']
     
@@ -274,6 +297,56 @@ def admin_get_product(product_id):
     if not product: return jsonify({'error': 'Product not found'}), 404
     return jsonify(product)
 
+def _sync_inventory(cur, product_id, colors, attributes):
+    """Create inventory rows for every color × attribute combination.
+    Only inserts rows that don't exist yet (existing quantities are preserved).
+    If no colors and no attributes – creates a single 'base' row.
+    """
+    import itertools
+
+    # Build attribute value combinations
+    # attributes is a list of {name: str, values: [str]}
+    attr_value_lists = [a['values'] for a in (attributes or []) if a.get('values')]
+    # All combinations of attribute values (Cartesian product)
+    attr_combos = list(itertools.product(*attr_value_lists)) if attr_value_lists else [()]
+
+    color_list = colors if colors else [None]
+
+    for color in color_list:
+        for combo in attr_combos:
+            attr1 = combo[0] if len(combo) > 0 else None
+            attr2 = combo[1] if len(combo) > 1 else None
+            # Check if exists (handling NULLs correctly for both PG and SQLite)
+            query = "SELECT id FROM product_inventory WHERE product_id = %s"
+            params = [product_id]
+            
+            if color:
+                query += " AND color = %s"
+                params.append(color)
+            else:
+                query += " AND color IS NULL"
+                
+            if attr1:
+                query += " AND attribute1_value = %s"
+                params.append(attr1)
+            else:
+                query += " AND attribute1_value IS NULL"
+                
+            if attr2:
+                query += " AND attribute2_value = %s"
+                params.append(attr2)
+            else:
+                query += " AND attribute2_value IS NULL"
+                
+            cur.execute(query, tuple(params))
+            
+            if not cur.fetchone():
+                cur.execute('''
+                    INSERT INTO product_inventory (product_id, color, attribute1_value, attribute2_value, quantity)
+                    VALUES (%s, %s, %s, %s, 0)
+                ''', (product_id, color, attr1, attr2))
+
+
 @admin_bp.route('/products', methods=['POST'])
 def admin_create_product():
     if not require_admin(): return admin_required_response()
@@ -355,6 +428,30 @@ def admin_delete_product(product_id):
 
 # --- Inventory ---
 
+@admin_bp.route('/inventory/sync-all', methods=['POST'])
+def admin_sync_all_inventory():
+    """Sync inventory for ALL existing products (retroactive fix)."""
+    if not require_admin(): return admin_required_response()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute('SELECT id, colors, attributes FROM products')
+        products = cur.fetchall()
+        synced = 0
+        for p in products:
+            import json as _j
+            colors = p['colors'] if isinstance(p['colors'], list) else (_j.loads(p['colors']) if p['colors'] else [])
+            attrs_raw = p['attributes'] if isinstance(p['attributes'], list) else (_j.loads(p['attributes']) if p['attributes'] else [])
+            _sync_inventory(cur, p['id'], colors, attrs_raw)
+            synced += 1
+        conn.commit()
+        return jsonify({'message': f'Synced inventory for {synced} products'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close(); conn.close()
+
 @admin_bp.route('/inventory', methods=['GET'])
 def admin_get_inventory():
     if not require_admin(): return admin_required_response()
@@ -391,10 +488,39 @@ def admin_get_inventory():
 def admin_add_inventory():
     if not require_admin(): return admin_required_response()
     data = request.json
+    product_id = data.get('product_id')
+    color = data.get('color')
+    attr1 = data.get('attribute1_value')
+    attr2 = data.get('attribute2_value')
+    
+    if not product_id:
+        return jsonify({'error': 'Не указан ID товара'}), 400
     
     conn = get_db_connection()
     cur = conn.cursor()
     try:
+        cur.execute('SELECT colors, attributes FROM products WHERE id = %s', (product_id,))
+        p = cur.fetchone()
+        if not p:
+            return jsonify({'error': 'Товар не найден'}), 404
+            
+        import json as _j
+        colors = p['colors'] if isinstance(p['colors'], list) else (_j.loads(p['colors']) if p['colors'] else [])
+        attrs_raw = p['attributes'] if isinstance(p['attributes'], list) else (_j.loads(p['attributes']) if p['attributes'] else [])
+        if isinstance(attrs_raw, str):
+            attrs_raw = _j.loads(attrs_raw)
+            
+        if colors and len(colors) > 0 and not color:
+            return jsonify({'error': 'Выберите цвет товара'}), 400
+            
+        if len(attrs_raw) > 0 and attrs_raw[0].get('values') and len(attrs_raw[0]['values']) > 0 and not attr1:
+            attr_name = attrs_raw[0].get('name', 'характеристику')
+            return jsonify({'error': f'Выберите {attr_name}'}), 400
+            
+        if len(attrs_raw) > 1 and attrs_raw[1].get('values') and len(attrs_raw[1]['values']) > 0 and not attr2:
+            attr_name = attrs_raw[1].get('name', 'характеристику')
+            return jsonify({'error': f'Выберите {attr_name}'}), 400
+
         cur.execute('''
             INSERT INTO product_inventory (product_id, color, attribute1_value, attribute2_value, quantity, backorder_lead_time_days)
             VALUES (%s, %s, %s, %s, %s, %s)
@@ -402,10 +528,10 @@ def admin_add_inventory():
             DO UPDATE SET quantity = product_inventory.quantity + EXCLUDED.quantity
             RETURNING id
         ''', (
-            data.get('product_id'),
-            data.get('color'),
-            data.get('attribute1_value'),
-            data.get('attribute2_value'),
+            product_id,
+            color if color else None,
+            attr1 if attr1 else None,
+            attr2 if attr2 else None,
             data.get('quantity', 0),
             data.get('backorder_lead_time_days')
         ))
@@ -781,7 +907,6 @@ def admin_delivery_settings():
     if request.method == 'GET':
         return jsonify({
             'delivery_days_in_stock': get_platform_setting('delivery_days_in_stock') or get_platform_setting('default_delivery_days') or 3,
-            'delivery_days_backorder': get_platform_setting('delivery_days_backorder') or 14,
             'enabled': get_platform_setting('delivery_enabled') == 'true'
         })
     
@@ -791,9 +916,6 @@ def admin_delivery_settings():
         # Keep default_delivery_days for backward compatibility if needed
         set_platform_setting('default_delivery_days', str(data.get('delivery_days_in_stock')), False)
     
-    if 'delivery_days_backorder' in data:
-        set_platform_setting('delivery_days_backorder', str(data.get('delivery_days_backorder')), False)
-        
     if 'enabled' in data:
         set_platform_setting('delivery_enabled', str(data.get('enabled')).lower(), False)
         

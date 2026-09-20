@@ -8,6 +8,9 @@ import re
 from datetime import datetime
 from dotenv import load_dotenv
 
+print("AI Bot is disabled in this project.")
+sys.exit(0)
+
 # Форсируем UTF-8 для всего процесса. Фикс для серверов с ASCII locale (Ubuntu).
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
