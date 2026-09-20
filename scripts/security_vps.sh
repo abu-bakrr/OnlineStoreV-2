@@ -223,12 +223,34 @@ else
 fi
 
 # ----------------------------------------------------------------------------
-# 5. ЗАЩИТА СЕКРЕТНЫХ ФАЙЛОВ И ПРАВ ДОСТУПА
+# 5. ЗАЩИТА СЕКРЕТНЫХ ФАЙЛОВ, SSH И ЯДРА LINUX (KERNEL SYN FLOOD DEFENSE)
 # ----------------------------------------------------------------------------
-print_step "5/6. Установка строгих прав на конфиги и секретные ключи..."
+print_step "5/6. Установка строгих прав, защита SSH и настройка ядра Linux против SYN Flood..."
 find /home -name ".env" -exec chmod 600 {} + 2>/dev/null || true
 find /home -name ".secret_key" -exec chmod 600 {} + 2>/dev/null || true
 find /home -type d -name "backups" -exec chmod 700 {} + 2>/dev/null || true
+
+# Оптимизация ядра против TCP SYN Flood DDoS
+cat > /etc/sysctl.d/99-security.conf << 'EOF'
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_max_syn_backlog = 4096
+net.ipv4.tcp_synack_retries = 2
+net.ipv4.tcp_fin_timeout = 15
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.icmp_echo_ignore_broadcasts = 1
+EOF
+sysctl --system >/dev/null 2>&1 || true
+
+# Защита SSH от пустых паролей
+mkdir -p /etc/ssh/sshd_config.d
+cat > /etc/ssh/sshd_config.d/99-hardened.conf << 'EOF'
+PermitEmptyPasswords no
+MaxAuthTries 4
+LoginGraceTime 30
+EOF
+systemctl restart sshd 2>/dev/null || systemctl restart ssh 2>/dev/null || true
+
 
 # ----------------------------------------------------------------------------
 # 6. ИТОГОВЫЙ ОТЧЕТ И СТАТУС БЕЗОПАСНОСТИ

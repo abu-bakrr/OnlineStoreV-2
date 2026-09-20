@@ -12,7 +12,9 @@ orders_bp = Blueprint('orders', __name__)
 def create_order():
     try:
         data = request.json
-        user_id = data.get('user_id')
+        user_id = session.get('user_id') or data.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
         cart_items = data.get('items', [])
         total = data.get('total', 0)
         
